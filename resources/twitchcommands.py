@@ -102,7 +102,7 @@ def gamecontrol():
 	global message
 
 	while True:
-
+		args = message.split(" ")
 		if "!trip" == message.lower():
 			print(message)
 			sendForm("(send-event *target* 'loading)")
