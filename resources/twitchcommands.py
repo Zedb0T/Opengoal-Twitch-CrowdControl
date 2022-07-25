@@ -105,48 +105,46 @@ def gamecontrol():
 		args = message.split(" ")
 		
 		if "!trip" == str(args[0]).lower():
-			print("ARGS 0 IS NDSHFSDN " + args[0])
-			print(message)
 			sendForm("(send-event *target* 'loading)")
 			message = ""
 
-		if "!superjump" == message.lower():
+		if "!superjump" == str(args[0]).lower():
 			sendForm("(if (= (-> *TARGET-bank* jump-height-max)(meters 15.0))(begin (set! (-> *TARGET-bank* jump-height-max)(meters 3.5))(set! (-> *TARGET-bank* jump-height-min)(meters 1.01))(set! (-> *TARGET-bank* double-jump-height-max)(meters 2.5))(set! (-> *TARGET-bank* double-jump-height-min)(meters 1)))(begin (set! (-> *TARGET-bank* jump-height-max)(meters 15.0))(set! (-> *TARGET-bank* jump-height-min)(meters 5.0))(set! (-> *TARGET-bank* double-jump-height-max)(meters 15.0))(set! (-> *TARGET-bank* double-jump-height-min)(meters 5.0))))")
 			message = ""
 
-		if "!pacifist" == message.lower():
+		if "!pacifist" == str(args[0]).lower():
 			sendForm("(if(=(-> *TARGET-bank* punch-radius) 0.0)(begin(set! (-> *TARGET-bank* punch-radius) (meters 1.3))(set! (-> *TARGET-bank* spin-radius) (meters 2.2))(set! (-> *TARGET-bank* flop-radius) (meters 1.4))(set! (-> *TARGET-bank* uppercut-radius) (meters 1)))(begin(set! (-> *TARGET-bank* punch-radius) (meters 0.0))(set! (-> *TARGET-bank* spin-radius) (meters 0.0))(set! (-> *TARGET-bank* flop-radius) (meters 0.0))(set! (-> *TARGET-bank* uppercut-radius) (meters 0.0))))")
 			message = ""
 
-		if "!superboosted" == message.lower():
+		if "!superboosted" == str(args[0]).lower():
 			sendForm("(if (not(=(-> *edge-surface* fric) 1.0))(set! (-> *edge-surface* fric) 1.0)(set! (-> *edge-surface* fric) 30720.0))")
 			message = ""
 
-		if "!noboosteds" == message.lower():
+		if "!noboosteds" == str(args[0]).lower():
 			sendForm("(if (not(=(-> *edge-surface* fric) 1530000.0))(set! (-> *edge-surface* fric) 1530000.0)(set! (-> *edge-surface* fric) 30720.0))")
 			message = ""
 
-		if "!smallnet" == message.lower():
+		if "!smallnet" == str(args[0]).lower():
 			sendForm("(if (=(-> *FISHER-bank* net-radius)(meters 0.0))(set!(-> *FISHER-bank* net-radius)(meters 0.7))(set! (-> *FISHER-bank* net-radius)(meters 0.0)))")
 			message = ""
 
-		if "!widefish" == message.lower():
+		if "!widefish" == str(args[0]).lower():
 			sendForm("(if (=(-> *FISHER-bank* width)(meters 10.0))(set! (-> *FISHER-bank* width)(meters 3.3))(set! (-> *FISHER-bank* width)(meters 10.0)))")
 			message = ""
 
-		if "!melt" == message.lower():
+		if "!melt" == str(args[0]).lower():
 			sendForm("(target-attack-up *target* 'attack 'melt)")
 			message = ""
 
-		if "!endlessfall" == message.lower():
+		if "!endlessfall" == str(args[0]).lower():
 			sendForm("(target-attack-up *target* 'attack 'endlessfall)")
 			message = ""
 
-		if "!burn" == message.lower():
+		if "!burn" == str(args[0]).lower():
 			sendForm("(target-attack-up *target* 'attack 'burnup)")
 			message = ""
 
-		if "!moveplantboss" == message.lower():
+		if "!moveplantboss" == str(args[0]).lower():
 			sendForm("(set! (-> *pc-settings* force-actors?) #t)")
 			time.sleep(0.050)
 			sendForm("(when (process-by-ename \"plant-boss-3\")(set-vector!  (-> (-> (the process-drawable (process-by-ename \"plant-boss-3\"))root)trans) (meters 436.97) (meters -43.99) (meters -347.09) 1.0))")
@@ -155,105 +153,158 @@ def gamecontrol():
 			sendForm("(set! (-> (target-pos 0) x) (meters 431.47))  (set! (-> (target-pos 0) y) (meters -44.00)) (set! (-> (target-pos 0) z) (meters -334.09))")
 			message = ""
 		
-		if "!moveplantboss2" == message.lower():
+		if "!moveplantboss2" == str(args[0]).lower():
 			sendForm("(set! (-> *pc-settings* force-actors?) #t)")
 			time.sleep(0.050)
 			sendForm("(when (process-by-ename \"plant-boss-3\")(set-vector!  (-> (-> (the process-drawable (process-by-ename \"plant-boss-3\"))root)trans) (meters 436.97) (meters -43.99) (meters -347.09) 1.0))")
 			message = ""
 		
-		if "!nopunching" == message.lower():
+		if "!nopunching" == str(args[0]).lower():
 			sendForm("(set! (-> *FACT-bank* eco-full-timeout) (seconds 20 ))(pc-cheat-toggle-and-tune *pc-settings* eco-yellow)")
 			message = ""
 		
-		if "!deload" == message.lower():
+		if "!deload" == str(args[0]).lower():
 			sendForm("(set! (-> *load-state* want 0 display?) #f)")
 			message = ""
 		
-		if "!noeco" == message.lower():
+		if "!noeco" == str(args[0]).lower():
 			sendForm("(send-event *target* 'get-pickup (pickup-type eco-yellow) 0.1)(send-event *target* 'get-pickup (pickup-type eco-red) 0.1)(set! (-> *FACT-bank* eco-full-timeout) (seconds 0.0001 ))")
 			time.sleep(10)
 			sendForm("(set! (-> *FACT-bank* eco-full-timeout) (seconds 20))")
 			message = ""
 			
-		if "!gotolevel" == str(args[0]).lower():
-			print("(start 'play (get-continue-by-name *game-info* \""+str(args[1])+"\"))")
-			print("(start 'play (get-continue-by-name *game-info* \""+str(args[1])+"\"))")
-			print("(start 'play (get-continue-by-name *game-info* \""+str(args[1])+"\"))")
-			sendForm("(start 'play (get-continue-by-name *game-info* \""+str(args[1])+"\"))")
-			message = ""
-			
-		if "!randomcheckpoint" == message.lower():
+		if "!randomcheckpoint" == str(args[0]).lower():
 			sendForm("")
 			message = ""
 		
-		if "!getoff" == message.lower():
+		if "!getoff" == str(args[0]).lower():
 			sendForm("(send-event *target* 'end-mode)")
 			message = ""
 		
-		if "!dax" == message.lower():
+		if "!dax" == str(args[0]).lower():
 			sendForm("(send-event *target* 'sidekick (not (not (send-event *target* 'sidekick #t))))")
 			message = ""
 		
-		if "!ouch" == message.lower():
+		if "!ouch" == str(args[0]).lower():
 			sendForm("(send-event *target* 'attack #t (new 'static 'attack-info))")
 			message = ""
 		
-		if "!lod" == message.lower():
+		if "!lod" == str(args[0]).lower():
 			sendForm("(if (= (-> *pc-settings* lod-force-tfrag) 2)(begin(set! (-> *pc-settings* lod-force-tfrag) 0)(set! (-> *pc-settings* lod-force-tie) 0)(set! (-> *pc-settings* lod-force-ocean) 0)(set! (-> *pc-settings* lod-force-actor) 0))(begin(set! (-> *pc-settings* lod-force-tfrag) 2)(set! (-> *pc-settings* lod-force-tie) 3)(set! (-> *pc-settings* lod-force-ocean) 2)(set! (-> *pc-settings* lod-force-actor) 3)))")
 			message = ""
 		
-		if "!dark" == message.lower():
+		if "!dark" == str(args[0]).lower():
 			sendForm("(if (not (= (-> (level-get-target-inside *level*) mood-func)update-mood-finalboss)) (set! (-> (level-get-target-inside *level*) mood-func)update-mood-finalboss) (set! (-> (level-get-target-inside *level*) mood-func)update-mood-training))")
 			message = ""
 		
-		if "!heal" == message.lower():
+		if "!heal" == str(args[0]).lower():
 			sendForm("(send-event *target* 'get-pickup 4 1.0)")
 			message = ""
 		
-		if "!fastjak" == message.lower():
+		if "!fastjak" == str(args[0]).lower():
 			sendForm("(if (not(=(-> *jump-attack-mods* target-speed) 99999.0))(begin(if (=(-> *walk-mods* target-speed) 20000.0)(pc-cheat-toggle-and-tune *pc-settings* eco-yellow))(set! (-> *walk-mods* target-speed) 99999.0)(set! (-> *double-jump-mods* target-speed) 99999.0)(set! (-> *jump-mods* target-speed) 99999.0)(set! (-> *jump-attack-mods* target-speed) 99999.0)(set! (-> *attack-mods* target-speed) 99999.0)(set! (-> *TARGET-bank* wheel-flip-dist) (meters 17.3)))(begin(set! (-> *walk-mods* target-speed) 40960.0)(set! (-> *double-jump-mods* target-speed) 32768.0)(set! (-> *jump-mods* target-speed) 40960.0)(set! (-> *jump-attack-mods* target-speed) 24576.0)(set! (-> *attack-mods* target-speed) 40960.0)(set! (-> *TARGET-bank* wheel-flip-dist) (meters 17.3))))")
 			message = ""
 		
-		if "!slowjak" == message.lower():
+		if "!slowjak" == str(args[0]).lower():
 			sendForm("(if (not(=(-> *jump-attack-mods* target-speed) 20000.0))(begin(set! (-> *walk-mods* target-speed) 20000.0)(set! (-> *double-jump-mods* target-speed) 20000.0)(set! (-> *jump-mods* target-speed) 20000.0)(set! (-> *jump-attack-mods* target-speed) 2000.0)(set! (-> *attack-mods* target-speed) 20000.0)(set! (-> *TARGET-bank* wheel-flip-dist) (meters 0)))(begin(set! (-> *walk-mods* target-speed) 40960.0)(set! (-> *double-jump-mods* target-speed) 32768.0)(set! (-> *jump-mods* target-speed) 40960.0)(set! (-> *jump-attack-mods* target-speed) 24576.0)(set! (-> *attack-mods* target-speed) 40960.0)(set! (-> *TARGET-bank* wheel-flip-dist) (meters 17.3))))(pc-cheat-toggle-and-tune *pc-settings* eco-yellow)")
 			message = ""
 		
-		if "!actorson" == message.lower():
+		if "!actorson" == str(args[0]).lower():
 			sendForm("(set! (-> *pc-settings* force-actors?) #t)")
 			message = ""
 		
-		if "!actorsoff" == message.lower():
+		if "!actorsoff" == str(args[0]).lower():
 			sendForm("(set! (-> *pc-settings* force-actors?) #f)")
 			message = ""
 		
-		if "!debug" == message.lower():
+		if "!debug" == str(args[0]).lower():
 			sendForm("(set! *debug-segment* (not *debug-segment*))(set! *cheat-mode* (not *cheat-mode*))")
 			message = ""
 		
-		if "!shortfall" == message.lower():
+		if "!shortfall" == str(args[0]).lower():
 			sendForm("(if (= (-> *TARGET-bank* fall-far) (meters 1))(begin(set! (-> *TARGET-bank* fall-far) (meters 30))(set! (-> *TARGET-bank* fall-far-inc) (meters 20)))(begin (set! (-> *TARGET-bank* fall-far) (meters 1))(set! (-> *TARGET-bank* fall-far-inc) (meters 1))))")
 			message = ""
 		
-		if "!basincell" == message.lower():
+		if "!basincell" == str(args[0]).lower():
 			sendForm("(if (when (process-by-ename \"fuel-cell-45\") (= (-> (->(the process-drawable (process-by-ename \"fuel-cell-45\"))root)trans x)  (meters -266.54)))(when (process-by-ename \"fuel-cell-45\")(set-vector!  (-> (-> (the process-drawable (process-by-ename \"fuel-cell-45\"))root)trans) (meters -248.92) (meters 52.11) (meters -1515.66) 1.0))(when (process-by-ename \"fuel-cell-45\")(set-vector!  (-> (-> (the process-drawable (process-by-ename \"fuel-cell-45\"))root)trans) (meters -266.54) (meters 52.11) (meters -1508.48) 1.0)))")
 			message = ""
 		
-		if "!frickstorage" == message.lower():
+		if "!frickstorage" == str(args[0]).lower():
 			sendForm("(stop 'debug)")
 			time.sleep(0.001)
 			sendForm("(start 'debug (get-or-create-continue! *game-info*))")
 			message = ""
 		
-		if "!freecam" == message.lower():
+		if "!freecam" == str(args[0]).lower():
 			sendForm("(stop 'debug)")
 			time.sleep(6)
 			sendForm("(start 'play (get-or-create-continue! *game-info*))")
 			message = ""
 		
-		if "!invertcam" == message.lower():
+		if "!invertcam" == str(args[0]).lower():
 			sendForm("(stop 'debug)")
 			time.sleep(6)
-			sendForm("(set! (-> *pc-settings* " + arg(1) + "-camera-" + arg(2) + "-inverted?) (not (-> *pc-settings* " + arg(1) + "-camera-" + arg(2) + "-inverted?)))")
+			sendForm("(set! (-> *pc-settings* " + str(args[1]) + "-camera-" + str(args[2]) + "-inverted?) (not (-> *pc-settings* " + str(args[1]) + "-camera-" + str(args[2]) + "-inverted?)))")
+			message = ""
+			
+		if "!gotolevel" == str(args[0]).lower() or "!gotopoint" == str(args[0]).lower():
+			sendForm("(start 'play (get-continue-by-name *game-info* \"" + str(args[1]) + "\"))")
+			message = ""
+		
+		if "!rjto" == str(args[0]).lower():
+			sendForm("(set! (-> *TARGET-bank* wheel-flip-dist) (meters " + float(args[1]) + "))")
+			message = ""
+			
+		if "!movetojak" == str(args[0]).lower():
+			sendForm("(when (process-by-ename \"" + str(args[1]) + "\")(set-vector!  (-> (-> (the process-drawable (process-by-ename \"" + str(args[1]) + "\"))root)trans) (-> (target-pos 0) x) (-> (target-pos 0) y) (-> (target-pos 0) z) 1.0))")
+			message = ""
+			
+		if "!eco" == str(args[0]).lower():
+			sendForm("(send-event *target* 'get-pickup (pickup-type eco-" + str(args[1]) + ") 5.0)")
+			message = ""
+		
+		if "!heatmax" == str(args[0]).lower():
+			sendForm("(set! (-> *RACER-bank* heat-max) " + float(args[1]) + ")")
+			message = ""
+			
+		if "!iframes" == str(args[0]).lower():
+			sendForm("(set! (-> *TARGET-bank* hit-invulnerable-timeout) (seconds " + float(args[1]) + "))")
+			message = ""
+			
+		if "!give" == str(args[0]).lower():
+			sendForm("(set! (-> *game-info* " + str(args[1]) + ") (+ (-> *game-info* " + str(args[1]) + ") " + float(args[2]) + "))")
+			message = ""
+			
+		if "!setcollected" == str(args[0]).lower():
+			sendForm("(set! (-> *game-info* " + str(args[1]) + ") " + float(args[2]) + ")")
+			message = ""
+			
+		if "!enemyspeed" == str(args[0]).lower():
+			sendForm("(set! (-> *" + str(args[1]) + "-nav-enemy-info* run-travel-speed) (meters " + float(args[2]) + "))")
+			message = ""
+			
+		if "!tp" == str(args[0]).lower():
+			sendForm("(set! (-> (target-pos 0) x) (meters " + float(args[1]) + "))  (set! (-> (target-pos 0) y) (meters " + float(args[2]) + ")) (set! (-> (target-pos 0) z) (meters " + float(args[3]) + "))")
+			message = ""
+			
+		if "!shift" == str(args[0]).lower():
+			sendForm("(set! (-> (target-pos 0) x) (+ (-> (target-pos 0) x)(meters " + float(args[1]) + ")))  (set! (-> (target-pos 0) y) (+ (-> (target-pos 0) y)(meters " + float(args[2]) + "))) (set! (-> (target-pos 0) z) (+ (-> (target-pos 0) z)(meters " + float(args[3]) + ")))")
+			message = ""
+		
+		if "!loadlevel" == str(args[0]).lower():
+			sendForm("(set! (-> *load-state* want 1 name) '" + str(args[1]) + ")(set! (-> *load-state* want 1 display?) 'display)")
+			message = ""
+			
+		if "!sucksuck" == str(args[0]).lower() or "!setsucksuck" == str(args[0]).lower():
+			sendForm("(set! (-> *FACT-bank* suck-suck-dist) (meters " + float(args[1]) + "))(set! (-> *FACT-bank* suck-bounce-dist) (meters " + float(args[1]) + "))")
+			message = ""
+			
+		if "!setecotime" == str(args[0]).lower() or "!ecotime" == str(args[0]).lower():
+			sendForm("(set! (-> *FACT-bank* eco-full-timeout) (seconds " + float(args[1]) + "))")
+			message = ""
+			
+		if "!setflutflut" == str(args[0]).lower() or "!flutspeed" == str(args[0]).lower():
+			sendForm("(set! (-> *flut-walk-mods* target-speed)(meters " + str(args[1]) + "))")
 			message = ""
 			
 
