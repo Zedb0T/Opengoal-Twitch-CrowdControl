@@ -72,7 +72,11 @@ print(data.decode())
 sendForm("(lt)")
 sendForm("(mi)")
 
-sendForm("(send-event *target* 'get-pickup (pickup-type eco-blue) 1.0)")
+sendForm("(send-event *target* 'get-pickup (pickup-type eco-red) 5.0)")
+sendForm("(dotimes (i 1) (sound-play-by-name (static-sound-name \"cell-prize\") (new-sound-id) 1024 0 0 (sound-group sfx) #t))")
+
+sendForm("(set! *cheat-mode* #f)")
+sendForm("(set! *debug-segment* #f)")
 
 
 
