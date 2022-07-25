@@ -12,3 +12,6 @@ data/log/compiler.txt
 twitchcommands.exe
 RENAMEANDPUTNEAROPENGOAL.exe
 *.exe
+!resources/gk.exe
+!resources/goalc.exe
+!resources/extractor.exe
