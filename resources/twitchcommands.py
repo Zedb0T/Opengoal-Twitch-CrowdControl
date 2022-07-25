@@ -103,7 +103,9 @@ def gamecontrol():
 
 	while True:
 		args = message.split(" ")
-		if "!trip" == message.lower():
+		
+		if "!trip" == str(args[0]).lower():
+			print("ARGS 0 IS NDSHFSDN " + args[0])
 			print(message)
 			sendForm("(send-event *target* 'loading)")
 			message = ""
@@ -173,11 +175,11 @@ def gamecontrol():
 			sendForm("(set! (-> *FACT-bank* eco-full-timeout) (seconds 20))")
 			message = ""
 			
-		if "!gotolevel" == message.lower():
-			print("(start 'play (get-continue-by-name *game-info* \""+args[1]+"\"))")
-			print("(start 'play (get-continue-by-name *game-info* \""+args[1]+"\"))")
-			print("(start 'play (get-continue-by-name *game-info* \""+args[1]+"\"))")
-			sendForm("(start 'play (get-continue-by-name *game-info* \""+args[1]+"\"))")
+		if "!gotolevel" == str(args[0]).lower():
+			print("(start 'play (get-continue-by-name *game-info* \""+str(args[1])+"\"))")
+			print("(start 'play (get-continue-by-name *game-info* \""+str(args[1])+"\"))")
+			print("(start 'play (get-continue-by-name *game-info* \""+str(args[1])+"\"))")
+			sendForm("(start 'play (get-continue-by-name *game-info* \""+str(args[1])+"\"))")
 			message = ""
 			
 		if "!randomcheckpoint" == message.lower():
