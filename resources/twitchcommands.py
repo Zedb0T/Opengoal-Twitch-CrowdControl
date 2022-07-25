@@ -86,7 +86,7 @@ PORT = 6667
 #What you'd like to name your bot
 BOT = "TwitchBot"
 #The channel you want to monitor
-CHANNEL = str(os.getenv("TARGETCHANNEL"))
+CHANNEL = str(os.getenv("TARGETCHANNEL")).lower()
 
 message = ""
 user = ""
