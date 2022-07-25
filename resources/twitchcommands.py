@@ -103,7 +103,7 @@ def gamecontrol():
 
 	while True:
 
-		if "!trip" == message.lower():
+		if "!trip" == args[0].lower():
 			print(message)
 			sendForm("(send-event *target* 'loading)")
 			message = ""
@@ -172,7 +172,14 @@ def gamecontrol():
 			time.sleep(10)
 			sendForm("(set! (-> *FACT-bank* eco-full-timeout) (seconds 20))")
 			message = ""
-		
+			
+		if "!gotolevel" == args[0].lower():
+			print("(start 'play (get-continue-by-name *game-info* \""+args[1]+"\"))")
+			print("(start 'play (get-continue-by-name *game-info* \""+args[1]+"\"))")
+			print("(start 'play (get-continue-by-name *game-info* \""+args[1]+"\"))")
+			sendForm("(start 'play (get-continue-by-name *game-info* \""+args[1]+"\"))")
+			message = ""
+			
 		if "!randomcheckpoint" == message.lower():
 			sendForm("")
 			message = ""
@@ -319,7 +326,9 @@ def twitch():
 				try:
 					user = getUser(line)
 					message = getMessage(line)
-					print(user + " : " + message)
+					print("message is " + message)
+					args = message.split(" ")
+					print(args[1])
 				except Exception:
 					pass
 
