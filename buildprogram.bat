@@ -12,8 +12,9 @@ IF /I "%AREYOUSURE%" NEQ "Y" GOTO asyncio
 pip install ahk
 :asyncio
 SET /P AREYOUSURE=Install asyncio (Y/[N])?
-IF /I "%AREYOUSURE%" NEQ "Y" GOTO asyncio
+IF /I "%AREYOUSURE%" NEQ "Y" GOTO install
 pip install asyncio
+:install
 set mypath=%~dp0
 pyinstaller --onefile resources\twitchcommands.py --add-data "C:\Users\%USERNAME%\AppData\Local\Programs\Python\Python310\Lib\site-packages\ahk";ahk --icon resources\appicon.ico 
 move "%mypath%dist\twitchcommands.exe" "%mypath%/"
