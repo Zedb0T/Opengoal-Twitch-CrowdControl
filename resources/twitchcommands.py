@@ -208,7 +208,7 @@ def gamecontrol():
 			sendForm("(send-event *target* 'attack #t (new 'static 'attack-info))")
 			message = ""
 		
-		if "lod" == message.lower():
+		if "!lod" == message.lower():
 			sendForm("(if (= (-> *pc-settings* lod-force-tfrag) 2)(begin(set! (-> *pc-settings* lod-force-tfrag) 0)(set! (-> *pc-settings* lod-force-tie) 0)(set! (-> *pc-settings* lod-force-ocean) 0)(set! (-> *pc-settings* lod-force-actor) 0))(begin(set! (-> *pc-settings* lod-force-tfrag) 2)(set! (-> *pc-settings* lod-force-tie) 3)(set! (-> *pc-settings* lod-force-ocean) 2)(set! (-> *pc-settings* lod-force-actor) 3)))")
 			message = ""
 		
