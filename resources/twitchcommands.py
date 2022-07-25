@@ -242,9 +242,11 @@ def gamecontrol():
 			message = ""
 		
 		if "!invertcam" == str(args[0]).lower():
-			sendForm("(stop 'debug)")
-			time.sleep(6)
 			sendForm("(set! (-> *pc-settings* " + str(args[1]) + "-camera-" + str(args[2]) + "-inverted?) (not (-> *pc-settings* " + str(args[1]) + "-camera-" + str(args[2]) + "-inverted?)))")
+			message = ""
+			
+		if "!normalcam" == str(args[0]).lower():
+			sendForm("(set! (-> *pc-settings* third-camera-h-inverted?) #t)(set! (-> *pc-settings* third-camera-v-inverted?) #t)(set! (-> *pc-settings* first-camera-v-inverted?) #t)(set! (-> *pc-settings* first-camera-h-inverted?) #f)")
 			message = ""
 			
 		if "!gotolevel" == str(args[0]).lower() or "!gotopoint" == str(args[0]).lower():
@@ -252,7 +254,7 @@ def gamecontrol():
 			message = ""
 		
 		if "!rjto" == str(args[0]).lower():
-			sendForm("(set! (-> *TARGET-bank* wheel-flip-dist) (meters " + float(args[1]) + "))")
+			sendForm("(set! (-> *TARGET-bank* wheel-flip-dist) (meters " + str(float(args[1])) + "))")
 			message = ""
 			
 		if "!movetojak" == str(args[0]).lower():
@@ -264,31 +266,31 @@ def gamecontrol():
 			message = ""
 		
 		if "!heatmax" == str(args[0]).lower():
-			sendForm("(set! (-> *RACER-bank* heat-max) " + float(args[1]) + ")")
+			sendForm("(set! (-> *RACER-bank* heat-max) " + str(str(float(args[1]))) + ")")
 			message = ""
 			
 		if "!iframes" == str(args[0]).lower():
-			sendForm("(set! (-> *TARGET-bank* hit-invulnerable-timeout) (seconds " + float(args[1]) + "))")
+			sendForm("(set! (-> *TARGET-bank* hit-invulnerable-timeout) (seconds " + str(float(args[1])) + "))")
 			message = ""
 			
 		if "!give" == str(args[0]).lower():
-			sendForm("(set! (-> *game-info* " + str(args[1]) + ") (+ (-> *game-info* " + str(args[1]) + ") " + float(args[2]) + "))")
+			sendForm("(set! (-> *game-info* " + str(args[1]) + ") (+ (-> *game-info* " + str(args[1]) + ") " + str(float(args[2])) + "))")
 			message = ""
 			
 		if "!setcollected" == str(args[0]).lower():
-			sendForm("(set! (-> *game-info* " + str(args[1]) + ") " + float(args[2]) + ")")
+			sendForm("(set! (-> *game-info* " + str(args[1]) + ") " + str(float(args[2])) + ")")
 			message = ""
 			
 		if "!enemyspeed" == str(args[0]).lower():
-			sendForm("(set! (-> *" + str(args[1]) + "-nav-enemy-info* run-travel-speed) (meters " + float(args[2]) + "))")
+			sendForm("(set! (-> *" + str(args[1]) + "-nav-enemy-info* run-travel-speed) (meters " + str(float(args[2])) + "))")
 			message = ""
 			
 		if "!tp" == str(args[0]).lower():
-			sendForm("(set! (-> (target-pos 0) x) (meters " + float(args[1]) + "))  (set! (-> (target-pos 0) y) (meters " + float(args[2]) + ")) (set! (-> (target-pos 0) z) (meters " + float(args[3]) + "))")
+			sendForm("(set! (-> (target-pos 0) x) (meters " + str(float(args[1])) + "))  (set! (-> (target-pos 0) y) (meters " + str(float(args[2])) + ")) (set! (-> (target-pos 0) z) (meters " + str(float(args[3])) + "))")
 			message = ""
 			
 		if "!shift" == str(args[0]).lower():
-			sendForm("(set! (-> (target-pos 0) x) (+ (-> (target-pos 0) x)(meters " + float(args[1]) + ")))  (set! (-> (target-pos 0) y) (+ (-> (target-pos 0) y)(meters " + float(args[2]) + "))) (set! (-> (target-pos 0) z) (+ (-> (target-pos 0) z)(meters " + float(args[3]) + ")))")
+			sendForm("(set! (-> (target-pos 0) x) (+ (-> (target-pos 0) x)(meters " + str(float(args[1])) + ")))  (set! (-> (target-pos 0) y) (+ (-> (target-pos 0) y)(meters " + str(float(args[2])) + "))) (set! (-> (target-pos 0) z) (+ (-> (target-pos 0) z)(meters " + str(float(args[3])) + ")))")
 			message = ""
 		
 		if "!loadlevel" == str(args[0]).lower():
@@ -296,11 +298,11 @@ def gamecontrol():
 			message = ""
 			
 		if "!sucksuck" == str(args[0]).lower() or "!setsucksuck" == str(args[0]).lower():
-			sendForm("(set! (-> *FACT-bank* suck-suck-dist) (meters " + float(args[1]) + "))(set! (-> *FACT-bank* suck-bounce-dist) (meters " + float(args[1]) + "))")
+			sendForm("(set! (-> *FACT-bank* suck-suck-dist) (meters " + str(float(args[1])) + "))(set! (-> *FACT-bank* suck-bounce-dist) (meters " + str(float(args[1])) + "))")
 			message = ""
 			
 		if "!setecotime" == str(args[0]).lower() or "!ecotime" == str(args[0]).lower():
-			sendForm("(set! (-> *FACT-bank* eco-full-timeout) (seconds " + float(args[1]) + "))")
+			sendForm("(set! (-> *FACT-bank* eco-full-timeout) (seconds " + str(float(args[1])) + "))")
 			message = ""
 			
 		if "!setflutflut" == str(args[0]).lower() or "!flutspeed" == str(args[0]).lower():
@@ -380,8 +382,6 @@ def twitch():
 					user = getUser(line)
 					message = getMessage(line)
 					print("message is " + message)
-					args = message.split(" ")
-					print(args[1])
 				except Exception:
 					pass
 
