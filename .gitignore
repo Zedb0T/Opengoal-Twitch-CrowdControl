@@ -2,11 +2,11 @@ dist/*
 build/*
 .env
 twitchcommands.spec
-data/decompiler_out/*
-data/iso_data/*
-data/log/game.txt
-data/extractor.log
-data/out/*
+resources/data/decompiler_out/*
+resources/data/iso_data/*
+resources/data/log/game.txt
+resources/data/extractor.log
+resources/data/out/*
 appicon.png
 data/log/compiler.txt
 twitchcommands.exe
