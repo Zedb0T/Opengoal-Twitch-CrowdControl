@@ -103,7 +103,7 @@ def gamecontrol():
 
 	while True:
 
-		if "!trip" == args[0].lower():
+		if "!trip" == message.lower():
 			print(message)
 			sendForm("(send-event *target* 'loading)")
 			message = ""
@@ -173,7 +173,7 @@ def gamecontrol():
 			sendForm("(set! (-> *FACT-bank* eco-full-timeout) (seconds 20))")
 			message = ""
 			
-		if "!gotolevel" == args[0].lower():
+		if "!gotolevel" == message.lower():
 			print("(start 'play (get-continue-by-name *game-info* \""+args[1]+"\"))")
 			print("(start 'play (get-continue-by-name *game-info* \""+args[1]+"\"))")
 			print("(start 'play (get-continue-by-name *game-info* \""+args[1]+"\"))")
