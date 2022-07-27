@@ -1,7 +1,5 @@
-from ast import arg
 import socket
 import threading
-from ahk import AHK
 import os
 import struct
 import subprocess
