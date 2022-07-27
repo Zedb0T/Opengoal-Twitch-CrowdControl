@@ -3,10 +3,7 @@
 
 [![Github All Releases](https://img.shields.io/github/downloads/zedb0t/Opengoal-Twitch-CrowdControl/total.svg)]()  
 You need the following in this order:  
-Python : https://www.python.org/downloads/ (MAKE SURE TO ADD PYTHON TO PATH OPTION)   
-Autohotkey: https://www.autohotkey.com/  
-Create a file named `.env` with the same fields as EXAMPLE.env make sure to configure the fields in your `.env` file (you can open with notepad)  
-Open `buildprogram.bat` and follow the prompts to install the rest of the dependecies and build your twitchintegration program.  
 Rename `RENAMEANDPUTNEAROPENGOAL.exe` so you know what channel it listens for commands in  
-Place `RENAMEANDPUTNEAROPENGOAL.exe` and the `.env` file you created inside of a folder next to `gk.exe` and `goalc.exe`  
+Place `RENAMEANDPUTNEAROPENGOAL.exe` and the `.env` file you downloaded inside of a folder next to `gk.exe` and `goalc.exe`  
+Modify the contents of `.env` so that it listens for commands in your channel by opening it with notepad making changes and then saving, make sure to save as ALL FILE TYPES If you do not change this it will save it as `.env.txt` and not work. 
 Open Your twitchintegration program and it should automatically open `gk` and `goalc` and connect to twitch, now you are good to go!  
