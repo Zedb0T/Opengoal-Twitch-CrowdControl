@@ -1,4 +1,7 @@
  # Opengoal-Twitch-CrowdControl  
+ [Download latest](https://github.com/zedb0t/opengoal-checkpointrandomizer/releases/latest/download/Opengoal-Twitch-CrowdControl.zip)    
+
+[![Github All Releases](https://img.shields.io/github/downloads/zedb0t/Opengoal-Twitch-CrowdControl/total.svg)]()  
 You need the following in this order:  
 Python : https://www.python.org/downloads/ (MAKE SURE TO ADD PYTHON TO PATH OPTION)   
 Autohotkey: https://www.autohotkey.com/  
