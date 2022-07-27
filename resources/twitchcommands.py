@@ -29,10 +29,10 @@ print(application_path)
 OAUTH = str(os.getenv("OAUTH"))
 PATHTOGOALC = application_path + "\goalc.exe"
 PATHTOGK = application_path + "\gk.exe -boot -fakeiso -debug -v"
-PATHTOAHK = str(os.getenv("PATHTOAHK"))
+
 CONNECTIONMESSAGE = str(os.getenv("CONNECTIONMESSAGE"))
 MOTD = "u playing jak?"
-COMMANDMODS = ["zed_b0t", "mikegamepro", "water112"]
+COMMANDMODS = ["zed_b0t", "mikegamepro", "water112", "barg034"]
 #GPATH = r"c:\Users\Yop\source\repos\jak-project"
 
 #
@@ -76,7 +76,7 @@ sendForm("(set! *cheat-mode* #f)")
 sendForm("(set! *debug-segment* #f)")
 #End Int block
 
-ahk = AHK(executable_path=PATHTOAHK)
+
 
 SERVER = "irc.twitch.tv"
 PORT = 6667
