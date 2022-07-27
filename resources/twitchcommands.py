@@ -32,6 +32,7 @@ PATHTOGK = application_path + "\gk.exe -boot -fakeiso -debug -v"
 PATHTOAHK = str(os.getenv("PATHTOAHK"))
 CONNECTIONMESSAGE = str(os.getenv("CONNECTIONMESSAGE"))
 MOTD = "u playing jak?"
+COMMANDMODS = ["zed_b0t", "mikegamepro", "water112"]
 #GPATH = r"c:\Users\Yop\source\repos\jak-project"
 
 #
@@ -84,7 +85,7 @@ PORT = 6667
 
 
 #What you'd like to name your bot
-BOT = "TwitchBot"
+BOT = "jakopengoalbot"
 #The channel you want to monitor
 CHANNEL = str(os.getenv("TARGETCHANNEL")).lower()
 
@@ -254,7 +255,7 @@ def gamecontrol():
 			message = ""
 		
 		if "!rjto" == str(args[0]).lower():
-			sendForm("(set! (-> *TARGET-bank* wheel-flip-dist) (meters " + str(float(args[1])) + "))")
+			sendForm("(set! (-> *TARGET-bank* wheel-flip-dist) (meters " + str(args[1]) + "))")
 			message = ""
 			
 		if "!movetojak" == str(args[0]).lower():
@@ -266,31 +267,31 @@ def gamecontrol():
 			message = ""
 		
 		if "!heatmax" == str(args[0]).lower():
-			sendForm("(set! (-> *RACER-bank* heat-max) " + str(str(float(args[1]))) + ")")
+			sendForm("(set! (-> *RACER-bank* heat-max) " + str(args[1]) + ")")
 			message = ""
 			
 		if "!iframes" == str(args[0]).lower():
-			sendForm("(set! (-> *TARGET-bank* hit-invulnerable-timeout) (seconds " + str(float(args[1])) + "))")
+			sendForm("(set! (-> *TARGET-bank* hit-invulnerable-timeout) (seconds " + str(args[1]) + "))")
 			message = ""
 			
 		if "!give" == str(args[0]).lower():
-			sendForm("(set! (-> *game-info* " + str(args[1]) + ") (+ (-> *game-info* " + str(args[1]) + ") " + str(float(args[2])) + "))")
+			sendForm("(set! (-> *game-info* " + str(args[1]) + ") (+ (-> *game-info* " + str(args[1]) + ") " + str(args[2]) + "))")
 			message = ""
 			
 		if "!setcollected" == str(args[0]).lower():
-			sendForm("(set! (-> *game-info* " + str(args[1]) + ") " + str(float(args[2])) + ")")
+			sendForm("(set! (-> *game-info* " + str(args[1]) + ") " + str(args[2]) + ")")
 			message = ""
 			
 		if "!enemyspeed" == str(args[0]).lower():
-			sendForm("(set! (-> *" + str(args[1]) + "-nav-enemy-info* run-travel-speed) (meters " + str(float(args[2])) + "))")
+			sendForm("(set! (-> *" + str(args[1]) + "-nav-enemy-info* run-travel-speed) (meters " + str(args[2]) + "))")
 			message = ""
 			
 		if "!tp" == str(args[0]).lower():
-			sendForm("(set! (-> (target-pos 0) x) (meters " + str(float(args[1])) + "))  (set! (-> (target-pos 0) y) (meters " + str(float(args[2])) + ")) (set! (-> (target-pos 0) z) (meters " + str(float(args[3])) + "))")
+			sendForm("(set! (-> (target-pos 0) x) (meters " + str(args[1]) + "))  (set! (-> (target-pos 0) y) (meters " + str(args[2]) + ")) (set! (-> (target-pos 0) z) (meters " + str(args[3]) + "))")
 			message = ""
 			
 		if "!shift" == str(args[0]).lower():
-			sendForm("(set! (-> (target-pos 0) x) (+ (-> (target-pos 0) x)(meters " + str(float(args[1])) + ")))  (set! (-> (target-pos 0) y) (+ (-> (target-pos 0) y)(meters " + str(float(args[2])) + "))) (set! (-> (target-pos 0) z) (+ (-> (target-pos 0) z)(meters " + str(float(args[3])) + ")))")
+			sendForm("(set! (-> (target-pos 0) x) (+ (-> (target-pos 0) x)(meters " + str(args[1]) + ")))  (set! (-> (target-pos 0) y) (+ (-> (target-pos 0) y)(meters " + str(args[2]) + "))) (set! (-> (target-pos 0) z) (+ (-> (target-pos 0) z)(meters " + str(args[3]) + ")))")
 			message = ""
 		
 		if "!loadlevel" == str(args[0]).lower():
@@ -298,16 +299,24 @@ def gamecontrol():
 			message = ""
 			
 		if "!sucksuck" == str(args[0]).lower() or "!setsucksuck" == str(args[0]).lower():
-			sendForm("(set! (-> *FACT-bank* suck-suck-dist) (meters " + str(float(args[1])) + "))(set! (-> *FACT-bank* suck-bounce-dist) (meters " + str(float(args[1])) + "))")
+			sendForm("(set! (-> *FACT-bank* suck-suck-dist) (meters " + str(args[1]) + "))(set! (-> *FACT-bank* suck-bounce-dist) (meters " + str(args[1]) + "))")
 			message = ""
 			
 		if "!setecotime" == str(args[0]).lower() or "!ecotime" == str(args[0]).lower():
-			sendForm("(set! (-> *FACT-bank* eco-full-timeout) (seconds " + str(float(args[1])) + "))")
+			sendForm("(set! (-> *FACT-bank* eco-full-timeout) (seconds " + str(args[1]) + "))")
 			message = ""
 			
 		if "!setflutflut" == str(args[0]).lower() or "!flutspeed" == str(args[0]).lower():
 			sendForm("(set! (-> *flut-walk-mods* target-speed)(meters " + str(args[1]) + "))")
 			message = ""
+			
+		if str(args[0]) == "!repl":
+			if COMMANDMODS.count(user) == 1:
+				args = message.split(" ", 1)
+				sendForm(str(args[1]))
+				message = ""
+			if COMMANDMODS.count(user) != 1:
+				message = ""
 			
 
 def twitch():
