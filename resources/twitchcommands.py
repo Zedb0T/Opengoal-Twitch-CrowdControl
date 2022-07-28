@@ -157,7 +157,7 @@ def gamecontrol():
 			sendForm("(target-attack-up *target* 'attack 'burnup)")
 			message = ""
 			
-		if PREFIX + "hp" == str(args[0]).lower():
+		if PREFIX + "hp" == str(args[0]).lower() and len(args) >= 2:
 			sendForm("(set! (-> (the-as fact-info-target (-> *target* fact))health) (+ 0.0 " + str(args[1]) + "))")
 			message = ""
 
@@ -256,7 +256,7 @@ def gamecontrol():
 			sendForm("(start 'play (get-or-create-continue! *game-info*))")
 			message = ""
 		
-		if PREFIX + "invertcam" == str(args[0]).lower():
+		if PREFIX + "invertcam" == str(args[0]).lower() and len(args) >= 3:
 			sendForm("(set! (-> *pc-settings* " + str(args[1]) + "-camera-" + str(args[2]) + "-inverted?) (not (-> *pc-settings* " + str(args[1]) + "-camera-" + str(args[2]) + "-inverted?)))")
 			message = ""
 			
@@ -268,67 +268,67 @@ def gamecontrol():
 			sendForm("(start 'play (get-continue-by-name *game-info* \"" + str(random.choice(point_list)) + "\"))")
 			message = ""
 			
-		if PREFIX + "gotolevel" == str(args[0]).lower() or PREFIX + "gotopoint" == str(args[0]).lower():
+		if (PREFIX + "gotolevel" == str(args[0]).lower() or PREFIX + "gotopoint" == str(args[0]).lower()) and len(args) >= 2:
 			sendForm("(start 'play (get-continue-by-name *game-info* \"" + str(args[1]) + "\"))")
 			message = ""
 		
-		if PREFIX + "rjto" == str(args[0]).lower():
+		if PREFIX + "rjto" == str(args[0]).lower() and len(args) >= 2:
 			sendForm("(set! (-> *TARGET-bank* wheel-flip-dist) (meters " + str(args[1]) + "))")
 			message = ""
 			
-		if PREFIX + "movetojak" == str(args[0]).lower():
+		if PREFIX + "movetojak" == str(args[0]).lower() and len(args) >= 2:
 			sendForm("(when (process-by-ename \"" + str(args[1]) + "\")(set-vector!  (-> (-> (the process-drawable (process-by-ename \"" + str(args[1]) + "\"))root)trans) (-> (target-pos 0) x) (-> (target-pos 0) y) (-> (target-pos 0) z) 1.0))")
 			message = ""
 			
-		if PREFIX + "eco" == str(args[0]).lower():
+		if PREFIX + "eco" == str(args[0]).lower() and len(args) >= 2:
 			sendForm("(send-event *target* 'get-pickup (pickup-type eco-" + str(args[1]) + ") 5.0)")
 			message = ""
 		
-		if PREFIX + "heatmax" == str(args[0]).lower():
+		if PREFIX + "heatmax" == str(args[0]).lower() and len(args) >= 2:
 			sendForm("(set! (-> *RACER-bank* heat-max) " + str(args[1]) + ")")
 			message = ""
 			
-		if PREFIX + "iframes" == str(args[0]).lower():
+		if PREFIX + "iframes" == str(args[0]).lower() and len(args) >= 2:
 			sendForm("(set! (-> *TARGET-bank* hit-invulnerable-timeout) (seconds " + str(args[1]) + "))")
 			message = ""
 			
-		if PREFIX + "give" == str(args[0]).lower():
+		if PREFIX + "give" == str(args[0]).lower() and len(args) >= 3:
 			sendForm("(set! (-> *game-info* " + str(args[1]) + ") (+ (-> *game-info* " + str(args[1]) + ") " + str(args[2]) + "))")
 			message = ""
 			
-		if PREFIX + "setcollected" == str(args[0]).lower() or PREFIX + "collected" == str(args[0]).lower():
+		if (PREFIX + "setcollected" == str(args[0]).lower() or PREFIX + "collected" == str(args[0]).lower()) and len(args) >= 3:
 			sendForm("(set! (-> *game-info* " + str(args[1]) + ") (+ 0.0 " + str(args[2]) + "))")
 			message = ""
 			
-		if PREFIX + "enemyspeed" == str(args[0]).lower():
+		if PREFIX + "enemyspeed" == str(args[0]).lower() and len(args) >= 3:
 			sendForm("(set! (-> *" + str(args[1]) + "-nav-enemy-info* run-travel-speed) (meters " + str(args[2]) + "))")
 			message = ""
 			
-		if PREFIX + "tp" == str(args[0]).lower():
+		if PREFIX + "tp" == str(args[0]).lower() and len(args) >= 4:
 			sendForm("(set! (-> (target-pos 0) x) (meters " + str(args[1]) + "))  (set! (-> (target-pos 0) y) (meters " + str(args[2]) + ")) (set! (-> (target-pos 0) z) (meters " + str(args[3]) + "))")
 			message = ""
 			
-		if PREFIX + "shift" == str(args[0]).lower():
+		if PREFIX + "shift" == str(args[0]).lower() and len(args) >= 4:
 			sendForm("(set! (-> (target-pos 0) x) (+ (-> (target-pos 0) x)(meters " + str(args[1]) + ")))  (set! (-> (target-pos 0) y) (+ (-> (target-pos 0) y)(meters " + str(args[2]) + "))) (set! (-> (target-pos 0) z) (+ (-> (target-pos 0) z)(meters " + str(args[3]) + ")))")
 			message = ""
 		
-		if PREFIX + "loadlevel" == str(args[0]).lower():
+		if PREFIX + "loadlevel" == str(args[0]).lower() and len(args) >= 2:
 			sendForm("(set! (-> *load-state* want 1 name) '" + str(args[1]) + ")(set! (-> *load-state* want 1 display?) 'display)")
 			message = ""
 			
-		if PREFIX + "sucksuck" == str(args[0]).lower() or PREFIX + "setsucksuck" == str(args[0]).lower():
+		if (PREFIX + "sucksuck" == str(args[0]).lower() or PREFIX + "setsucksuck" == str(args[0]).lower()) and len(args) >= 2:
 			sendForm("(set! (-> *FACT-bank* suck-suck-dist) (meters " + str(args[1]) + "))(set! (-> *FACT-bank* suck-bounce-dist) (meters " + str(args[1]) + "))")
 			message = ""
 			
-		if PREFIX + "setecotime" == str(args[0]).lower() or PREFIX + "ecotime" == str(args[0]).lower():
+		if (PREFIX + "setecotime" == str(args[0]).lower() or PREFIX + "ecotime" == str(args[0]).lower()) and len(args) >= 2:
 			sendForm("(set! (-> *FACT-bank* eco-full-timeout) (seconds " + str(args[1]) + "))")
 			message = ""
 			
-		if PREFIX + "setflutflut" == str(args[0]).lower() or PREFIX + "flutspeed" == str(args[0]).lower():
+		if (PREFIX + "setflutflut" == str(args[0]).lower() or PREFIX + "flutspeed" == str(args[0]).lower()) and len(args) >= 2:
 			sendForm("(set! (-> *flut-walk-mods* target-speed)(meters " + str(args[1]) + "))")
 			message = ""
 			
-		if str(args[0]) == PREFIX + "repl":
+		if str(args[0]) == PREFIX + "repl" and len(args) >= 2:
 			if COMMANDMODS.count(user) == 1:
 				args = message.split(" ", 1)
 				sendForm(str(args[1]))
