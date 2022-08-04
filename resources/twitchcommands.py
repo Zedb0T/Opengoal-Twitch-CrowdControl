@@ -7,6 +7,7 @@ import time
 import sys
 import random
 from dotenv import load_dotenv
+from os.path import exists
 
 load_dotenv()
 
@@ -26,6 +27,7 @@ elif __file__:
 
 print(application_path)
 OAUTH = str(os.getenv("OAUTH"))
+launcher_version = exists(application_path+"\OpenGOAL-Launcher.exe")
 PATHTOGOALC = application_path + "\goalc.exe"
 PATHTOGK = application_path + "\gk.exe -boot -fakeiso -debug -v"
 
@@ -64,11 +66,16 @@ def cd_check(id):
 #
 #os.system(r'start "'+ MOTD +'" /d "C:\\Users\\Zed\\Documents\\GitHub\\OpenGoalCheckpointRandomizer\\Checkpoint randomizer\\goalc.exe"') #repl cmd window
 #"%mypath%/gk.exe" -boot -fakeiso -debug -v
+if launcher_version:
+	print("ERROR LAUNCHER VERSION DETECTED, CURRENTLY ONLY WORKS WITH RELEASE BUILD")
+	time.sleep(400)
+	quit()
 GKCOMMANDLINE = PATHTOGK
 GKCOMMANDLINElist = GKCOMMANDLINE.split()
 print("If it errors below that is O.K.")
 print("Cooldown Message: "+COOLDOWNMESSAGE)
 print("All Points: "+ALLPOINTS)
+
 subprocess.Popen("""taskkill /F /IM gk.exe""",shell=True)
 subprocess.Popen("""taskkill /F /IM goalc.exe""",shell=True)
 time.sleep(3)
