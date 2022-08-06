@@ -8,36 +8,46 @@ import sys
 import random
 from dotenv import load_dotenv
 from os.path import exists
-
-load_dotenv()
-
-
-
-
+import shutil
 
 """
 Created on Fri Apr 29 16:20:54 2022
-@author: Yop
+@author: Yop Mike Zed
 """
-
+#Set the working directory
 if getattr(sys, 'frozen', False):
     application_path = os.path.dirname(os.path.realpath(sys.executable))
 elif __file__:
     application_path = os.path.dirname(__file__)
 
-print(application_path)
-OAUTH = str(os.getenv("OAUTH"))
-launcher_version = exists(application_path+"\OpenGOAL-Launcher.exe")
-PATHTOGOALC = application_path + "\goalc.exe"
-PATHTOGK = application_path + "\gk.exe -boot -fakeiso -debug -v"
+#COMMANDMODS, these users can use the REPL command to create custom commands!
+COMMANDMODS = ["zed_b0t", "mikegamepro", "water112", "barg034"]
 
+#env values
+load_dotenv()
+OAUTH = str(os.getenv("OAUTH"))
 CONNECTIONMESSAGE = str(os.getenv("CONNECTIONMESSAGE"))
 COOLDOWNMESSAGE = str(os.getenv("COOLDOWNMESSAGE"))
 ALLPOINTS = str(os.getenv("ALLPOINTS"))
-MOTD = "u playing jak?"
-COMMANDMODS = ["zed_b0t", "mikegamepro", "water112", "barg034"]
 PREFIX = str(os.getenv("PREFIX"))
-#GPATH = r"c:\Users\Yop\source\repos\jak-project"
+
+#bool that checks if its the launcher version
+launcher_version = exists(application_path+"\OpenGOAL-Launcher.exe")
+
+#paths
+PATHTOGOALC = application_path + "\goalc.exe"
+PATHTOGK = application_path +"\gk.exe -boot -fakeiso -debug -v"
+
+#If its the launcher version update the paths!
+if launcher_version:
+	
+	print("launcher version detected")
+	shutil.copyfile(application_path+"/goalc.exe", os.getenv('APPDATA') +"\OpenGOAL-Launcher\\goalc.exe")
+	time.sleep(1)
+	PATHTOGOALC=os.getenv('APPDATA') +"\OpenGOAL-Launcher\\goalc.exe"
+	extraGKCommand = "-proj-path "+os.getenv('APPDATA') +"\OpenGOAL-Launcher\\data "
+	PATHTOGK = application_path +"\gk.exe "+extraGKCommand+"-boot -fakeiso -debug -v"
+
 
 #
 #Function definitions
@@ -63,22 +73,17 @@ def cd_check(id):
 
 #
 #Launch REPL, connect bot, and mi
-#
-#os.system(r'start "'+ MOTD +'" /d "C:\\Users\\Zed\\Documents\\GitHub\\OpenGoalCheckpointRandomizer\\Checkpoint randomizer\\goalc.exe"') #repl cmd window
-#"%mypath%/gk.exe" -boot -fakeiso -debug -v
-if launcher_version:
-	print("ERROR LAUNCHER VERSION DETECTED, CURRENTLY ONLY WORKS WITH RELEASE BUILD")
-	time.sleep(400)
-	quit()
-GKCOMMANDLINE = PATHTOGK
-GKCOMMANDLINElist = GKCOMMANDLINE.split()
-print("If it errors below that is O.K.")
-print("Cooldown Message: "+COOLDOWNMESSAGE)
-print("All Points: "+ALLPOINTS)
 
+#This splits the Gk commands into args for gk.exe
+GKCOMMANDLINElist = PATHTOGK.split()
+
+#Close Gk and goalc if they were open.
+print("If it errors below that is O.K.")
 subprocess.Popen("""taskkill /F /IM gk.exe""",shell=True)
 subprocess.Popen("""taskkill /F /IM goalc.exe""",shell=True)
 time.sleep(3)
+
+#Open a fresh GK and goalc then wait a bit before trying to connect via socket.
 print("opening " + PATHTOGK)
 print("opening " + PATHTOGOALC)
 subprocess.Popen(GKCOMMANDLINElist)
@@ -91,7 +96,7 @@ data = clientSocket.recv(1024)
 print(data.decode())
 
 
-#Int block
+#Int block these comamnds are sent on startup
 sendForm("(lt)")
 sendForm("(mi)")
 sendForm("(send-event *target* 'get-pickup (pickup-type eco-red) 5.0)")
@@ -100,22 +105,28 @@ sendForm("(set! *cheat-mode* #f)")
 sendForm("(set! *debug-segment* #f)")
 #End Int block
 
+#add all commands into an array so we can reference via index.
 command_names = ["rjto","superjump","superboosted","noboosteds","fastjak","slowjak","pacifist","trip",
 				 "shortfall","ghostjak","getoff","flutspeed","freecam","enemyspeed","give","collected",
 				 "eco","sucksuck","noeco","die","gotopoint","randompoint","tp","shift","movetojak","ouch",
 				 "burn","hp","melt","endlessfall","iframes","invertcam","normalcam","deload","frickstorage",
 				 "dark","dax","smallnet","widefish","lod","moveplantboss","moveplantboss2","basincell","resetactors",
 				 "repl"]
+
+#intialize arrays same length as command_names
 cooldowns = [0] * len(command_names)
 last_used = [0] * len(command_names)
 
+#pull cooldowns set in env file and add to array.
 for x in range(len(command_names)):
 	cooldowns[x]=float(os.getenv(command_names[x]+"_cd"))
 
+
+#twitch irc stuff
 SERVER = "irc.twitch.tv"
 PORT = 6667
 
-#Your OAUTH Code Here https://twitchapps.com/tmi/
+#Get Your OAUTH Code Here! https://twitchapps.com/tmi/
 
 
 #What you'd like to name your bot
@@ -123,6 +134,7 @@ BOT = "jakopengoalbot"
 #The channel you want to monitor
 CHANNEL = str(os.getenv("TARGETCHANNEL")).lower()
 
+#initialize empty strings to store user and message
 message = ""
 user = ""
 
@@ -132,8 +144,10 @@ irc.send((	"PASS " + OAUTH + "\n" +
 			"NICK " + BOT + "\n" +
 			"JOIN #" + CHANNEL + "\n").encode())
 
+#array of valid checkpoints so user cant send garbage data
 point_list = ["training-start", "game-start", "village1-hut", "village1-warp", "beach-start", "jungle-start", "jungle-tower", "misty-start", "misty-silo", "misty-bike", "misty-backside", "misty-silo2", "firecanyon-start", "firecanyon-end", "village2-start", "village2-warp", "village2-dock", "rolling-start", "sunken-start", "sunken1", "sunken2", "sunken-tube1", "sunkenb-start", "sunkenb-helix", "swamp-start", "swamp-dock1", "swamp-cave1", "swamp-dock2", "swamp-cave2", "swamp-game", "swamp-cave-3", "ogre-start", "ogre-race", "ogre-end", "village3-start", "village3-warp", "village3-farside", "maincave-start", "maincave-to-darkcave", "maincave-to-robocave", "darkcave-start", "robocave-start", "robocave-bottom", "snow-start snow-fort", "snow-snow-flut-flut", "snow-pass-to-fort", "snow-by-ice-lake", "snow-by-ice-lake-alt", "snow-outside-fort", "snow-outside-cave", "snow-across-from-flut"]
 
+#sends a message to the irc channel.
 def sendMessage(irc, message):
 	messageTemp = "PRIVMSG #" + CHANNEL + " :" + message
 	irc.send((messageTemp + "\n").encode())
@@ -143,6 +157,7 @@ def gamecontrol():
 	global message
 
 	while True:
+		#split a whole message into args so we can evaluate it one by one.
 		args = message.split(" ")
 		
 		if PREFIX + "rjto" == str(args[0]).lower() and len(args) >= 2 and cd_check(0):
@@ -346,9 +361,12 @@ def gamecontrol():
 			sendForm("(set! (-> *pc-settings* force-actors?) #f)")
 			message = ""
 		
-		#if PREFIX + "debug" == str(args[0]).lower():
-		#	sendForm("(set! *debug-segment* (not *debug-segment*))(set! *cheat-mode* (not *cheat-mode*))")
-		#	message = ""
+		if PREFIX + "debug" == str(args[0]).lower():
+			if COMMANDMODS.count(user) == 1:
+				sendForm("(set! *debug-segment* (not *debug-segment*))(set! *cheat-mode* (not *cheat-mode*))")
+				message = ""
+			else:
+				message = ""
 			
 		#if PREFIX + "heatmax" == str(args[0]).lower() and len(args) >= 2:
 		#	sendForm("(set! (-> *RACER-bank* heat-max) " + str(args[1]) + ")")
@@ -370,7 +388,7 @@ def gamecontrol():
 			if COMMANDMODS.count(user) != 1:
 				message = ""
 			
-
+#Dont touch
 def twitch():
 
 	global user
