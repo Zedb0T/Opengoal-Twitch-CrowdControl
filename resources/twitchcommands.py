@@ -55,49 +55,70 @@ def sendForm(form):
     print("Sent: " + form)
     return
 
-def cd_check(id):
+def cd_check(cmd):
     global message
-    if (time.time() - last_used[id]) > cooldowns[id]:
-        last_used[id] = time.time()
+    if (time.time() - last_used[command_names.index(cmd)]) > cooldowns[command_names.index(cmd)]:
+        last_used[command_names.index(cmd)] = time.time()
         return True
     elif COOLDOWN_MSG == "t":
-        sendMessage(irc, "/me @"+user+" Command '"+command_names[id]+"' is on cooldown ("+str(int(last_used[id]-(time.time()-cooldowns[id])))+"s left).")
+        sendMessage(irc, "/me @"+user+" Command '"+command_names[command_names.index(cmd)]+"' is on cooldown ("+str(int(last_used[command_names.index(cmd)]-(time.time()-cooldowns[command_names.index(cmd)])))+"s left).")
         message = ""
         return False
     else:
         message = ""
         return False
 
-def on_check(id):
+def on_check(cmd):
     global message
-    if on_off[id] != "f":
+    if on_off[command_names.index(cmd)] != "f":
        return True 
     elif DISABLED_MSG == "t":
-        sendMessage(irc, "/me @"+user+" Command '"+command_names[id]+"' is disabled.")
+        sendMessage(irc, "/me @"+user+" Command '"+command_names[command_names.index(cmd)]+"' is disabled.")
         message = ""
         return False
     else:
         message = ""
         return False
     
-def active_check(id, line1, line2):
-    if not active[id]:
+def active_check(cmd, line1, line2):
+    if not active[command_names.index(cmd)]:
         sendForm(line1)
-        activate(id)
+        activate(cmd)
+        activated[command_names.index(cmd)] = time.time()
     else:
         sendForm(line2)
-        deactivate(id)
+        deactivate(cmd)
+		
+def active_sweep(cmd, line):
+	if active[command_names.index(cmd)] and (time.time() - activated[command_names.index(cmd)]) >= durations[command_names.index(cmd)]:
+		deactivate(cmd)
+		sendForm(line)
         
-def activate(id):
-    if ACTIVATE_MSG != "f":
-        sendMessage(irc, "/me > '"+command_names[id]+"' activated!")
-    active[id] = True
+def activate(cmd):
+	if not active[command_names.index(cmd)]:
+	    if ACTIVATE_MSG != "f":
+	        sendMessage(irc, "/me > '"+command_names[command_names.index(cmd)]+"' activated!")
+	    activated[command_names.index(cmd)] = time.time()
+	    active[command_names.index(cmd)] = True
     
-def deactivate(id):
-        if ACTIVATE_MSG != "f":
-            sendMessage(irc, "/me > '"+command_names[id]+"' deactivated!")
-        active[id] = False
-    
+def deactivate(cmd):
+	if active[command_names.index(cmd)]:
+         if ACTIVATE_MSG != "f":
+            sendMessage(irc, "/me > '"+command_names[command_names.index(cmd)]+"' deactivated!")
+         active[command_names.index(cmd)] = False
+		
+def max_val(val, max):
+    global message
+    try:
+        float(val)
+        if float(val) <= max and float(val) >= (max * -1):
+           return True
+        else:
+           sendMessage(irc, "/me @"+user+" Use values between " + str(max * -1) + " and " + str(max) + ".")
+           message = ""
+           return False
+    except ValueError:
+        return False
 
 #
 #Launch REPL, connect bot, and mi
@@ -138,7 +159,8 @@ command_names = ["rjto","superjump","superboosted","noboosteds","fastjak","slowj
                  "eco","sucksuck","noeco","die","topoint","randompoint","tp","shift","movetojak","ouch",
                  "burn","hp","melt","endlessfall","iframes","invertcam","normalcam","deload","quickcam",
                  "dark","dax","smallnet","widefish","lowpoly","moveplantboss","moveplantboss2","basincell",
-                 "resetactors","repl","debug"]
+                 "resetactors","repl","debug","save","resetcooldowns","cd","dur","enable","disable",
+				 "widejak","flatjak","smalljak","bigjak","color","scale","actorson","actorsoff"]
 
 #array of valid checkpoints so user cant send garbage data
 point_list = ["training-start","game-start","village1-hut","village1-warp","beach-start",
@@ -161,6 +183,7 @@ point_list = ["training-start","game-start","village1-hut","village1-warp","beac
 on_off = ["t"] * len(command_names)
 cooldowns = [0.0] * len(command_names)
 last_used = [0.0] * len(command_names)
+activated = [0.0] * len(command_names)
 durations = [0.0] * len(command_names)
 active = [False] * len(command_names)
 
@@ -171,7 +194,7 @@ for x in range(len(command_names)):
 #pull durations set in env file and add to array
 for x in range(len(command_names)):
     durations[x]=float(os.getenv(command_names[x]+"_dur"))
-
+	
 #twitch irc stuff
 SERVER = "irc.twitch.tv"
 PORT = 6667
@@ -181,7 +204,7 @@ PORT = 6667
 #What you'd like to name your bot
 BOT = "jakopengoalbot"
 #The channel you want to monitor
-CHANNEL = str(os.getenv("TARGETCHANNEL")).lower()
+CHANNEL = str(os.getenv("TARGET_CHANNEL")).lower()
 
 #COMMANDMODS, these users can use the REPL command to create custom commands!
 COMMANDMODS = ["zed_b0t", "mikegamepro", "water112", "barg034", CHANNEL]
@@ -209,208 +232,206 @@ def gamecontrol():
         #split a whole message into args so we can evaluate it one by one
         args = message.split(" ")
         
-        if PREFIX + "rjto" == str(args[0]).lower() and len(args) >= 2 and on_check(0) and cd_check(0):
+        if PREFIX + "rjto" == str(args[0]).lower() and len(args) >= 2 and max_val(args[1], 200) and on_check("rjto") and cd_check("rjto"):
             sendForm("(set! (-> *TARGET-bank* wheel-flip-dist) (meters " + str(args[1]) + "))")
             message = ""
         
-        if PREFIX + "superjump" == str(args[0]).lower() and on_check(1) and cd_check(1):
-            active_check(1, 
+        if PREFIX + "superjump" == str(args[0]).lower() and on_check("superjump") and cd_check("superjump"):
+            active_check("superjump", 
             "(set! (-> *TARGET-bank* jump-height-max)(meters 15.0))(set! (-> *TARGET-bank* jump-height-min)(meters 5.0))(set! (-> *TARGET-bank* double-jump-height-max)(meters 15.0))(set! (-> *TARGET-bank* double-jump-height-min)(meters 5.0))",
             "(set! (-> *TARGET-bank* jump-height-max)(meters 3.5))(set! (-> *TARGET-bank* jump-height-min)(meters 1.01))(set! (-> *TARGET-bank* double-jump-height-max)(meters 2.5))(set! (-> *TARGET-bank* double-jump-height-min)(meters 1))")
             message = ""
         
-        if (PREFIX + "superboosted" == str(args[0]).lower() or PREFIX + "superboosteds" == str(args[0]).lower()) and on_check(2) and cd_check(2):
-            active_check(2, 
+        if (PREFIX + "superboosted" == str(args[0]).lower() or PREFIX + "superboosteds" == str(args[0]).lower()) and on_check("superboosted") and cd_check("superboosted"):
+            active_check("superboosted", 
             "(set! (-> *edge-surface* fric) 1.0)",
             "(set! (-> *edge-surface* fric) 30720.0)")
             message = ""
 
-        if (PREFIX + "noboosteds" == str(args[0]).lower() or PREFIX + "noboosted" == str(args[0]).lower()) and on_check(3) and cd_check(3):
-            active_check(3, 
+        if (PREFIX + "noboosteds" == str(args[0]).lower() or PREFIX + "noboosted" == str(args[0]).lower()) and on_check("noboosteds") and cd_check("noboosteds"):
+            active_check("noboosteds", 
             "(set! (-> *edge-surface* fric) 1530000.0)",
             "(set! (-> *edge-surface* fric) 30720.0)")
             message = ""
             
-        if PREFIX + "fastjak" == str(args[0]).lower() and on_check(4) and cd_check(4):
-            if active[5]:
+        if PREFIX + "fastjak" == str(args[0]).lower() and on_check("fastjak") and cd_check("fastjak"):
+            if active[command_names.index("slowjak")]:
                 sendForm("(pc-cheat-toggle-and-tune *pc-settings* eco-yellow)(send-event *target* 'get-pickup (pickup-type eco-blue) 0.1)")
-                deactivate(5)
-            active_check(4, 
+                deactivate("slowjak")
+            active_check("fastjak", 
             "(set! (-> *walk-mods* target-speed) 99999.0)(set! (-> *double-jump-mods* target-speed) 99999.0)(set! (-> *jump-mods* target-speed) 99999.0)(set! (-> *jump-attack-mods* target-speed) 99999.0)(set! (-> *attack-mods* target-speed) 99999.0)(set! (-> *forward-high-jump-mods* target-speed) 99999.0)(set! (-> *jump-attack-mods* target-speed) 99999.0)(set! (-> *TARGET-bank* wheel-flip-dist) (meters 17.3))",
             "(set! (-> *walk-mods* target-speed) 40960.0)(set! (-> *double-jump-mods* target-speed) 32768.0)(set! (-> *jump-mods* target-speed) 40960.0)(set! (-> *jump-attack-mods* target-speed) 24576.0)(set! (-> *attack-mods* target-speed) 40960.0)(set! (-> *forward-high-jump-mods* target-speed) 45056.0)(set! (-> *jump-attack-mods* target-speed) 24576.0)")
             message = ""
         
-        if PREFIX + "slowjak" == str(args[0]).lower() and on_check(5) and cd_check(5):
-            if active[4]:
-                deactivate(4)
-            elif active[18]:
-                deactivate(18)
+        if PREFIX + "slowjak" == str(args[0]).lower() and on_check("slowjak") and cd_check("slowjak"):
+            deactivate("fastjak")
+            deactivate("noeco")
             sendForm("(set! (-> *FACT-bank* eco-full-timeout) (seconds 20.0))(pc-cheat-toggle-and-tune *pc-settings* eco-yellow)")
-            active_check(5,
+            active_check("slowjak",
             "(set! (-> *walk-mods* target-speed) 20000.0)(set! (-> *double-jump-mods* target-speed) 20000.0)(set! (-> *jump-mods* target-speed) 20000.0)(set! (-> *jump-attack-mods* target-speed) 20000.0)(set! (-> *attack-mods* target-speed) 20000.0)(set! (-> *TARGET-bank* wheel-flip-dist) (meters 0))",
             "(set! (-> *walk-mods* target-speed) 40960.0)(set! (-> *double-jump-mods* target-speed) 32768.0)(set! (-> *jump-mods* target-speed) 40960.0)(set! (-> *jump-attack-mods* target-speed) 24576.0)(set! (-> *attack-mods* target-speed) 40960.0)(set! (-> *forward-high-jump-mods* target-speed) 45056.0)(set! (-> *jump-attack-mods* target-speed) 24576.0)(set! (-> *TARGET-bank* wheel-flip-dist) (meters 17.3))(send-event *target* 'get-pickup (pickup-type eco-blue) 0.1)")
             message = ""
             
-        if PREFIX + "pacifist" == str(args[0]).lower() and on_check(6) and cd_check(6):
-            active_check(6, 
+        if PREFIX + "pacifist" == str(args[0]).lower() and on_check("pacifist") and cd_check("pacifist"):
+            active_check("pacifist", 
             "(set! (-> *TARGET-bank* punch-radius) (meters -1.0))(set! (-> *TARGET-bank* spin-radius) (meters -1.0))(set! (-> *TARGET-bank* flop-radius) (meters -1.0))(set! (-> *TARGET-bank* uppercut-radius) (meters -1.0))",
             "(set! (-> *TARGET-bank* punch-radius) (meters 1.3))(set! (-> *TARGET-bank* spin-radius) (meters 2.2))(set! (-> *TARGET-bank* flop-radius) (meters 1.4))(set! (-> *TARGET-bank* uppercut-radius) (meters 1))")
             message = ""
         
-        if PREFIX + "trip" == str(args[0]).lower() and on_check(7) and cd_check(7):
+        if PREFIX + "trip" == str(args[0]).lower() and on_check("trip") and cd_check("trip"):
             sendForm("(send-event *target* 'loading)")
             message = ""
             
-        if PREFIX + "shortfall" == str(args[0]).lower() and on_check(8) and cd_check(8):
-            active_check(8, 
-            "(set! (-> *TARGET-bank* fall-far) (meters 1))(set! (-> *TARGET-bank* fall-far-inc) (meters 1))",
+        if PREFIX + "shortfall" == str(args[0]).lower() and on_check("shortfall") and cd_check("shortfall"):
+            active_check("shortfall", 
+            "(set! (-> *TARGET-bank* fall-far) (meters 1))(set! (-> *TARGET-bank* fall-far-inc) (meters 1.5))",
             "(set! (-> *TARGET-bank* fall-far) (meters 30))(set! (-> *TARGET-bank* fall-far-inc) (meters 20))")
             message = ""
                 
-        if PREFIX + "ghostjak" == str(args[0]).lower() and on_check(9) and cd_check(9):
-            active_check(9, 
+        if PREFIX + "ghostjak" == str(args[0]).lower() and on_check("ghostjak") and cd_check("deload"):
+            active_check("ghostjak", 
             "(set! (-> *TARGET-bank* body-radius) (meters -1.0))",
             "(set! (-> *TARGET-bank* body-radius) (meters 0.7))")
             message = ""
             
-        if PREFIX + "getoff" == str(args[0]).lower() and on_check(10) and cd_check(10):
-            sendForm("(send-event *target* 'end-mode)")
+        if PREFIX + "getoff" == str(args[0]).lower() and on_check("getoff") and cd_check("getoff"):
+            sendForm("(when (not (movie?))(send-event *target* 'end-mode))")
             message = ""
             
-        if (PREFIX + "flutspeed" == str(args[0]).lower() or PREFIX + "setflutflut" == str(args[0]).lower()) and len(args) >= 2 and on_check(11) and cd_check(11):
+        if (PREFIX + "flutspeed" == str(args[0]).lower() or PREFIX + "setflutflut" == str(args[0]).lower()) and len(args) >= 2 and max_val(args[1], 200) and on_check("flutspeed") and cd_check("flutspeed"):
             sendForm("(set! (-> *flut-walk-mods* target-speed)(meters " + str(args[1]) + "))")
             message = ""
             
-        if PREFIX + "freecam" == str(args[0]).lower() and on_check(12) and cd_check(12):
-            active_check(12, 
+        if PREFIX + "freecam" == str(args[0]).lower() and on_check("freecam") and cd_check("freecam"):
+            active_check("freecam", 
             "(stop 'debug)",
             "(start 'play (get-or-create-continue! *game-info*))")
             message = ""
             
-        if PREFIX + "enemyspeed" == str(args[0]).lower() and len(args) >= 3 and on_check(13) and cd_check(13):
+        if PREFIX + "enemyspeed" == str(args[0]).lower() and len(args) >= 3 and max_val(args[1], 200) and on_check("enemyspeed") and cd_check("enemyspeed"):
             sendForm("(set! (-> *" + str(args[1]) + "-nav-enemy-info* run-travel-speed) (meters " + str(args[2]) + "))")
             message = ""
             
-        if PREFIX + "give" == str(args[0]).lower() and len(args) >= 3 and on_check(14) and cd_check(14):
+        if PREFIX + "give" == str(args[0]).lower() and len(args) >= 3 and on_check("give") and cd_check("give"):
             sendForm("(set! (-> *game-info* " + str(args[1]) + ") (+ (-> *game-info* " + str(args[1]) + ") " + str(args[2]) + "))")
             message = ""
             
-        if (PREFIX + "collected" == str(args[0]).lower() or PREFIX + "setcollected" == str(args[0]).lower()) and len(args) >= 3 and on_check(15) and cd_check(14):
+        if (PREFIX + "collected" == str(args[0]).lower() or PREFIX + "setcollected" == str(args[0]).lower()) and len(args) >= 3 and on_check("collected") and cd_check("give"):
             sendForm("(set! (-> *game-info* " + str(args[1]) + ") (+ 0.0 " + str(args[2]) + "))")
             message = ""
 
-        if PREFIX + "eco" == str(args[0]).lower() and len(args) >= 2 and on_check(16) and cd_check(16):
+        if PREFIX + "eco" == str(args[0]).lower() and len(args) >= 2 and on_check("eco") and cd_check("eco"):
             sendForm("(send-event *target* 'get-pickup (pickup-type eco-" + str(args[1]) + ") 5.0)")
             message = ""
             
-        if (PREFIX + "sucksuck" == str(args[0]).lower() or PREFIX + "setsucksuck" == str(args[0]).lower()) and len(args) >= 2 and on_check(17) and cd_check(17):
+        if (PREFIX + "sucksuck" == str(args[0]).lower() or PREFIX + "setsucksuck" == str(args[0]).lower()) and len(args) >= 2 and max_val(args[1], 200) and on_check("sucksuck") and cd_check("sucksuck"):
             sendForm("(set! (-> *FACT-bank* suck-suck-dist) (meters " + str(args[1]) + "))(set! (-> *FACT-bank* suck-bounce-dist) (meters " + str(args[1]) + "))")
             message = ""
             
-        if PREFIX + "noeco" == str(args[0]).lower() and not active[5] and on_check(18) and cd_check(18):
-            active_check(18, 
+        if PREFIX + "noeco" == str(args[0]).lower() and not active[command_names.index("slowjak")] and on_check("noeco") and cd_check("noeco"):
+            active_check("noeco", 
             "(set! (-> *FACT-bank* eco-full-timeout) (seconds 0.0))",
             "(set! (-> *FACT-bank* eco-full-timeout) (seconds 20.0))")
             message = ""
             
-        if PREFIX + "die" == str(args[0]).lower() and on_check(19) and cd_check(19):
-            sendForm("(initialize! *game-info* 'die (the-as game-save #f) (the-as string #f))")
+        if PREFIX + "die" == str(args[0]).lower() and on_check("die") and cd_check("die"):
+            sendForm("(when (not (movie?))(initialize! *game-info* 'die (the-as game-save #f) (the-as string #f)))")
             message = ""
             
-        if (PREFIX + "topoint" == str(args[0]).lower() or PREFIX + "gotopoint" == str(args[0]).lower() or PREFIX + "gotolevel" == str(args[0]).lower()) and len(args) >= 2 and point_list.count(str(args[1]).lower()) == 1 and on_check(20) and cd_check(20):
-            sendForm("(start 'play (get-continue-by-name *game-info* \"" + str(args[1]) + "\"))")
+        if (PREFIX + "topoint" == str(args[0]).lower() or PREFIX + "gotopoint" == str(args[0]).lower() or PREFIX + "gotolevel" == str(args[0]).lower()) and len(args) >= 2 and point_list.count(str(args[1]).lower()) == 1 and on_check("topoint") and cd_check("topoint"):
+            sendForm("(start 'play (get-continue-by-name *game-info* \"" + str(args[1]) + "\"))(auto-save-command 'auto-save 0 0 *default-pool*)")
             message = ""
             
-        if (PREFIX + "randompoint" == str(args[0]).lower() or PREFIX + "randomcheckpoint" == str(args[0]).lower()) and on_check(21) and cd_check(20):
-            sendForm("(start 'play (get-continue-by-name *game-info* \"" + point_list[random.choice(range(0,52))] + "\"))")
+        if (PREFIX + "randompoint" == str(args[0]).lower() or PREFIX + "randomcheckpoint" == str(args[0]).lower()) and on_check("randompoint") and cd_check("topoint"):
+            sendForm("(start 'play (get-continue-by-name *game-info* \"" + point_list[random.choice(range(0,52))] + "\"))(auto-save-command 'auto-save 0 0 *default-pool*)")
             message = ""
             
-        if PREFIX + "tp" == str(args[0]).lower() and len(args) >= 4 and on_check(22) and cd_check(22):
-            sendForm("(set! (-> (target-pos 0) x) (meters " + str(args[1]) + "))  (set! (-> (target-pos 0) y) (meters " + str(args[2]) + ")) (set! (-> (target-pos 0) z) (meters " + str(args[3]) + "))")
+        if PREFIX + "tp" == str(args[0]).lower() and len(args) >= 4 and on_check("tp") and cd_check("tp"):
+            sendForm("(when (not (movie?))(set! (-> (target-pos 0) x) (meters " + str(args[1]) + "))  (set! (-> (target-pos 0) y) (meters " + str(args[2]) + ")) (set! (-> (target-pos 0) z) (meters " + str(args[3]) + ")))")
             message = ""
             
-        if PREFIX + "shift" == str(args[0]).lower() and len(args) >= 4 and on_check(23) and cd_check(22):
-            sendForm("(set! (-> (target-pos 0) x) (+ (-> (target-pos 0) x)(meters " + str(args[1]) + ")))  (set! (-> (target-pos 0) y) (+ (-> (target-pos 0) y)(meters " + str(args[2]) + "))) (set! (-> (target-pos 0) z) (+ (-> (target-pos 0) z)(meters " + str(args[3]) + ")))")
+        if PREFIX + "shift" == str(args[0]).lower() and len(args) >= 4 and on_check("shift") and cd_check("tp"):
+            sendForm("(when (not (movie?))(set! (-> (target-pos 0) x) (+ (-> (target-pos 0) x)(meters " + str(args[1]) + ")))  (set! (-> (target-pos 0) y) (+ (-> (target-pos 0) y)(meters " + str(args[2]) + "))) (set! (-> (target-pos 0) z) (+ (-> (target-pos 0) z)(meters " + str(args[3]) + "))))")
             message = ""
             
-        if PREFIX + "movetojak" == str(args[0]).lower() and len(args) >= 2 and on_check(24) and cd_check(24):
+        if PREFIX + "movetojak" == str(args[0]).lower() and len(args) >= 2 and on_check("movetojak") and cd_check("movetojak"):
             sendForm("(when (process-by-ename \"" + str(args[1]) + "\")(set-vector!  (-> (-> (the process-drawable (process-by-ename \"" + str(args[1]) + "\"))root)trans) (-> (target-pos 0) x) (-> (target-pos 0) y) (-> (target-pos 0) z) 1.0))")
             message = ""
 
-        if PREFIX + "ouch" == str(args[0]).lower() and on_check(25) and cd_check(25):
-            sendForm("(send-event *target* 'attack #t (new 'static 'attack-info))")
+        if PREFIX + "ouch" == str(args[0]).lower() and on_check("ouch") and cd_check("ouch"):
+            sendForm("(if (not (= *target* #f))(send-event *target* 'attack #t (new 'static 'attack-info)))")
             message = ""
 
-        if PREFIX + "burn" == str(args[0]).lower() and on_check(26) and cd_check(25):
-            sendForm("(target-attack-up *target* 'attack 'burnup)")
+        if PREFIX + "burn" == str(args[0]).lower() and on_check("burn") and cd_check("ouch"):
+            sendForm("(if (not (= *target* #f))(target-attack-up *target* 'attack 'burnup))")
             message = ""
             
-        if PREFIX + "hp" == str(args[0]).lower() and len(args) >= 2 and on_check(27) and cd_check(27):
+        if PREFIX + "hp" == str(args[0]).lower() and len(args) >= 2 and on_check("hp") and cd_check("hp"):
             sendForm("(set! (-> (the-as fact-info-target (-> *target* fact))health) (+ 0.0 " + str(args[1]) + "))")
             message = ""
 
-        if PREFIX + "melt" == str(args[0]).lower() and on_check(28) and cd_check(19):
-            sendForm("(target-attack-up *target* 'attack 'melt)")
+        if PREFIX + "melt" == str(args[0]).lower() and on_check("melt") and cd_check("die"):
+            sendForm("(when (not (movie?))(target-attack-up *target* 'attack 'melt))")
             message = ""
             
-        if PREFIX + "endlessfall" == str(args[0]).lower() and on_check(29) and cd_check(19):
-            sendForm("(target-attack-up *target* 'attack 'endlessfall)")
+        if PREFIX + "endlessfall" == str(args[0]).lower() and on_check("endlessfall") and cd_check("die"):
+            sendForm("(when (not (movie?))(target-attack-up *target* 'attack 'endlessfall))")
             message = ""
             
-        if PREFIX + "iframes" == str(args[0]).lower() and len(args) >= 2 and on_check(30) and cd_check(30):
+        if PREFIX + "iframes" == str(args[0]).lower() and len(args) >= 2 and on_check("iframes") and cd_check("iframes"):
             sendForm("(set! (-> *TARGET-bank* hit-invulnerable-timeout) (seconds " + str(args[1]) + "))")
             message = ""
             
-        if PREFIX + "invertcam" == str(args[0]).lower() and len(args) >= 3 and on_check(31) and cd_check(31):
+        if PREFIX + "invertcam" == str(args[0]).lower() and len(args) >= 3 and on_check("invertcam") and cd_check("invertcam"):
             sendForm("(set! (-> *pc-settings* " + str(args[1]) + "-camera-" + str(args[2]) + "-inverted?) (not (-> *pc-settings* " + str(args[1]) + "-camera-" + str(args[2]) + "-inverted?)))")
             message = ""
             
-        if PREFIX + "normalcam" == str(args[0]).lower() and on_check(32) and cd_check(32):
+        if PREFIX + "normalcam" == str(args[0]).lower() and on_check("normalcam") and cd_check("normalcam"):
             sendForm("(set! (-> *pc-settings* third-camera-h-inverted?) #t)(set! (-> *pc-settings* third-camera-v-inverted?) #t)(set! (-> *pc-settings* first-camera-v-inverted?) #t)(set! (-> *pc-settings* first-camera-h-inverted?) #f)")
             message = ""
             
-        if PREFIX + "deload" == str(args[0]).lower() and on_check(33) and cd_check(33):
-            sendForm("(set! (-> *load-state* want 0 display?) #f)")
+        if PREFIX + "deload" == str(args[0]).lower() and on_check("deload") and cd_check("deload"):
+            sendForm("(when (not (movie?))(set! (-> *load-state* want 0 display?) #f))")
             message = ""
             
-        if (PREFIX + "quickcam" == str(args[0]).lower() or PREFIX + "frickstorage" == str(args[0]).lower()) and on_check(34) and cd_check(34):
+        if (PREFIX + "quickcam" == str(args[0]).lower() or PREFIX + "frickstorage" == str(args[0]).lower()) and on_check("quickcam") and cd_check("quickcam"):
             sendForm("(stop 'debug)")
             time.sleep(0.001)
-            sendForm("(start 'debug (get-or-create-continue! *game-info*))")
+            sendForm("(start 'play (get-or-create-continue! *game-info*))")
             message = ""
             
-        if PREFIX + "dark" == str(args[0]).lower() and on_check(35) and cd_check(35):
-            active_check(35, 
+        if PREFIX + "dark" == str(args[0]).lower() and on_check("dark") and cd_check("dark"):
+            active_check("dark", 
             "(set! (-> (level-get-target-inside *level*) mood-func)update-mood-finalboss)",
-            "(set! (-> (level-get-target-inside *level*) mood-func)update-mood-training)")
+            "(set! (-> (level-get-target-inside *level*) mood-func)update-mood-darkcave)")
             message = ""
         
-        if (PREFIX + "dax" == str(args[0]).lower() or PREFIX + "daxter" == str(args[0]).lower()) and on_check(36) and cd_check(36):
-            active_check(36, 
+        if (PREFIX + "dax" == str(args[0]).lower() or PREFIX + "daxter" == str(args[0]).lower()) and on_check("dax") and cd_check("dax"):
+            active_check("dax", 
             "(send-event *target* 'sidekick #f)",
             "(send-event *target* 'sidekick #t)")
             message = ""
             
-        if PREFIX + "smallnet" == str(args[0]).lower() and on_check(37) and cd_check(37):
-            active_check(37, 
-            "(set!(-> *FISHER-bank* net-radius)(meters 0.0))",
-            "(set! (-> *FISHER-bank* net-radius)(meters 0.7))")
+        if PREFIX + "smallnet" == str(args[0]).lower() and on_check("smallnet") and cd_check("smallnet"):
+            active_check("smallnet", 
+            "(when (process-by-ename \"fisher-1\")(set!(-> *FISHER-bank* net-radius)(meters 0.0)))",
+            "(when (process-by-ename \"fisher-1\")(set! (-> *FISHER-bank* net-radius)(meters 0.7)))")
             message = ""
 
-        if PREFIX + "widefish" == str(args[0]).lower() and on_check(38) and cd_check(38):
-            active_check(38, 
-            "(set! (-> *FISHER-bank* width)(meters 10.0))",
-            "(set! (-> *FISHER-bank* width)(meters 3.3))")
+        if PREFIX + "widefish" == str(args[0]).lower() and on_check("widefish") and cd_check("widefish"):
+            active_check("widefish", 
+            "(when (process-by-ename \"fisher-1\")(set! (-> *FISHER-bank* width)(meters 10.0)))",
+            "(when (process-by-ename \"fisher-1\")(set! (-> *FISHER-bank* width)(meters 3.3)))")
             message = ""
 
         
-        if (PREFIX + "lowpoly" == str(args[0]).lower() or PREFIX + "lod" == str(args[0]).lower()) and on_check(39) and cd_check(39):
-            active_check(39, 
+        if (PREFIX + "lowpoly" == str(args[0]).lower() or PREFIX + "lod" == str(args[0]).lower()) and on_check("lowpoly") and cd_check("lowpoly"):
+            active_check("lowpoly", 
             "(set! (-> *pc-settings* lod-force-tfrag) 2)(set! (-> *pc-settings* lod-force-tie) 3)(set! (-> *pc-settings* lod-force-ocean) 2)(set! (-> *pc-settings* lod-force-actor) 3)",
             "(set! (-> *pc-settings* lod-force-tfrag) 0)(set! (-> *pc-settings* lod-force-tie) 0)(set! (-> *pc-settings* lod-force-ocean) 0)(set! (-> *pc-settings* lod-force-actor) 0)")
             message = ""
         
-        if PREFIX + "moveplantboss" == str(args[0]).lower() and on_check(40) and cd_check(40):
+        if PREFIX + "moveplantboss" == str(args[0]).lower() and on_check("moveplantboss") and cd_check("moveplantboss"):
             sendForm("(set! (-> *pc-settings* force-actors?) #t)")
             time.sleep(0.050)
             sendForm("(when (process-by-ename \"plant-boss-3\")(set-vector!  (-> (-> (the process-drawable (process-by-ename \"plant-boss-3\"))root)trans) (meters 436.97) (meters -43.99) (meters -347.09) 1.0))")
@@ -419,17 +440,17 @@ def gamecontrol():
             sendForm("(set! (-> (target-pos 0) x) (meters 431.47))  (set! (-> (target-pos 0) y) (meters -44.00)) (set! (-> (target-pos 0) z) (meters -334.09)) (set! (-> *pc-settings* force-actors?) #f)")
             message = ""
         
-        if PREFIX + "moveplantboss2" == str(args[0]).lower() and on_check(41) and cd_check(41):
+        if PREFIX + "moveplantboss2" == str(args[0]).lower() and on_check("moveplantboss2") and cd_check("moveplantboss2"):
             sendForm("(set! (-> *pc-settings* force-actors?) #t)")
             time.sleep(0.050)
             sendForm("(when (process-by-ename \"plant-boss-3\")(set-vector!  (-> (-> (the process-drawable (process-by-ename \"plant-boss-3\"))root)trans) (meters 436.97) (meters -43.99) (meters -347.09) 1.0)) (set! (-> *pc-settings* force-actors?) #f)")
             message = ""
             
-        if PREFIX + "basincell" == str(args[0]).lower() and on_check(42) and cd_check(42):
+        if PREFIX + "basincell" == str(args[0]).lower() and on_check("basincell") and cd_check("basincell"):
             sendForm("(if (when (process-by-ename \"fuel-cell-45\") (= (-> (->(the process-drawable (process-by-ename \"fuel-cell-45\"))root)trans x)  (meters -266.54)))(when (process-by-ename \"fuel-cell-45\")(set-vector!  (-> (-> (the process-drawable (process-by-ename \"fuel-cell-45\"))root)trans) (meters -248.92) (meters 52.11) (meters -1515.66) 1.0))(when (process-by-ename \"fuel-cell-45\")(set-vector!  (-> (-> (the process-drawable (process-by-ename \"fuel-cell-45\"))root)trans) (meters -266.54) (meters 52.11) (meters -1508.48) 1.0)))")
             message = ""
             
-        if PREFIX + "resetactors" == str(args[0]).lower() and on_check(43) and cd_check(43):
+        if PREFIX + "resetactors" == str(args[0]).lower() and on_check("resetactors") and cd_check("resetactors"):
             sendForm("(reset-actors 'debug)")
             message = ""
         
@@ -445,10 +466,95 @@ def gamecontrol():
             sendForm("(set! (-> *pc-settings* force-actors?) #f)")
             message = ""
         
-        if PREFIX + "debug" == str(args[0]).lower():
+        if PREFIX + "debug" == str(args[0]).lower() and on_check("debug") and COMMANDMODS.count(user) > 0:
                 sendForm("(set! *debug-segment* (not *debug-segment*))(set! *cheat-mode* (not *cheat-mode*))")
                 message = ""
-            
+				
+        if PREFIX + "save" == str(args[0]).lower() and on_check("save"):
+            if COMMANDMODS.count(user) > 0:            
+               sendForm("(auto-save-command 'auto-save 0 0 *default-pool*)")
+               message = ""
+			   
+        if (PREFIX + "resetcooldowns" == str(args[0]).lower() or PREFIX + "resetcds" == str(args[0]).lower()) and COMMANDMODS.count(user) > 0:           
+           for x in range(len(command_names)):
+               last_used[x]=0.0
+               message = ""
+           sendMessage(irc, "/me ~ All cooldowns reset.")
+			   
+        if (PREFIX + "cd" == str(args[0]).lower() or PREFIX + "cooldown" == str(args[0]).lower()) and len(args) >= 3 and COMMANDMODS.count(user) > 0:          
+               cooldowns[command_names.index(str(args[1]))]=float(args[2])
+               sendMessage(irc, "/me ~ '" + str(args[1]) + "' cooldown set to " + str(args[2]) + "s.")
+               message = ""
+			   
+        if (PREFIX + "dur" == str(args[0]).lower() or PREFIX + "duration" == str(args[0]).lower()) and len(args) >= 3 and COMMANDMODS.count(user) > 0:          
+               durations[command_names.index(str(args[1]))]=float(args[2])
+               sendMessage(irc, "/me ~ '" + str(args[1]) + "' duration set to " + str(args[2]) + "s.")
+               message = ""
+   
+        if PREFIX + "enable" == str(args[0]).lower() and len(args) >= 2 and COMMANDMODS.count(user) > 0:          
+               on_off[command_names.index(str(args[1]))]="t"
+               sendMessage(irc, "/me ~ '" + str(args[1]) + "' enabled.")
+               message = ""
+			   
+        if PREFIX + "disable" == str(args[0]).lower() and len(args) >= 2 and COMMANDMODS.count(user) > 0:          
+               on_off[command_names.index(str(args[1]))]="f"
+               sendMessage(irc, "/me ~ '" + str(args[1]) + "' disabled.")
+               message = ""
+			   
+        if PREFIX + "widejak" == str(args[0]).lower() and on_check("widejak") and cd_check("scale"):
+            deactivate("bigjak")
+            deactivate("smalljak")
+            deactivate("scale")
+            deactivate("flatjak")
+            active_check("widejak", 
+            "(set! (-> (-> (the-as target *target* )root)scale x) 4.0)(set! (-> (-> (the-as target *target* )root)scale y) 1.0)(set! (-> (-> (the-as target *target* )root)scale z) 1.0)",
+            "(set! (-> (-> (the-as target *target* )root)scale x) 1.0)(set! (-> (-> (the-as target *target* )root)scale y) 1.0)(set! (-> (-> (the-as target *target* )root)scale z) 1.0)")
+            message = ""
+			
+        if PREFIX + "flatjak" == str(args[0]).lower() and on_check("flatjak") and cd_check("scale"):
+            deactivate("bigjak")
+            deactivate("smalljak")
+            deactivate("widejak")
+            deactivate("scale")
+            active_check("flatjak", 
+            "(set! (-> (-> (the-as target *target* )root)scale x) 1.3)(set! (-> (-> (the-as target *target* )root)scale y) 0.2)(set! (-> (-> (the-as target *target* )root)scale z) 1.3)",
+            "(set! (-> (-> (the-as target *target* )root)scale x) 1.0)(set! (-> (-> (the-as target *target* )root)scale y) 1.0)(set! (-> (-> (the-as target *target* )root)scale z) 1.0)")
+            message = ""	
+
+        if PREFIX + "smalljak" == str(args[0]).lower() and on_check("smalljak") and cd_check("scale"):
+            deactivate("bigjak")
+            deactivate("scale")
+            deactivate("widejak")
+            deactivate("flatjak")
+            active_check("smalljak", 
+            "(set! (-> (-> (the-as target *target* )root)scale x) 0.4)(set! (-> (-> (the-as target *target* )root)scale y) 0.4)(set! (-> (-> (the-as target *target* )root)scale z) 0.4)",
+            "(set! (-> (-> (the-as target *target* )root)scale x) 1.0)(set! (-> (-> (the-as target *target* )root)scale y) 1.0)(set! (-> (-> (the-as target *target* )root)scale z) 1.0)")
+            message = ""
+			
+        if PREFIX + "bigjak" == str(args[0]).lower() and on_check("bigjak") and cd_check("scale"):
+            deactivate("scale")
+            deactivate("smalljak")
+            deactivate("widejak")
+            deactivate("flatjak")
+            active_check("bigjak", 
+            "(set! (-> (-> (the-as target *target* )root)scale x) 2.7)(set! (-> (-> (the-as target *target* )root)scale y) 2.7)(set! (-> (-> (the-as target *target* )root)scale z) 2.7)",
+            "(set! (-> (-> (the-as target *target* )root)scale x) 1.0)(set! (-> (-> (the-as target *target* )root)scale y) 1.0)(set! (-> (-> (the-as target *target* )root)scale z) 1.0)")
+            message = ""
+			
+        if PREFIX + "color" == str(args[0]).lower() and len(args) >= 4 and on_check("color") and cd_check("color"):
+            activate("color")
+            sendForm("(set! (-> *target* draw color-mult x) (+ 0.0 " + str(args[1]) + "))(set! (-> *target* draw color-mult y) (+ 0.0 " + str(args[2]) + "))(set! (-> *target* draw color-mult z) (+ 0.0 " + str(args[3]) + "))")
+            message = ""
+			
+        if PREFIX + "scale" == str(args[0]).lower() and len(args) >= 4 and max_val(str(args[1]), 15) and max_val(str(args[2]), 15) and max_val(str(args[3]), 15) and on_check("scale") and cd_check("scale"):
+            deactivate("bigjak")
+            deactivate("smalljak")
+            deactivate("widejak")
+            deactivate("flatjak")
+            activate("scale")
+            sendForm("(set! (-> (-> (the-as target *target* )root)scale x) (+ 0.0 " + str(args[1]) + "))(set! (-> (-> (the-as target *target* )root)scale y) (+ 0.0 " + str(args[2]) + "))(set! (-> (-> (the-as target *target* )root)scale z) (+ 0.0 " + str(args[3]) + "))")
+            message = ""
+
         #if PREFIX + "heatmax" == str(args[0]).lower() and len(args) >= 2:
         #    sendForm("(set! (-> *RACER-bank* heat-max) " + str(args[1]) + ")")
         #    message = ""
@@ -461,7 +567,7 @@ def gamecontrol():
         #    sendForm("(set! (-> *FACT-bank* eco-full-timeout) (seconds " + str(args[1]) + "))")
         #    message = ""
             
-        if str(args[0]) == PREFIX + "repl" and len(args) >= 2 and on_check(44) and cd_check(44):
+        if str(args[0]) == PREFIX + "repl" and len(args) >= 2 and on_check("repl") and cd_check("repl"):
             if COMMANDMODS.count(user) > 0:
                 args = message.split(" ", 1)
                 sendForm(str(args[1]))
@@ -471,57 +577,29 @@ def gamecontrol():
                 message = ""
         
         #check which commands have reached their duration, then deactivate
-        if active[1] and (time.time() - last_used[1]) >= durations[1]:
-            deactivate(1)
-            sendForm("(set! (-> *TARGET-bank* jump-height-max)(meters 3.5))(set! (-> *TARGET-bank* jump-height-min)(meters 1.01))(set! (-> *TARGET-bank* double-jump-height-max)(meters 2.5))(set! (-> *TARGET-bank* double-jump-height-min)(meters 1))")
-        if active[2] and (time.time() - last_used[2]) >= durations[2]:
-            deactivate(2)
-            sendForm("(set! (-> *edge-surface* fric) 30720.0)")
-        if active[3] and (time.time() - last_used[3]) >= durations[3]:
-            deactivate(3)
-            sendForm("(set! (-> *edge-surface* fric) 30720.0)")
-        if active[4] and (time.time() - last_used[4]) >= durations[4]:
-            deactivate(4)
-            sendForm("(set! (-> *walk-mods* target-speed) 40960.0)(set! (-> *double-jump-mods* target-speed) 32768.0)(set! (-> *jump-mods* target-speed) 40960.0)(set! (-> *jump-attack-mods* target-speed) 24576.0)(set! (-> *attack-mods* target-speed) 40960.0)(set! (-> *forward-high-jump-mods* target-speed) 45056.0)(set! (-> *jump-attack-mods* target-speed) 24576.0)")
-        if active[5] and (time.time() - last_used[5]) >= durations[5]:
-            deactivate(5)
-            sendForm("(pc-cheat-toggle-and-tune *pc-settings* eco-yellow)(set! (-> *walk-mods* target-speed) 40960.0)(set! (-> *double-jump-mods* target-speed) 32768.0)(set! (-> *jump-mods* target-speed) 40960.0)(set! (-> *jump-attack-mods* target-speed) 24576.0)(set! (-> *attack-mods* target-speed) 40960.0)(set! (-> *forward-high-jump-mods* target-speed) 45056.0)(set! (-> *jump-attack-mods* target-speed) 24576.0)(set! (-> *TARGET-bank* wheel-flip-dist) (meters 17.3))(send-event *target* 'get-pickup (pickup-type eco-blue) 0.1)")
-        if active[6] and (time.time() - last_used[6]) >= durations[6]:
-            deactivate(6)
-            sendForm("(set! (-> *TARGET-bank* punch-radius) (meters 1.3))(set! (-> *TARGET-bank* spin-radius) (meters 2.2))(set! (-> *TARGET-bank* flop-radius) (meters 1.4))(set! (-> *TARGET-bank* uppercut-radius) (meters 1))")
-        if active[8] and (time.time() - last_used[8]) >= durations[8]:
-            deactivate(8)
-            sendForm("(set! (-> *TARGET-bank* fall-far) (meters 30))(set! (-> *TARGET-bank* fall-far-inc) (meters 20))")
-        if active[9] and (time.time() - last_used[9]) >= durations[9]:
-            deactivate(9)
-            sendForm("(set! (-> *TARGET-bank* body-radius) (meters 0.7))")
-        if active[12] and (time.time() - last_used[12]) >= durations[12]:
-            deactivate(12)
-            sendForm("(start 'play (get-or-create-continue! *game-info*))")
-        if active[18] and (time.time() - last_used[18]) >= durations[18]:
-            deactivate(18)
-            sendForm("(set! (-> *FACT-bank* eco-full-timeout) (seconds 20.0))")
-        if active[31] and (time.time() - last_used[31]) >= durations[31]:
-            deactivate(31)
-            sendForm("(set! (-> *pc-settings* third-camera-h-inverted?) #t)(set! (-> *pc-settings* third-camera-v-inverted?) #t)(set! (-> *pc-settings* first-camera-v-inverted?) #t)(set! (-> *pc-settings* first-camera-h-inverted?) #f)")
-        if active[35] and (time.time() - last_used[35]) >= durations[35]:
-            deactivate(35)
-            sendForm("(set! (-> (level-get-target-inside *level*) mood-func)update-mood-training)")
-        if active[36] and (time.time() - last_used[36]) >= durations[36]:
-            deactivate(36)
-            sendForm("(send-event *target* 'sidekick #t)")
-        if active[37] and (time.time() - last_used[37]) >= durations[37]:
-            deactivate(37)
-            sendForm("(set! (-> *FISHER-bank* net-radius)(meters 0.7))")
-        if active[38] and (time.time() - last_used[38]) >= durations[38]:
-            deactivate(38)
-            sendForm("(set! (-> *FISHER-bank* width)(meters 3.3))")
-        if active[39] and (time.time() - last_used[39]) >= durations[39]:
-            deactivate(39)
-            sendForm("(set! (-> *pc-settings* lod-force-tfrag) 2)(set! (-> *pc-settings* lod-force-tie) 3)(set! (-> *pc-settings* lod-force-ocean) 2)(set! (-> *pc-settings* lod-force-actor) 3)")
-            
-        
-            
+        active_sweep("superjump","(set! (-> *TARGET-bank* jump-height-max)(meters 3.5))(set! (-> *TARGET-bank* jump-height-min)(meters 1.01))(set! (-> *TARGET-bank* double-jump-height-max)(meters 2.5))(set! (-> *TARGET-bank* double-jump-height-min)(meters 1))")
+        active_sweep("superboosted","(set! (-> *edge-surface* fric) 30720.0)")
+        active_sweep("noboosteds","(set! (-> *edge-surface* fric) 30720.0)")
+        active_sweep("fastjak","(set! (-> *walk-mods* target-speed) 40960.0)(set! (-> *double-jump-mods* target-speed) 32768.0)(set! (-> *jump-mods* target-speed) 40960.0)(set! (-> *jump-attack-mods* target-speed) 24576.0)(set! (-> *attack-mods* target-speed) 40960.0)(set! (-> *forward-high-jump-mods* target-speed) 45056.0)(set! (-> *jump-attack-mods* target-speed) 24576.0)")
+        active_sweep("slowjak", "(pc-cheat-toggle-and-tune *pc-settings* eco-yellow)(set! (-> *walk-mods* target-speed) 40960.0)(set! (-> *double-jump-mods* target-speed) 32768.0)(set! (-> *jump-mods* target-speed) 40960.0)(set! (-> *jump-attack-mods* target-speed) 24576.0)(set! (-> *attack-mods* target-speed) 40960.0)(set! (-> *forward-high-jump-mods* target-speed) 45056.0)(set! (-> *jump-attack-mods* target-speed) 24576.0)(set! (-> *TARGET-bank* wheel-flip-dist) (meters 17.3))(send-event *target* 'get-pickup (pickup-type eco-blue) 0.1)")
+        active_sweep("pacifist", "(set! (-> *TARGET-bank* punch-radius) (meters 1.3))(set! (-> *TARGET-bank* spin-radius) (meters 2.2))(set! (-> *TARGET-bank* flop-radius) (meters 1.4))(set! (-> *TARGET-bank* uppercut-radius) (meters 1))")
+        active_sweep("shortfall", "(set! (-> *TARGET-bank* fall-far) (meters 30))(set! (-> *TARGET-bank* fall-far-inc) (meters 20))")
+        active_sweep("ghostjak", "(set! (-> *TARGET-bank* body-radius) (meters 0.7))")
+        active_sweep("freecam", "(start 'play (get-or-create-continue! *game-info*))")
+        active_sweep("noeco", "(set! (-> *FACT-bank* eco-full-timeout) (seconds 20.0))")
+        active_sweep("invertcam", "(set! (-> *pc-settings* third-camera-h-inverted?) #t)(set! (-> *pc-settings* third-camera-v-inverted?) #t)(set! (-> *pc-settings* first-camera-v-inverted?) #t)(set! (-> *pc-settings* first-camera-h-inverted?) #f)")
+        active_sweep("dark", "(set! (-> (level-get-target-inside *level*) mood-func)update-mood-darkcave)")
+        active_sweep("dax", "(send-event *target* 'sidekick #t)")
+        active_sweep("smallnet", "(when (process-by-ename \"fisher-1\")(set! (-> *FISHER-bank* net-radius)(meters 0.7)))")
+        active_sweep("widefish", "(when (process-by-ename \"fisher-1\")(set! (-> *FISHER-bank* width)(meters 3.3)))")
+        active_sweep("lowpoly", "(set! (-> *pc-settings* lod-force-tfrag) 0)(set! (-> *pc-settings* lod-force-tie) 0)(set! (-> *pc-settings* lod-force-ocean) 0)(set! (-> *pc-settings* lod-force-actor) 0)")
+        active_sweep("widejak", "(set! (-> (-> (the-as target *target* )root)scale x) 1.0)(set! (-> (-> (the-as target *target* )root)scale y) 1.0)(set! (-> (-> (the-as target *target* )root)scale z) 1.0)")
+        active_sweep("flatjak", "(set! (-> (-> (the-as target *target* )root)scale x) 1.0)(set! (-> (-> (the-as target *target* )root)scale y) 1.0)(set! (-> (-> (the-as target *target* )root)scale z) 1.0)")
+        active_sweep("smalljak", "(set! (-> (-> (the-as target *target* )root)scale x) 1.0)(set! (-> (-> (the-as target *target* )root)scale y) 1.0)(set! (-> (-> (the-as target *target* )root)scale z) 1.0)")
+        active_sweep("bigjak", "(set! (-> (-> (the-as target *target* )root)scale x) 1.0)(set! (-> (-> (the-as target *target* )root)scale y) 1.0)(set! (-> (-> (the-as target *target* )root)scale z) 1.0)")
+        active_sweep("color", "(set! (-> *target* draw color-mult x) 1.0)(set! (-> *target* draw color-mult y) 1.0)(set! (-> *target* draw color-mult z) 1.0)")
+        active_sweep("scale", "(set! (-> (-> (the-as target *target* )root)scale x) 1.0)(set! (-> (-> (the-as target *target* )root)scale y) 1.0)(set! (-> (-> (the-as target *target* )root)scale z) 1.0)")
+			
 #Dont touch
 def twitch():
 
