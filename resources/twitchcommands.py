@@ -44,8 +44,6 @@ PREFIX = str(os.getenv("PREFIX"))
 launcher_version = exists(application_path+"\OpenGOAL-Launcher.exe")
 
 #checks
-OUTHBAD = False
-
 
 if (not exists(".env")):
     print("ERROR ENV FILE NOT FOUND NOT FOUND")
