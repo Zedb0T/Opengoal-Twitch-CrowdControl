@@ -20,6 +20,15 @@ if getattr(sys, 'frozen', False):
 elif __file__:
     application_path = os.path.dirname(__file__)
 
+
+if (exists(".env.txt")):
+	if(exists(".env")):
+		shutil.remove(".env")
+	os.replace(".env.txt", ".env")
+	
+if(exists("env")):
+	os.replace("env",".env")
+	
 #env values
 load_dotenv()
 OAUTH = str(os.getenv("OAUTH"))
@@ -37,24 +46,14 @@ launcher_version = exists(application_path+"\OpenGOAL-Launcher.exe")
 #checks
 OUTHBAD = False
 
-if (exists(".env.txt")):
-	if(exists(".env")):
-		shutil.remove(".env")
-	os.replace(".env.txt", ".env")
-	
-if(exists("env")):
-	os.replace("env",".env")
 
 if (not exists(".env")):
     print("ERROR ENV FILE NOT FOUND NOT FOUND")
     time.sleep(936814)
-    
-if ((len(OAUTH) != 36) or (OAUTH[0:6] != "oauth:")):
-    OAUTHBAD = True
 
-if (OAUTHBAD):
-    print("ERROR: Auth is not good, please get new auth from: https://twitchapps.com/tmi/")
-    time.sleep(648736)
+if ((len(OAUTH) != 36) or (OAUTH[0:6] != "oauth:")):
+    print("ERROR: Invalid ouath -- please get new oauth from: https://twitchapps.com/tmi/")
+    time.sleep(936814)
 	
 #paths
 PATHTOGOALC = application_path + "\goalc.exe"
