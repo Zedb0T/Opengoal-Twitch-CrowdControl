@@ -34,6 +34,20 @@ PREFIX = str(os.getenv("PREFIX"))
 #bool that checks if its the launcher version
 launcher_version = exists(application_path+"\OpenGOAL-Launcher.exe")
 
+#checks
+OUTHBAD = False
+
+if (not exists(".env")):
+    print("ERROR ENV FILE NOT FOUND NOT FOUND")
+    time.sleep(936814)
+    
+if ((len(OAUTH) != 36) or (OAUTH[0:6] != "oauth:")):
+    OAUTHBAD = True
+
+if (OAUTHBAD):
+    print("ERROR: Auth is not good, please get new auth from: https://twitchapps.com/tmi/")
+    time.sleep(648736)
+	
 #paths
 PATHTOGOALC = application_path + "\goalc.exe"
 PATHTOGK = application_path +"\gk.exe -boot -fakeiso -debug -v"
