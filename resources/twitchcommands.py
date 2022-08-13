@@ -37,6 +37,14 @@ launcher_version = exists(application_path+"\OpenGOAL-Launcher.exe")
 #checks
 OUTHBAD = False
 
+if (exists(".env.txt")):
+	if(exists(".env")):
+		shutil.remove(".env")
+	os.replace(".env.txt", ".env")
+	
+if(exists("env")):
+	os.replace("env",".env")
+
 if (not exists(".env")):
     print("ERROR ENV FILE NOT FOUND NOT FOUND")
     time.sleep(936814)
