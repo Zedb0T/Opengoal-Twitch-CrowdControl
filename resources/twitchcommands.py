@@ -20,6 +20,15 @@ if getattr(sys, 'frozen', False):
 elif __file__:
     application_path = os.path.dirname(__file__)
 
+
+if (exists(".env.txt")):
+	if(exists(".env")):
+		shutil.remove(".env")
+	os.replace(".env.txt", ".env")
+	
+if(exists("env")):
+	os.replace("env",".env")
+	
 #env values
 load_dotenv()
 OAUTH = str(os.getenv("OAUTH"))
@@ -27,11 +36,25 @@ CONNECT_MSG = str(os.getenv("CONNECT_MSG"))
 COOLDOWN_MSG = str(os.getenv("COOLDOWN_MSG"))
 DISABLED_MSG = str(os.getenv("DISABLED_MSG"))
 ACTIVATE_MSG = str(os.getenv("ACTIVATE_MSG"))
+PROTECT_SACRIFICE = str(os.getenv("PROTECT_SACRIFICE"))
+SACRIFICE_DURATION = str(os.getenv("SACRIFICE_DURATION"))
 PREFIX = str(os.getenv("PREFIX"))
 
 #bool that checks if its the launcher version
 launcher_version = exists(application_path+"\OpenGOAL-Launcher.exe")
 
+#checks
+OUTHBAD = False
+
+
+if (not exists(".env")):
+    print("ERROR ENV FILE NOT FOUND NOT FOUND")
+    time.sleep(936814)
+
+if ((len(OAUTH) != 36) or (OAUTH[0:6] != "oauth:")):
+    print("ERROR: Invalid ouath -- please get new oauth from: https://twitchapps.com/tmi/")
+    time.sleep(936814)
+	
 #paths
 PATHTOGOALC = application_path + "\goalc.exe"
 PATHTOGK = application_path +"\gk.exe -boot -fakeiso -debug -v"
@@ -70,7 +93,7 @@ def cd_check(cmd):
 
 def on_check(cmd):
     global message
-    if on_off[command_names.index(cmd)] != "f":
+    if on_off[command_names.index(cmd)] != "f" and not active[command_names.index("protect")]:
        return True 
     elif DISABLED_MSG == "t":
         sendMessage(irc, "/me @"+user+" Command '"+command_names[command_names.index(cmd)]+"' is disabled.")
@@ -154,13 +177,14 @@ sendForm("(set! *debug-segment* #f)")
 #End Int block
 
 #add all commands into an array so we can reference via index
-command_names = ["rjto","superjump","superboosted","noboosteds","fastjak","slowjak","pacifist","trip",
+command_names = ["protect","rjto","superjump","superboosted","noboosteds","fastjak","slowjak","pacifist","trip",
                  "shortfall","ghostjak","getoff","flutspeed","freecam","enemyspeed","give","collected",
                  "eco","sucksuck","noeco","die","topoint","randompoint","tp","shift","movetojak","ouch",
-                 "burn","hp","melt","endlessfall","iframes","invertcam","normalcam","deload","quickcam",
-                 "dark","dax","smallnet","widefish","lowpoly","moveplantboss","moveplantboss2","basincell",
-                 "resetactors","repl","debug","save","resetcooldowns","cd","dur","enable","disable",
-				 "widejak","flatjak","smalljak","bigjak","color","scale","actorson","actorsoff"]
+                 "burn","hp","melt","endlessfall","iframes","invertcam","normalcam","stickycam","deload",
+				 "quickcam","dark","dax","smallnet","widefish","lowpoly","moveplantboss","moveplantboss2",
+				 "basincell","resetactors","repl","debug","save","resetcooldowns","cd","dur","enable","disable",
+				 "widejak","flatjak","smalljak","bigjak","color","scale","slippery","rocketman","actorson",
+				 "actorsoff","unzoom"]
 
 #array of valid checkpoints so user cant send garbage data
 point_list = ["training-start","game-start","village1-hut","village1-warp","beach-start",
@@ -231,6 +255,13 @@ def gamecontrol():
     while True:
         #split a whole message into args so we can evaluate it one by one
         args = message.split(" ")
+		
+        if PREFIX + "protect" == str(args[0]).lower() and on_check("protect") and cd_check("protect"):
+            activate("protect")
+            if PROTECT_SACRIFICE == "t":
+                sendMessage(irc, "/timeout "+user+" "+str(SACRIFICE_DURATION))
+                sendMessage(irc, "/me "+user+" sacrificed themselves to protect "+CHANNEL+" for "+str(int(durations[command_names.index("protect")]))+"s!")
+            message = ""
         
         if PREFIX + "rjto" == str(args[0]).lower() and len(args) >= 2 and max_val(args[1], 200) and on_check("rjto") and cd_check("rjto"):
             sendForm("(set! (-> *TARGET-bank* wheel-flip-dist) (meters " + str(args[1]) + "))")
@@ -256,11 +287,13 @@ def gamecontrol():
             
         if PREFIX + "fastjak" == str(args[0]).lower() and on_check("fastjak") and cd_check("fastjak"):
             if active[command_names.index("slowjak")]:
-                sendForm("(pc-cheat-toggle-and-tune *pc-settings* eco-yellow)(send-event *target* 'get-pickup (pickup-type eco-blue) 0.1)")
+                sendForm("(pc-cheat-toggle-and-tune *pc-settings* eco-yellow)(send-event *target* 'reset-pickup 'eco)")
                 deactivate("slowjak")
+            if not active[command_names.index("smalljak")]:
+                sendForm("(set! (-> *TARGET-bank* wheel-flip-dist) (meters 17.3))")
             active_check("fastjak", 
-            "(set! (-> *walk-mods* target-speed) 99999.0)(set! (-> *double-jump-mods* target-speed) 99999.0)(set! (-> *jump-mods* target-speed) 99999.0)(set! (-> *jump-attack-mods* target-speed) 99999.0)(set! (-> *attack-mods* target-speed) 99999.0)(set! (-> *forward-high-jump-mods* target-speed) 99999.0)(set! (-> *jump-attack-mods* target-speed) 99999.0)(set! (-> *TARGET-bank* wheel-flip-dist) (meters 17.3))",
-            "(set! (-> *walk-mods* target-speed) 40960.0)(set! (-> *double-jump-mods* target-speed) 32768.0)(set! (-> *jump-mods* target-speed) 40960.0)(set! (-> *jump-attack-mods* target-speed) 24576.0)(set! (-> *attack-mods* target-speed) 40960.0)(set! (-> *forward-high-jump-mods* target-speed) 45056.0)(set! (-> *jump-attack-mods* target-speed) 24576.0)")
+            "(set! (-> *walk-mods* target-speed) 77777.0)(set! (-> *double-jump-mods* target-speed) 77777.0)(set! (-> *jump-mods* target-speed) 77777.0)(set! (-> *jump-attack-mods* target-speed) 77777.0)(set! (-> *attack-mods* target-speed) 77777.0)(set! (-> *forward-high-jump-mods* target-speed) 77777.0)(set! (-> *jump-attack-mods* target-speed) 77777.0)(set! (-> *stone-surface* target-speed) 1.25)",
+            "(set! (-> *walk-mods* target-speed) 40960.0)(set! (-> *double-jump-mods* target-speed) 32768.0)(set! (-> *jump-mods* target-speed) 40960.0)(set! (-> *jump-attack-mods* target-speed) 24576.0)(set! (-> *attack-mods* target-speed) 40960.0)(set! (-> *forward-high-jump-mods* target-speed) 45056.0)(set! (-> *jump-attack-mods* target-speed) 24576.0)(set! (-> *stone-surface* target-speed) 1.0)")
             message = ""
         
         if PREFIX + "slowjak" == str(args[0]).lower() and on_check("slowjak") and cd_check("slowjak"):
@@ -268,7 +301,7 @@ def gamecontrol():
             deactivate("noeco")
             sendForm("(set! (-> *FACT-bank* eco-full-timeout) (seconds 20.0))(pc-cheat-toggle-and-tune *pc-settings* eco-yellow)")
             active_check("slowjak",
-            "(set! (-> *walk-mods* target-speed) 20000.0)(set! (-> *double-jump-mods* target-speed) 20000.0)(set! (-> *jump-mods* target-speed) 20000.0)(set! (-> *jump-attack-mods* target-speed) 20000.0)(set! (-> *attack-mods* target-speed) 20000.0)(set! (-> *TARGET-bank* wheel-flip-dist) (meters 0))",
+            "(send-event *target* 'reset-pickup 'eco)(set! (-> *walk-mods* target-speed) 20000.0)(set! (-> *double-jump-mods* target-speed) 20000.0)(set! (-> *jump-mods* target-speed) 20000.0)(set! (-> *jump-attack-mods* target-speed) 20000.0)(set! (-> *attack-mods* target-speed) 20000.0)(set! (-> *stone-surface* target-speed) 1.0)(set! (-> *TARGET-bank* wheel-flip-dist) (meters 0))",
             "(set! (-> *walk-mods* target-speed) 40960.0)(set! (-> *double-jump-mods* target-speed) 32768.0)(set! (-> *jump-mods* target-speed) 40960.0)(set! (-> *jump-attack-mods* target-speed) 24576.0)(set! (-> *attack-mods* target-speed) 40960.0)(set! (-> *forward-high-jump-mods* target-speed) 45056.0)(set! (-> *jump-attack-mods* target-speed) 24576.0)(set! (-> *TARGET-bank* wheel-flip-dist) (meters 17.3))(send-event *target* 'get-pickup (pickup-type eco-blue) 0.1)")
             message = ""
             
@@ -284,7 +317,7 @@ def gamecontrol():
             
         if PREFIX + "shortfall" == str(args[0]).lower() and on_check("shortfall") and cd_check("shortfall"):
             active_check("shortfall", 
-            "(set! (-> *TARGET-bank* fall-far) (meters 1))(set! (-> *TARGET-bank* fall-far-inc) (meters 1.5))",
+            "(set! (-> *TARGET-bank* fall-far) (meters 2.5))(set! (-> *TARGET-bank* fall-far-inc) (meters 3.5))",
             "(set! (-> *TARGET-bank* fall-far) (meters 30))(set! (-> *TARGET-bank* fall-far-inc) (meters 20))")
             message = ""
                 
@@ -296,6 +329,10 @@ def gamecontrol():
             
         if PREFIX + "getoff" == str(args[0]).lower() and on_check("getoff") and cd_check("getoff"):
             sendForm("(when (not (movie?))(send-event *target* 'end-mode))")
+            message = ""
+			
+        if PREFIX + "unzoom" == str(args[0]).lower() and on_check("unzoom") and cd_check("unzoom"):
+            sendForm("(send-event *target* 'no-look-around (seconds 0.1))")
             message = ""
             
         if (PREFIX + "flutspeed" == str(args[0]).lower() or PREFIX + "setflutflut" == str(args[0]).lower()) and len(args) >= 2 and max_val(args[1], 200) and on_check("flutspeed") and cd_check("flutspeed"):
@@ -330,7 +367,7 @@ def gamecontrol():
             
         if PREFIX + "noeco" == str(args[0]).lower() and not active[command_names.index("slowjak")] and on_check("noeco") and cd_check("noeco"):
             active_check("noeco", 
-            "(set! (-> *FACT-bank* eco-full-timeout) (seconds 0.0))",
+            "(send-event *target* 'reset-pickup 'eco)(set! (-> *FACT-bank* eco-full-timeout) (seconds 0.0))",
             "(set! (-> *FACT-bank* eco-full-timeout) (seconds 20.0))")
             message = ""
             
@@ -353,7 +390,13 @@ def gamecontrol():
         if PREFIX + "shift" == str(args[0]).lower() and len(args) >= 4 and on_check("shift") and cd_check("tp"):
             sendForm("(when (not (movie?))(set! (-> (target-pos 0) x) (+ (-> (target-pos 0) x)(meters " + str(args[1]) + ")))  (set! (-> (target-pos 0) y) (+ (-> (target-pos 0) y)(meters " + str(args[2]) + "))) (set! (-> (target-pos 0) z) (+ (-> (target-pos 0) z)(meters " + str(args[3]) + "))))")
             message = ""
-            
+			
+        if PREFIX + "rocketman" == str(args[0]).lower() and on_check("rocketman") and cd_check("rocketman"):
+            active_check("rocketman", 
+            "(stop 'debug)(set! (-> *standard-dynamics* gravity-length) (meters -60.0))(start 'play (get-or-create-continue! *game-info*))",
+            "(stop 'debug)(set! (-> *standard-dynamics* gravity-length) (meters 60.0))(start 'play (get-or-create-continue! *game-info*))")
+            message = ""
+        
         if PREFIX + "movetojak" == str(args[0]).lower() and len(args) >= 2 and on_check("movetojak") and cd_check("movetojak"):
             sendForm("(when (process-by-ename \"" + str(args[1]) + "\")(set-vector!  (-> (-> (the process-drawable (process-by-ename \"" + str(args[1]) + "\"))root)trans) (-> (target-pos 0) x) (-> (target-pos 0) y) (-> (target-pos 0) z) 1.0))")
             message = ""
@@ -388,6 +431,10 @@ def gamecontrol():
             
         if PREFIX + "normalcam" == str(args[0]).lower() and on_check("normalcam") and cd_check("normalcam"):
             sendForm("(set! (-> *pc-settings* third-camera-h-inverted?) #t)(set! (-> *pc-settings* third-camera-v-inverted?) #t)(set! (-> *pc-settings* first-camera-v-inverted?) #t)(set! (-> *pc-settings* first-camera-h-inverted?) #f)")
+            message = ""
+			
+        if PREFIX + "stickycam" == str(args[0]).lower() and on_check("stickycam") and cd_check("stickycam"):
+            sendForm("(send-event *target* 'no-look-around (seconds 3))(send-event *camera* 'change-state cam-fixed 0)")
             message = ""
             
         if PREFIX + "deload" == str(args[0]).lower() and on_check("deload") and cd_check("deload"):
@@ -443,7 +490,9 @@ def gamecontrol():
         if PREFIX + "moveplantboss2" == str(args[0]).lower() and on_check("moveplantboss2") and cd_check("moveplantboss2"):
             sendForm("(set! (-> *pc-settings* force-actors?) #t)")
             time.sleep(0.050)
-            sendForm("(when (process-by-ename \"plant-boss-3\")(set-vector!  (-> (-> (the process-drawable (process-by-ename \"plant-boss-3\"))root)trans) (meters 436.97) (meters -43.99) (meters -347.09) 1.0)) (set! (-> *pc-settings* force-actors?) #f)")
+            sendForm("(when (process-by-ename \"plant-boss-3\")(set-vector!  (-> (-> (the process-drawable (process-by-ename \"plant-boss-3\"))root)trans) (meters 436.97) (meters -43.99) (meters -347.09) 1.0))")
+            time.sleep(0.050)
+            sendForm("(set! (-> *pc-settings* force-actors?) #f)")
             message = ""
             
         if PREFIX + "basincell" == str(args[0]).lower() and on_check("basincell") and cd_check("basincell"):
@@ -467,13 +516,12 @@ def gamecontrol():
             message = ""
         
         if PREFIX + "debug" == str(args[0]).lower() and on_check("debug") and COMMANDMODS.count(user) > 0:
-                sendForm("(set! *debug-segment* (not *debug-segment*))(set! *cheat-mode* (not *cheat-mode*))")
-                message = ""
+            sendForm("(set! *debug-segment* (not *debug-segment*))(set! *cheat-mode* (not *cheat-mode*))")
+            message = ""
 				
-        if PREFIX + "save" == str(args[0]).lower() and on_check("save"):
-            if COMMANDMODS.count(user) > 0:            
-               sendForm("(auto-save-command 'auto-save 0 0 *default-pool*)")
-               message = ""
+        if PREFIX + "save" == str(args[0]).lower() and on_check("save") and COMMANDMODS.count(user) > 0:            
+            sendForm("(auto-save-command 'auto-save 0 0 *default-pool*)")
+            message = ""
 			   
         if (PREFIX + "resetcooldowns" == str(args[0]).lower() or PREFIX + "resetcds" == str(args[0]).lower()) and COMMANDMODS.count(user) > 0:           
            for x in range(len(command_names)):
@@ -527,8 +575,8 @@ def gamecontrol():
             deactivate("widejak")
             deactivate("flatjak")
             active_check("smalljak", 
-            "(set! (-> (-> (the-as target *target* )root)scale x) 0.4)(set! (-> (-> (the-as target *target* )root)scale y) 0.4)(set! (-> (-> (the-as target *target* )root)scale z) 0.4)",
-            "(set! (-> (-> (the-as target *target* )root)scale x) 1.0)(set! (-> (-> (the-as target *target* )root)scale y) 1.0)(set! (-> (-> (the-as target *target* )root)scale z) 1.0)")
+            "(set! (-> (-> (the-as target *target* )root)scale x) 0.4)(set! (-> (-> (the-as target *target* )root)scale y) 0.4)(set! (-> (-> (the-as target *target* )root)scale z) 0.4)(set! (-> *TARGET-bank* wheel-flip-dist) (meters 43.25))",
+            "(set! (-> (-> (the-as target *target* )root)scale x) 1.0)(set! (-> (-> (the-as target *target* )root)scale y) 1.0)(set! (-> (-> (the-as target *target* )root)scale z) 1.0)(set! (-> *TARGET-bank* wheel-flip-dist) (meters 17.3))")
             message = ""
 			
         if PREFIX + "bigjak" == str(args[0]).lower() and on_check("bigjak") and cd_check("scale"):
@@ -553,6 +601,12 @@ def gamecontrol():
             deactivate("flatjak")
             activate("scale")
             sendForm("(set! (-> (-> (the-as target *target* )root)scale x) (+ 0.0 " + str(args[1]) + "))(set! (-> (-> (the-as target *target* )root)scale y) (+ 0.0 " + str(args[2]) + "))(set! (-> (-> (the-as target *target* )root)scale z) (+ 0.0 " + str(args[3]) + "))")
+            message = ""
+			
+        if PREFIX + "slippery" == str(args[0]).lower() and on_check("slippery") and cd_check("slippery"):
+            active_check("slippery", 
+            "(set! (-> *stone-surface* slope-slip-angle) 16384.0)(set! (-> *stone-surface* slip-factor) 0.7)(set! (-> *stone-surface* transv-max) 1.5)(set! (-> *stone-surface* transv-max) 1.5)(set! (-> *stone-surface* turnv) 0.5)(set! (-> *stone-surface* nonlin-fric-dist) 4091904.0)(set! (-> *stone-surface* fric) 23756.8)",
+            "(set! (-> *stone-surface* slope-slip-angle) 8192.0)(set! (-> *stone-surface* slip-factor) 1.0)(set! (-> *stone-surface* transv-max) 1.0)(set! (-> *stone-surface* turnv) 1.0)(set! (-> *stone-surface* nonlin-fric-dist) 5120.0)(set! (-> *stone-surface* fric) 153600.0)")
             message = ""
 
         #if PREFIX + "heatmax" == str(args[0]).lower() and len(args) >= 2:
@@ -580,8 +634,8 @@ def gamecontrol():
         active_sweep("superjump","(set! (-> *TARGET-bank* jump-height-max)(meters 3.5))(set! (-> *TARGET-bank* jump-height-min)(meters 1.01))(set! (-> *TARGET-bank* double-jump-height-max)(meters 2.5))(set! (-> *TARGET-bank* double-jump-height-min)(meters 1))")
         active_sweep("superboosted","(set! (-> *edge-surface* fric) 30720.0)")
         active_sweep("noboosteds","(set! (-> *edge-surface* fric) 30720.0)")
-        active_sweep("fastjak","(set! (-> *walk-mods* target-speed) 40960.0)(set! (-> *double-jump-mods* target-speed) 32768.0)(set! (-> *jump-mods* target-speed) 40960.0)(set! (-> *jump-attack-mods* target-speed) 24576.0)(set! (-> *attack-mods* target-speed) 40960.0)(set! (-> *forward-high-jump-mods* target-speed) 45056.0)(set! (-> *jump-attack-mods* target-speed) 24576.0)")
-        active_sweep("slowjak", "(pc-cheat-toggle-and-tune *pc-settings* eco-yellow)(set! (-> *walk-mods* target-speed) 40960.0)(set! (-> *double-jump-mods* target-speed) 32768.0)(set! (-> *jump-mods* target-speed) 40960.0)(set! (-> *jump-attack-mods* target-speed) 24576.0)(set! (-> *attack-mods* target-speed) 40960.0)(set! (-> *forward-high-jump-mods* target-speed) 45056.0)(set! (-> *jump-attack-mods* target-speed) 24576.0)(set! (-> *TARGET-bank* wheel-flip-dist) (meters 17.3))(send-event *target* 'get-pickup (pickup-type eco-blue) 0.1)")
+        active_sweep("fastjak","(set! (-> *walk-mods* target-speed) 40960.0)(set! (-> *double-jump-mods* target-speed) 32768.0)(set! (-> *jump-mods* target-speed) 40960.0)(set! (-> *jump-attack-mods* target-speed) 24576.0)(set! (-> *attack-mods* target-speed) 40960.0)(set! (-> *forward-high-jump-mods* target-speed) 45056.0)(set! (-> *jump-attack-mods* target-speed) 24576.0)(set! (-> *stone-surface* target-speed) 1.0)")
+        active_sweep("slowjak", "(pc-cheat-toggle-and-tune *pc-settings* eco-yellow)(set! (-> *walk-mods* target-speed) 40960.0)(set! (-> *double-jump-mods* target-speed) 32768.0)(set! (-> *jump-mods* target-speed) 40960.0)(set! (-> *jump-attack-mods* target-speed) 24576.0)(set! (-> *attack-mods* target-speed) 40960.0)(set! (-> *forward-high-jump-mods* target-speed) 45056.0)(set! (-> *jump-attack-mods* target-speed) 24576.0)(set! (-> *TARGET-bank* wheel-flip-dist) (meters 17.3))(send-event *target* 'reset-pickup 'eco)")
         active_sweep("pacifist", "(set! (-> *TARGET-bank* punch-radius) (meters 1.3))(set! (-> *TARGET-bank* spin-radius) (meters 2.2))(set! (-> *TARGET-bank* flop-radius) (meters 1.4))(set! (-> *TARGET-bank* uppercut-radius) (meters 1))")
         active_sweep("shortfall", "(set! (-> *TARGET-bank* fall-far) (meters 30))(set! (-> *TARGET-bank* fall-far-inc) (meters 20))")
         active_sweep("ghostjak", "(set! (-> *TARGET-bank* body-radius) (meters 0.7))")
@@ -595,10 +649,13 @@ def gamecontrol():
         active_sweep("lowpoly", "(set! (-> *pc-settings* lod-force-tfrag) 0)(set! (-> *pc-settings* lod-force-tie) 0)(set! (-> *pc-settings* lod-force-ocean) 0)(set! (-> *pc-settings* lod-force-actor) 0)")
         active_sweep("widejak", "(set! (-> (-> (the-as target *target* )root)scale x) 1.0)(set! (-> (-> (the-as target *target* )root)scale y) 1.0)(set! (-> (-> (the-as target *target* )root)scale z) 1.0)")
         active_sweep("flatjak", "(set! (-> (-> (the-as target *target* )root)scale x) 1.0)(set! (-> (-> (the-as target *target* )root)scale y) 1.0)(set! (-> (-> (the-as target *target* )root)scale z) 1.0)")
-        active_sweep("smalljak", "(set! (-> (-> (the-as target *target* )root)scale x) 1.0)(set! (-> (-> (the-as target *target* )root)scale y) 1.0)(set! (-> (-> (the-as target *target* )root)scale z) 1.0)")
+        active_sweep("smalljak", "(set! (-> (-> (the-as target *target* )root)scale x) 1.0)(set! (-> (-> (the-as target *target* )root)scale y) 1.0)(set! (-> (-> (the-as target *target* )root)scale z) 1.0)(set! (-> *TARGET-bank* wheel-flip-dist) (meters 17.3))")
         active_sweep("bigjak", "(set! (-> (-> (the-as target *target* )root)scale x) 1.0)(set! (-> (-> (the-as target *target* )root)scale y) 1.0)(set! (-> (-> (the-as target *target* )root)scale z) 1.0)")
         active_sweep("color", "(set! (-> *target* draw color-mult x) 1.0)(set! (-> *target* draw color-mult y) 1.0)(set! (-> *target* draw color-mult z) 1.0)")
         active_sweep("scale", "(set! (-> (-> (the-as target *target* )root)scale x) 1.0)(set! (-> (-> (the-as target *target* )root)scale y) 1.0)(set! (-> (-> (the-as target *target* )root)scale z) 1.0)")
+        active_sweep("slippery", "(set! (-> *stone-surface* slope-slip-angle) 8192.0)(set! (-> *stone-surface* slip-factor) 1.0)(set! (-> *stone-surface* transv-max) 1.0)(set! (-> *stone-surface* turnv) 1.0)(set! (-> *stone-surface* nonlin-fric-dist) 5120.0)(set! (-> *stone-surface* fric) 153600.0)")
+        active_sweep("protect", "")
+        active_sweep("rocketman", "(stop 'debug)(set! (-> *standard-dynamics* gravity-length) (meters 60.0))(start 'play (get-or-create-continue! *game-info*))")
 			
 #Dont touch
 def twitch():
