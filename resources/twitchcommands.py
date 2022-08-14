@@ -46,7 +46,7 @@ launcher_version = exists(application_path+"\OpenGOAL-Launcher.exe")
 #checks
 
 if (not exists(".env")):
-    print("ERROR ENV FILE NOT FOUND NOT FOUND")
+    print("ERROR: .env file not found -- please check if it is in the same folder as gk.exe and JakCrowdControl.exe")
     time.sleep(936814)
 
 if ((len(OAUTH) != 36) or (OAUTH[0:6] != "oauth:")):
@@ -105,7 +105,6 @@ def active_check(cmd, line1, line2):
     if not active[command_names.index(cmd)]:
         sendForm(line1)
         activate(cmd)
-        activated[command_names.index(cmd)] = time.time()
     else:
         sendForm(line2)
         deactivate(cmd)
@@ -424,10 +423,12 @@ def gamecontrol():
             message = ""
             
         if PREFIX + "invertcam" == str(args[0]).lower() and len(args) >= 3 and on_check("invertcam") and cd_check("invertcam"):
+            activate("invertcam")
             sendForm("(set! (-> *pc-settings* " + str(args[1]) + "-camera-" + str(args[2]) + "-inverted?) (not (-> *pc-settings* " + str(args[1]) + "-camera-" + str(args[2]) + "-inverted?)))")
             message = ""
             
         if PREFIX + "normalcam" == str(args[0]).lower() and on_check("normalcam") and cd_check("normalcam"):
+            deactivate("invertcam")
             sendForm("(set! (-> *pc-settings* third-camera-h-inverted?) #t)(set! (-> *pc-settings* third-camera-v-inverted?) #t)(set! (-> *pc-settings* first-camera-v-inverted?) #t)(set! (-> *pc-settings* first-camera-h-inverted?) #f)")
             message = ""
 			
