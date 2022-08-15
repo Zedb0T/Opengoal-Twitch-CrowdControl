@@ -127,14 +127,14 @@ def deactivate(cmd):
             sendMessage(irc, "/me > '"+command_names[command_names.index(cmd)]+"' deactivated!")
          active[command_names.index(cmd)] = False
 		
-def max_val(val, max):
+def max_val(val, min, max):
     global message
     try:
         float(val)
-        if float(val) <= max and float(val) >= (max * -1):
+        if float(val) <= max and float(val) >= min:
            return True
         else:
-           sendMessage(irc, "/me @"+user+" Use values between " + str(max * -1) + " and " + str(max) + ".")
+           sendMessage(irc, "/me @"+user+" Use values between " + str(min) + " and " + str(max) + ".")
            message = ""
            return False
     except ValueError:
@@ -260,7 +260,7 @@ def gamecontrol():
                 sendMessage(irc, "/me "+user+" sacrificed themselves to protect "+CHANNEL+" for "+str(int(durations[command_names.index("protect")]))+"s!")
             message = ""
         
-        if PREFIX + "rjto" == str(args[0]).lower() and len(args) >= 2 and max_val(args[1], 200) and on_check("rjto") and cd_check("rjto"):
+        if PREFIX + "rjto" == str(args[0]).lower() and len(args) >= 2 and max_val(args[1], -200, 200) and on_check("rjto") and cd_check("rjto"):
             sendForm("(set! (-> *TARGET-bank* wheel-flip-dist) (meters " + str(args[1]) + "))")
             message = ""
         
@@ -332,7 +332,7 @@ def gamecontrol():
             sendForm("(send-event *target* 'no-look-around (seconds 0.1))")
             message = ""
             
-        if (PREFIX + "flutspeed" == str(args[0]).lower() or PREFIX + "setflutflut" == str(args[0]).lower()) and len(args) >= 2 and max_val(args[1], 200) and on_check("flutspeed") and cd_check("flutspeed"):
+        if (PREFIX + "flutspeed" == str(args[0]).lower() or PREFIX + "setflutflut" == str(args[0]).lower()) and len(args) >= 2 and max_val(args[1], -200, 200) and on_check("flutspeed") and cd_check("flutspeed"):
             sendForm("(set! (-> *flut-walk-mods* target-speed)(meters " + str(args[1]) + "))")
             message = ""
             
@@ -342,7 +342,7 @@ def gamecontrol():
             "(start 'play (get-or-create-continue! *game-info*))")
             message = ""
             
-        if PREFIX + "enemyspeed" == str(args[0]).lower() and len(args) >= 3 and max_val(args[1], 200) and on_check("enemyspeed") and cd_check("enemyspeed"):
+        if PREFIX + "enemyspeed" == str(args[0]).lower() and len(args) >= 3 and max_val(args[1], -200, 200) and on_check("enemyspeed") and cd_check("enemyspeed"):
             sendForm("(set! (-> *" + str(args[1]) + "-nav-enemy-info* run-travel-speed) (meters " + str(args[2]) + "))")
             message = ""
             
@@ -358,7 +358,7 @@ def gamecontrol():
             sendForm("(send-event *target* 'get-pickup (pickup-type eco-" + str(args[1]) + ") 5.0)")
             message = ""
             
-        if (PREFIX + "sucksuck" == str(args[0]).lower() or PREFIX + "setsucksuck" == str(args[0]).lower()) and len(args) >= 2 and max_val(args[1], 200) and on_check("sucksuck") and cd_check("sucksuck"):
+        if (PREFIX + "sucksuck" == str(args[0]).lower() or PREFIX + "setsucksuck" == str(args[0]).lower()) and len(args) >= 2 and max_val(args[1], -200, 200) and on_check("sucksuck") and cd_check("sucksuck"):
             sendForm("(set! (-> *FACT-bank* suck-suck-dist) (meters " + str(args[1]) + "))(set! (-> *FACT-bank* suck-bounce-dist) (meters " + str(args[1]) + "))")
             message = ""
             
@@ -588,12 +588,12 @@ def gamecontrol():
             "(set! (-> (-> (the-as target *target* )root)scale x) 1.0)(set! (-> (-> (the-as target *target* )root)scale y) 1.0)(set! (-> (-> (the-as target *target* )root)scale z) 1.0)")
             message = ""
 			
-        if PREFIX + "color" == str(args[0]).lower() and len(args) >= 4 and on_check("color") and cd_check("color"):
+        if (PREFIX + "color" == str(args[0]).lower() or PREFIX + "colour" == str(args[0]).lower()) and len(args) >= 4 and on_check("color") and cd_check("color"):
             activate("color")
             sendForm("(set! (-> *target* draw color-mult x) (+ 0.0 " + str(args[1]) + "))(set! (-> *target* draw color-mult y) (+ 0.0 " + str(args[2]) + "))(set! (-> *target* draw color-mult z) (+ 0.0 " + str(args[3]) + "))")
             message = ""
 			
-        if PREFIX + "scale" == str(args[0]).lower() and len(args) >= 4 and max_val(str(args[1]), 15) and max_val(str(args[2]), 15) and max_val(str(args[3]), 15) and on_check("scale") and cd_check("scale"):
+        if PREFIX + "scale" == str(args[0]).lower() and len(args) >= 4 and max_val(str(args[1]), -15, 15) and max_val(str(args[2]), -15, 15) and max_val(str(args[3]), -15, 15) and on_check("scale") and cd_check("scale"):
             deactivate("bigjak")
             deactivate("smalljak")
             deactivate("widejak")
