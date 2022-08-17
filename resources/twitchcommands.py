@@ -339,6 +339,12 @@ def gamecontrol():
             active_check("freecam", 
             "(stop 'debug)",
             "(start 'play (get-or-create-continue! *game-info*))")
+            deactivate("scale")
+            deactivate("color")
+            deactivate("bigjak")
+            deactivate("smalljak")
+            deactivate("widejak")
+            deactivate("flatjak")
             message = ""
 
         if PREFIX + "enemyspeed" == str(args[0]).lower() and len(args) >= 3 and max_val(args[1], -200, 200) and on_check("enemyspeed") and cd_check("enemyspeed"):
@@ -369,14 +375,32 @@ def gamecontrol():
 
         if PREFIX + "die" == str(args[0]).lower() and on_check("die") and cd_check("die"):
             sendForm("(when (not (movie?))(initialize! *game-info* 'die (the-as game-save #f) (the-as string #f)))")
+            deactivate("scale")
+            deactivate("color")
+            deactivate("bigjak")
+            deactivate("smalljak")
+            deactivate("widejak")
+            deactivate("flatjak")
             message = ""
 
         if (PREFIX + "topoint" == str(args[0]).lower() or PREFIX + "gotopoint" == str(args[0]).lower() or PREFIX + "gotolevel" == str(args[0]).lower()) and len(args) >= 2 and point_list.count(str(args[1]).lower()) == 1 and on_check("topoint") and cd_check("topoint"):
             sendForm("(start 'play (get-continue-by-name *game-info* \"" + str(args[1]) + "\"))(auto-save-command 'auto-save 0 0 *default-pool*)")
+            deactivate("scale")
+            deactivate("color")
+            deactivate("bigjak")
+            deactivate("smalljak")
+            deactivate("widejak")
+            deactivate("flatjak")
             message = ""
 
         if (PREFIX + "randompoint" == str(args[0]).lower() or PREFIX + "randomcheckpoint" == str(args[0]).lower()) and on_check("randompoint") and cd_check("topoint"):
             sendForm("(start 'play (get-continue-by-name *game-info* \"" + point_list[random.choice(range(0,52))] + "\"))(auto-save-command 'auto-save 0 0 *default-pool*)")
+            deactivate("scale")
+            deactivate("color")
+            deactivate("bigjak")
+            deactivate("smalljak")
+            deactivate("widejak")
+            deactivate("flatjak")
             message = ""
 
         if PREFIX + "tp" == str(args[0]).lower() and len(args) >= 4 and on_check("tp") and cd_check("tp"):
@@ -388,6 +412,12 @@ def gamecontrol():
             message = ""
 
         if PREFIX + "rocketman" == str(args[0]).lower() and on_check("rocketman") and cd_check("rocketman"):
+            deactivate("scale")
+            deactivate("color")
+            deactivate("bigjak")
+            deactivate("smalljak")
+            deactivate("widejak")
+            deactivate("flatjak")
             active_check("rocketman", 
             "(stop 'debug)(set! (-> *standard-dynamics* gravity-length) (meters -60.0))(start 'play (get-or-create-continue! *game-info*))",
             "(stop 'debug)(set! (-> *standard-dynamics* gravity-length) (meters 60.0))(start 'play (get-or-create-continue! *game-info*))")
@@ -411,10 +441,22 @@ def gamecontrol():
 
         if PREFIX + "melt" == str(args[0]).lower() and on_check("melt") and cd_check("die"):
             sendForm("(when (not (movie?))(target-attack-up *target* 'attack 'melt))")
+            deactivate("scale")
+            deactivate("color")
+            deactivate("bigjak")
+            deactivate("smalljak")
+            deactivate("widejak")
+            deactivate("flatjak")
             message = ""
 
         if PREFIX + "endlessfall" == str(args[0]).lower() and on_check("endlessfall") and cd_check("die"):
             sendForm("(when (not (movie?))(target-attack-up *target* 'attack 'endlessfall))")
+            deactivate("scale")
+            deactivate("color")
+            deactivate("bigjak")
+            deactivate("smalljak")
+            deactivate("widejak")
+            deactivate("flatjak")
             message = ""
 
         if PREFIX + "iframes" == str(args[0]).lower() and len(args) >= 2 and on_check("iframes") and cd_check("iframes"):
@@ -441,6 +483,12 @@ def gamecontrol():
 
         if (PREFIX + "quickcam" == str(args[0]).lower() or PREFIX + "frickstorage" == str(args[0]).lower()) and on_check("quickcam") and cd_check("quickcam"):
             sendForm("(stop 'debug)")
+            deactivate("scale")
+            deactivate("color")
+            deactivate("bigjak")
+            deactivate("smalljak")
+            deactivate("widejak")
+            deactivate("flatjak")
             time.sleep(0.001)
             sendForm("(start 'play (get-or-create-continue! *game-info*))")
             message = ""
