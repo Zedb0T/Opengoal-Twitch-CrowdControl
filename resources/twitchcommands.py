@@ -175,10 +175,10 @@ sendForm("(set! *debug-segment* #f)")
 #add all commands into an array so we can reference via index
 command_names = ["protect","rjto","superjump","superboosted","noboosteds","fastjak","slowjak","pacifist","trip",
                  "shortfall","ghostjak","getoff","flutspeed","freecam","enemyspeed","give","collected",
-                 "eco","sucksuck","noeco","die","topoint","randompoint","tp","shift","movetojak","ouch",
-                 "burn","hp","melt","endlessfall","iframes","invertcam","normalcam","stickycam","deload",
+                 "eco","sucksuck","noeco","die","topoint","randompoint","setpoint","tp","shift","movetojak","ouch",
+                 "burn","hp","melt","endlessfall","drown","iframes","invertcam","normalcam","stickycam","deload",
 				 "quickcam","dark","dax","smallnet","widefish","lowpoly","moveplantboss","moveplantboss2",
-				 "basincell","resetactors","repl","debug","save","resetcooldowns","cd","dur","enable","disable",
+				 "basincell","resetactors","repl","debug","fixoldsave","save","resetcooldowns","cd","dur","enable","disable",
 				 "widejak","flatjak","smalljak","bigjak","color","scale","slippery","rocketman","actorson",
 				 "actorsoff","unzoom"]
 
@@ -226,8 +226,8 @@ BOT = "jakopengoalbot"
 #The channel you want to monitor
 CHANNEL = str(os.getenv("TARGET_CHANNEL")).lower()
 
-#COMMANDMODS, these users can use the REPL command to create custom commands!
-COMMANDMODS = ["zed_b0t", "mikegamepro", "water112", "barg034", CHANNEL]
+#COMMAND_MODS, these users can use the REPL command to create custom commands!
+COMMAND_MODS = ["zed_b0t", "mikegamepro", "water112", "barg034", CHANNEL]
 
 #initialize empty strings to store user and message
 message = ""
@@ -378,6 +378,10 @@ def gamecontrol():
         if (PREFIX + "randompoint" == str(args[0]).lower() or PREFIX + "randomcheckpoint" == str(args[0]).lower()) and on_check("randompoint") and cd_check("topoint"):
             sendForm("(start 'play (get-continue-by-name *game-info* \"" + point_list[random.choice(range(0,52))] + "\"))(auto-save-command 'auto-save 0 0 *default-pool*)")
             message = ""
+			
+        #if (PREFIX + "setpoint" == str(args[0]).lower() or PREFIX + "setcheckpoint" == str(args[0]).lower()) and on_check("setpoint") and cd_check("setpoint"):
+        #    sendForm("(vector-copy! (-> (-> *game-info* current-continue) trans) (new 'static 'vector :x (-> (target-pos 0) x) :y (-> (target-pos 0) y) :z (-> (target-pos 0) z) :w 1.0))")
+        #    message = ""
 
         if PREFIX + "tp" == str(args[0]).lower() and len(args) >= 4 and on_check("tp") and cd_check("tp"):
             sendForm("(when (not (movie?))(set! (-> (target-pos 0) x) (meters " + str(args[1]) + "))  (set! (-> (target-pos 0) y) (meters " + str(args[2]) + ")) (set! (-> (target-pos 0) z) (meters " + str(args[3]) + ")))")
@@ -416,6 +420,10 @@ def gamecontrol():
         if PREFIX + "endlessfall" == str(args[0]).lower() and on_check("endlessfall") and cd_check("die"):
             sendForm("(when (not (movie?))(target-attack-up *target* 'attack 'endlessfall))")
             message = ""
+			
+        if PREFIX + "drown" == str(args[0]).lower() and on_check("drown") and cd_check("die"):
+            sendForm("(when (not (movie?))(target-attack-up *target* 'attack 'drown-death))")
+            message = ""
 
         if PREFIX + "iframes" == str(args[0]).lower() and len(args) >= 2 and on_check("iframes") and cd_check("iframes"):
             sendForm("(set! (-> *TARGET-bank* hit-invulnerable-timeout) (seconds " + str(args[1]) + "))")
@@ -440,9 +448,9 @@ def gamecontrol():
             message = ""
 
         if (PREFIX + "quickcam" == str(args[0]).lower() or PREFIX + "frickstorage" == str(args[0]).lower()) and on_check("quickcam") and cd_check("quickcam"):
-            sendForm("(stop 'debug)")
-            time.sleep(0.001)
-            sendForm("(start 'play (get-or-create-continue! *game-info*))")
+            sendForm("(stop 'debug)(start 'play (get-or-create-continue! *game-info*))")
+            time.sleep(0.1)
+            sendForm("(set! (-> *game-info* current-continue) (get-continue-by-name *game-info* \"training-start\"))")
             message = ""
 
         if PREFIX + "dark" == str(args[0]).lower() and on_check("dark") and cd_check("dark"):
@@ -504,44 +512,48 @@ def gamecontrol():
         #    sendForm("(set! (-> *FACT-bank* eco-full-timeout) (seconds 20 ))(pc-cheat-toggle-and-tune *pc-settings* eco-yellow)")
         #    message = ""
 
-        if PREFIX + "actorson" == str(args[0]).lower():
+        if PREFIX + "actorson" == str(args[0]).lower() and COMMAND_MODS.count(user) > 0:
             sendForm("(set! (-> *pc-settings* force-actors?) #t)")
             message = ""
 
-        if PREFIX + "actorsoff" == str(args[0]).lower():
+        if PREFIX + "actorsoff" == str(args[0]).lower() and COMMAND_MODS.count(user) > 0:
             sendForm("(set! (-> *pc-settings* force-actors?) #f)")
             message = ""
 
-        if PREFIX + "debug" == str(args[0]).lower() and on_check("debug") and COMMANDMODS.count(user) > 0:
+        if PREFIX + "debug" == str(args[0]).lower() and on_check("debug") and COMMAND_MODS.count(user) > 0:
             sendForm("(set! *debug-segment* (not *debug-segment*))(set! *cheat-mode* (not *cheat-mode*))")
             message = ""
+			
+        if PREFIX + "fixoldsave" == str(args[0]).lower() and on_check("fixoldsave") and COMMAND_MODS.count(user) > 0:
+            sendForm("(set! (-> *game-info* current-continue) (get-continue-by-name *game-info* \"training-start\"))(auto-save-command 'auto-save 0 0 *default-pool*)")
+            message = ""
 
-        if PREFIX + "save" == str(args[0]).lower() and on_check("save") and COMMANDMODS.count(user) > 0:            
+        if PREFIX + "save" == str(args[0]).lower() and on_check("save") and COMMAND_MODS.count(user) > 0:            
             sendForm("(auto-save-command 'auto-save 0 0 *default-pool*)")
             message = ""
 			   
-        if (PREFIX + "resetcooldowns" == str(args[0]).lower() or PREFIX + "resetcds" == str(args[0]).lower()) and COMMANDMODS.count(user) > 0:           
+        if (PREFIX + "resetcooldowns" == str(args[0]).lower() or PREFIX + "resetcds" == str(args[0]).lower()) and COMMAND_MODS.count(user) > 0:           
             for x in range(len(command_names)):
                 last_used[x]=0.0
                 message = ""
             sendMessage(irc, "/me ~ All cooldowns reset.")
 			   
-        if (PREFIX + "cd" == str(args[0]).lower() or PREFIX + "cooldown" == str(args[0]).lower()) and len(args) >= 3 and COMMANDMODS.count(user) > 0:          
+        if (PREFIX + "cd" == str(args[0]).lower() or PREFIX + "cooldown" == str(args[0]).lower()) and len(args) >= 3 and COMMAND_MODS.count(user) > 0:          
             cooldowns[command_names.index(str(args[1]))]=float(args[2])
             sendMessage(irc, "/me ~ '" + str(args[1]) + "' cooldown set to " + str(args[2]) + "s.")
             message = ""
 			   
-        if (PREFIX + "dur" == str(args[0]).lower() or PREFIX + "duration" == str(args[0]).lower()) and len(args) >= 3 and COMMANDMODS.count(user) > 0:          
+        if (PREFIX + "dur" == str(args[0]).lower() or PREFIX + "duration" == str(args[0]).lower()) and len(args) >= 3 and COMMAND_MODS.count(user) > 0:          
             durations[command_names.index(str(args[1]))]=float(args[2])
             sendMessage(irc, "/me ~ '" + str(args[1]) + "' duration set to " + str(args[2]) + "s.")
             message = ""
    
-        if PREFIX + "enable" == str(args[0]).lower() and len(args) >= 2 and COMMANDMODS.count(user) > 0:          
+        if PREFIX + "enable" == str(args[0]).lower() and len(args) >= 2 and COMMAND_MODS.count(user) > 0:          
             on_off[command_names.index(str(args[1]))]="t"
             sendMessage(irc, "/me ~ '" + str(args[1]) + "' enabled.")
             message = ""
 			   
-        if PREFIX + "disable" == str(args[0]).lower() and len(args) >= 2 and COMMANDMODS.count(user) > 0:          
+        if PREFIX + "disable" == str(args[0]).lower() and len(args) >= 2 and COMMAND_MODS.count(user) > 0:          
             on_off[command_names.index(str(args[1]))]="f"
             sendMessage(irc, "/me ~ '" + str(args[1]) + "' disabled.")
             message = ""
@@ -619,7 +631,7 @@ def gamecontrol():
         #    message = ""
 
         if str(args[0]) == PREFIX + "repl" and len(args) >= 2 and on_check("repl") and cd_check("repl"):
-            if COMMANDMODS.count(user) > 0:
+            if COMMAND_MODS.count(user) > 0:
                 args = message.split(" ", 1)
                 sendForm(str(args[1]))
                 message = ""
