@@ -174,7 +174,7 @@ sendForm("(set! *debug-segment* #f)")
 
 #add all commands into an array so we can reference via index
 command_names = ["protect","rjto","superjump","superboosted","noboosteds","fastjak","slowjak","pacifist","trip",
-                 "bonk","shortfall","ghostjak","getoff","flutspeed","freecam","enemyspeed","give","collected",
+                 "shortfall","ghostjak","getoff","flutspeed","freecam","enemyspeed","give","collected",
                  "eco","sucksuck","noeco","die","topoint","randompoint","setpoint","tp","shift","movetojak","ouch",
                  "burn","hp","melt","endlessfall","drown","iframes","invertcam","normalcam","stickycam","deload",
 				 "quickcam","dark","dax","smallnet","widefish","lowpoly","moveplantboss","moveplantboss2",
@@ -311,9 +311,9 @@ def gamecontrol():
             sendForm("(send-event *target* 'loading)")
             message = ""
             
-        if PREFIX + "bonk" == str(args[0]).lower() and on_check("bonk") and cd_check("bonk"):
-            sendForm("(dummy-10 (-> *target* skel effect) 'group-smack-surface (the-as float 0.0) 5)(send-event *target* 'shove)(sound-play \"smack-surface\")")
-            message = ""
+        #if PREFIX + "bonk" == str(args[0]).lower() and on_check("bonk") and cd_check("bonk"):
+        #    sendForm("(dummy-10 (-> *target* skel effect) 'group-smack-surface (the-as float 0.0) 5)(send-event *target* 'shove)(sound-play \"smack-surface\")")
+        #    message = ""
 
         if PREFIX + "shortfall" == str(args[0]).lower() and on_check("shortfall") and cd_check("shortfall"):
             active_check("shortfall", 
