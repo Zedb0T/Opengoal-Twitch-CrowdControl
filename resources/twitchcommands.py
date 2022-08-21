@@ -175,12 +175,12 @@ sendForm("(set! *debug-segment* #f)")
 #add all commands into an array so we can reference via index
 command_names = ["protect","rjto","superjump","superboosted","noboosteds","fastjak","slowjak","pacifist","trip",
                  "shortfall","ghostjak","getoff","flutspeed","freecam","enemyspeed","give","collected",
-                 "eco","sucksuck","noeco","die","topoint","randompoint","tp","shift","movetojak","ouch",
-                 "burn","hp","melt","endlessfall","iframes","invertcam","normalcam","stickycam","deload",
+                 "eco","sucksuck","noeco","die","topoint","randompoint","setpoint","tp","shift","movetojak","ouch",
+                 "burn","hp","melt","drown","endlessfall","iframes","invertcam","normalcam","stickycam","deload",
                  "quickcam","dark","dax","smallnet","widefish","lowpoly","moveplantboss","moveplantboss2",
                  "basincell","resetactors","repl","debug","save","resetcooldowns","cd","dur","enable","disable",
                  "widejak","flatjak","smalljak","bigjak","color","scale","slippery","rocketman","actorson",
-                 "actorsoff","unzoom","bighead","smallhead","bigfist","bigheadnpc","hugehead","mirror","notex"]
+                 "actorsoff","unzoom","bighead","smallhead","bigfist","bigheadnpc","hugehead","mirror","notex","fixoldsave"]
 
 #array of valid checkpoints so user cant send garbage data
 point_list = ["training-start","game-start","village1-hut","village1-warp","beach-start",
