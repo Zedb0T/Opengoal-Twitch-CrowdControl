@@ -22,13 +22,13 @@ elif __file__:
 
 
 if (exists(".env.txt")):
-	if(exists(".env")):
-		shutil.remove(".env")
-	os.replace(".env.txt", ".env")
-	
+    if(exists(".env")):
+        shutil.remove(".env")
+    os.replace(".env.txt", ".env")
+    
 if(exists("env")):
-	os.replace("env",".env")
-	
+    os.replace("env",".env")
+    
 #env values
 load_dotenv()
 OAUTH = str(os.getenv("OAUTH"))
@@ -52,7 +52,7 @@ if (not exists(".env")):
 if ((len(OAUTH) != 36) or (OAUTH[0:6] != "oauth:")):
     print("ERROR: Invalid ouath -- please get new oauth from: https://twitchapps.com/tmi/")
     time.sleep(936814)
-	
+    
 #paths
 PATHTOGOALC = application_path + "\goalc.exe"
 PATHTOGK = application_path +"\gk.exe -boot -fakeiso -debug -v"
@@ -109,25 +109,25 @@ def active_check(cmd, line1, line2):
     else:
         sendForm(line2)
         deactivate(cmd)
-		
+        
 def active_sweep(cmd, line):
-	if active[command_names.index(cmd)] and (time.time() - activated[command_names.index(cmd)]) >= durations[command_names.index(cmd)]:
-		deactivate(cmd)
-		sendForm(line)
+    if active[command_names.index(cmd)] and (time.time() - activated[command_names.index(cmd)]) >= durations[command_names.index(cmd)]:
+        deactivate(cmd)
+        sendForm(line)
         
 def activate(cmd):
-	if not active[command_names.index(cmd)]:
-	    if ACTIVATE_MSG != "f":
-	        sendMessage(irc, "/me > '"+command_names[command_names.index(cmd)]+"' activated!")
-	    activated[command_names.index(cmd)] = time.time()
-	    active[command_names.index(cmd)] = True
+    if not active[command_names.index(cmd)]:
+        if ACTIVATE_MSG != "f":
+            sendMessage(irc, "/me > '"+command_names[command_names.index(cmd)]+"' activated!")
+        activated[command_names.index(cmd)] = time.time()
+        active[command_names.index(cmd)] = True
     
 def deactivate(cmd):
-	if active[command_names.index(cmd)]:
+    if active[command_names.index(cmd)]:
          if ACTIVATE_MSG != "f":
             sendMessage(irc, "/me > '"+command_names[command_names.index(cmd)]+"' deactivated!")
          active[command_names.index(cmd)] = False
-		
+        
 def max_val(val, max):
     global message
     try:
@@ -179,10 +179,10 @@ command_names = ["protect","rjto","superjump","superboosted","noboosteds","fastj
                  "shortfall","ghostjak","getoff","flutspeed","freecam","enemyspeed","give","collected",
                  "eco","sucksuck","noeco","die","topoint","randompoint","tp","shift","movetojak","ouch",
                  "burn","hp","melt","endlessfall","iframes","invertcam","normalcam","stickycam","deload",
-				 "quickcam","dark","dax","smallnet","widefish","lowpoly","moveplantboss","moveplantboss2",
-				 "basincell","resetactors","repl","debug","save","resetcooldowns","cd","dur","enable","disable",
-				 "widejak","flatjak","smalljak","bigjak","color","scale","slippery","rocketman","actorson",
-				 "actorsoff","unzoom","mirror"]
+                 "quickcam","dark","dax","smallnet","widefish","lowpoly","moveplantboss","moveplantboss2",
+                 "basincell","resetactors","repl","debug","save","resetcooldowns","cd","dur","enable","disable",
+                 "widejak","flatjak","smalljak","bigjak","color","scale","slippery","rocketman","actorson",
+                 "actorsoff","unzoom","big-head","small-head","big-fist","big-head-npc","huge-head","mirror","no-tex"]
 
 #array of valid checkpoints so user cant send garbage data
 point_list = ["training-start","game-start","village1-hut","village1-warp","beach-start",
@@ -216,7 +216,7 @@ for x in range(len(command_names)):
 #pull durations set in env file and add to array
 for x in range(len(command_names)):
     durations[x]=float(os.getenv(command_names[x]+"_dur"))
-	
+    
 #twitch irc stuff
 SERVER = "irc.twitch.tv"
 PORT = 6667
@@ -253,7 +253,7 @@ def gamecontrol():
     while True:
         #split a whole message into args so we can evaluate it one by one
         args = message.split(" ")
-		
+        
         if PREFIX + "protect" == str(args[0]).lower() and on_check("protect") and cd_check("protect"):
             activate("protect")
             if PROTECT_SACRIFICE == "t":
@@ -328,7 +328,7 @@ def gamecontrol():
         if PREFIX + "getoff" == str(args[0]).lower() and on_check("getoff") and cd_check("getoff"):
             sendForm("(when (not (movie?))(send-event *target* 'end-mode))")
             message = ""
-			
+            
         if PREFIX + "unzoom" == str(args[0]).lower() and on_check("unzoom") and cd_check("unzoom"):
             sendForm("(send-event *target* 'no-look-around (seconds 0.1))")
             message = ""
@@ -388,7 +388,7 @@ def gamecontrol():
         if PREFIX + "shift" == str(args[0]).lower() and len(args) >= 4 and on_check("shift") and cd_check("tp"):
             sendForm("(when (not (movie?))(set! (-> (target-pos 0) x) (+ (-> (target-pos 0) x)(meters " + str(args[1]) + ")))  (set! (-> (target-pos 0) y) (+ (-> (target-pos 0) y)(meters " + str(args[2]) + "))) (set! (-> (target-pos 0) z) (+ (-> (target-pos 0) z)(meters " + str(args[3]) + "))))")
             message = ""
-			
+            
         if PREFIX + "rocketman" == str(args[0]).lower() and on_check("rocketman") and cd_check("rocketman"):
             active_check("rocketman", 
             "(stop 'debug)(set! (-> *standard-dynamics* gravity-length) (meters -60.0))(start 'play (get-or-create-continue! *game-info*))",
@@ -430,7 +430,7 @@ def gamecontrol():
         if PREFIX + "normalcam" == str(args[0]).lower() and on_check("normalcam") and cd_check("normalcam"):
             sendForm("(set! (-> *pc-settings* third-camera-h-inverted?) #t)(set! (-> *pc-settings* third-camera-v-inverted?) #t)(set! (-> *pc-settings* first-camera-v-inverted?) #t)(set! (-> *pc-settings* first-camera-h-inverted?) #f)")
             message = ""
-			
+            
         if PREFIX + "stickycam" == str(args[0]).lower() and on_check("stickycam") and cd_check("stickycam"):
             sendForm("(send-event *target* 'no-look-around (seconds 3))(send-event *camera* 'change-state cam-fixed 0)")
             message = ""
@@ -516,22 +516,22 @@ def gamecontrol():
         if PREFIX + "debug" == str(args[0]).lower() and on_check("debug") and COMMANDMODS.count(user) > 0:
             sendForm("(set! *debug-segment* (not *debug-segment*))(set! *cheat-mode* (not *cheat-mode*))")
             message = ""
-				
+                
         if PREFIX + "save" == str(args[0]).lower() and on_check("save") and COMMANDMODS.count(user) > 0:            
             sendForm("(auto-save-command 'auto-save 0 0 *default-pool*)")
             message = ""
-			   
+               
         if (PREFIX + "resetcooldowns" == str(args[0]).lower() or PREFIX + "resetcds" == str(args[0]).lower()) and COMMANDMODS.count(user) > 0:           
            for x in range(len(command_names)):
                last_used[x]=0.0
                message = ""
            sendMessage(irc, "/me ~ All cooldowns reset.")
-			   
+               
         if (PREFIX + "cd" == str(args[0]).lower() or PREFIX + "cooldown" == str(args[0]).lower()) and len(args) >= 3 and COMMANDMODS.count(user) > 0:          
                cooldowns[command_names.index(str(args[1]))]=float(args[2])
                sendMessage(irc, "/me ~ '" + str(args[1]) + "' cooldown set to " + str(args[2]) + "s.")
                message = ""
-			   
+               
         if (PREFIX + "dur" == str(args[0]).lower() or PREFIX + "duration" == str(args[0]).lower()) and len(args) >= 3 and COMMANDMODS.count(user) > 0:          
                durations[command_names.index(str(args[1]))]=float(args[2])
                sendMessage(irc, "/me ~ '" + str(args[1]) + "' duration set to " + str(args[2]) + "s.")
@@ -541,12 +541,12 @@ def gamecontrol():
                on_off[command_names.index(str(args[1]))]="t"
                sendMessage(irc, "/me ~ '" + str(args[1]) + "' enabled.")
                message = ""
-			   
+               
         if PREFIX + "disable" == str(args[0]).lower() and len(args) >= 2 and COMMANDMODS.count(user) > 0:          
                on_off[command_names.index(str(args[1]))]="f"
                sendMessage(irc, "/me ~ '" + str(args[1]) + "' disabled.")
                message = ""
-			   
+               
         if PREFIX + "widejak" == str(args[0]).lower() and on_check("widejak") and cd_check("scale"):
             deactivate("bigjak")
             deactivate("smalljak")
@@ -556,7 +556,7 @@ def gamecontrol():
             "(set! (-> (-> (the-as target *target* )root)scale x) 4.0)(set! (-> (-> (the-as target *target* )root)scale y) 1.0)(set! (-> (-> (the-as target *target* )root)scale z) 1.0)",
             "(set! (-> (-> (the-as target *target* )root)scale x) 1.0)(set! (-> (-> (the-as target *target* )root)scale y) 1.0)(set! (-> (-> (the-as target *target* )root)scale z) 1.0)")
             message = ""
-			
+            
         if PREFIX + "flatjak" == str(args[0]).lower() and on_check("flatjak") and cd_check("scale"):
             deactivate("bigjak")
             deactivate("smalljak")
@@ -565,7 +565,7 @@ def gamecontrol():
             active_check("flatjak", 
             "(set! (-> (-> (the-as target *target* )root)scale x) 1.3)(set! (-> (-> (the-as target *target* )root)scale y) 0.2)(set! (-> (-> (the-as target *target* )root)scale z) 1.3)",
             "(set! (-> (-> (the-as target *target* )root)scale x) 1.0)(set! (-> (-> (the-as target *target* )root)scale y) 1.0)(set! (-> (-> (the-as target *target* )root)scale z) 1.0)")
-            message = ""	
+            message = ""    
 
         if PREFIX + "smalljak" == str(args[0]).lower() and on_check("smalljak") and cd_check("scale"):
             deactivate("bigjak")
@@ -576,7 +576,7 @@ def gamecontrol():
             "(set! (-> (-> (the-as target *target* )root)scale x) 0.4)(set! (-> (-> (the-as target *target* )root)scale y) 0.4)(set! (-> (-> (the-as target *target* )root)scale z) 0.4)(set! (-> *TARGET-bank* wheel-flip-dist) (meters 43.25))",
             "(set! (-> (-> (the-as target *target* )root)scale x) 1.0)(set! (-> (-> (the-as target *target* )root)scale y) 1.0)(set! (-> (-> (the-as target *target* )root)scale z) 1.0)(set! (-> *TARGET-bank* wheel-flip-dist) (meters 17.3))")
             message = ""
-			
+            
         if PREFIX + "bigjak" == str(args[0]).lower() and on_check("bigjak") and cd_check("scale"):
             deactivate("scale")
             deactivate("smalljak")
@@ -586,12 +586,12 @@ def gamecontrol():
             "(set! (-> (-> (the-as target *target* )root)scale x) 2.7)(set! (-> (-> (the-as target *target* )root)scale y) 2.7)(set! (-> (-> (the-as target *target* )root)scale z) 2.7)",
             "(set! (-> (-> (the-as target *target* )root)scale x) 1.0)(set! (-> (-> (the-as target *target* )root)scale y) 1.0)(set! (-> (-> (the-as target *target* )root)scale z) 1.0)")
             message = ""
-			
+            
         if PREFIX + "color" == str(args[0]).lower() and len(args) >= 4 and on_check("color") and cd_check("color"):
             activate("color")
             sendForm("(set! (-> *target* draw color-mult x) (+ 0.0 " + str(args[1]) + "))(set! (-> *target* draw color-mult y) (+ 0.0 " + str(args[2]) + "))(set! (-> *target* draw color-mult z) (+ 0.0 " + str(args[3]) + "))")
             message = ""
-			
+            
         if PREFIX + "scale" == str(args[0]).lower() and len(args) >= 4 and max_val(str(args[1]), 15) and max_val(str(args[2]), 15) and max_val(str(args[3]), 15) and on_check("scale") and cd_check("scale"):
             deactivate("bigjak")
             deactivate("smalljak")
@@ -600,7 +600,7 @@ def gamecontrol():
             activate("scale")
             sendForm("(set! (-> (-> (the-as target *target* )root)scale x) (+ 0.0 " + str(args[1]) + "))(set! (-> (-> (the-as target *target* )root)scale y) (+ 0.0 " + str(args[2]) + "))(set! (-> (-> (the-as target *target* )root)scale z) (+ 0.0 " + str(args[3]) + "))")
             message = ""
-			
+            
         if PREFIX + "slippery" == str(args[0]).lower() and on_check("slippery") and cd_check("slippery"):
             active_check("slippery", 
             "(set! (-> *stone-surface* slope-slip-angle) 16384.0)(set! (-> *stone-surface* slip-factor) 0.7)(set! (-> *stone-surface* transv-max) 1.5)(set! (-> *stone-surface* transv-max) 1.5)(set! (-> *stone-surface* turnv) 0.5)(set! (-> *stone-surface* nonlin-fric-dist) 4091904.0)(set! (-> *stone-surface* fric) 23756.8)",
@@ -619,10 +619,46 @@ def gamecontrol():
         #    sendForm("(set! (-> *FACT-bank* eco-full-timeout) (seconds " + str(args[1]) + "))")
         #    message = ""
 
+        if PREFIX + "big-head" == str(args[0]).lower() and on_check("big-head") and cd_check("big-head"):
+            active_check("big-head",
+            "(begin (logior! (-> *pc-settings* cheats) (pc-cheats big-head)) (logclear! (-> *pc-settings* cheats-known) (pc-cheats big-head)))",
+            "(logclear! (-> *pc-settings* cheats) (pc-cheats big-head))")
+            message = ""
+
+        if PREFIX + "small-head" == str(args[0]).lower() and on_check("small-head") and cd_check("small-head"):
+            active_check("small-head",
+            "(begin (logior! (-> *pc-settings* cheats) (pc-cheats small-head)) (logclear! (-> *pc-settings* cheats-known) (pc-cheats small-head)))",
+            "(logclear! (-> *pc-settings* cheats) (pc-cheats small-head))")
+            message = ""
+
+        if PREFIX + "big-fist" == str(args[0]).lower() and on_check("big-fist") and cd_check("big-fist"):
+            active_check("big-fist",
+            "(begin (logior! (-> *pc-settings* cheats) (pc-cheats big-fist)) (logclear! (-> *pc-settings* cheats-known) (pc-cheats big-fist)))",
+            "(logclear! (-> *pc-settings* cheats) (pc-cheats big-fist))")
+            message = ""
+
+        if PREFIX + "big-head-npc" == str(args[0]).lower() and on_check("big-head-npc") and cd_check("big-head-npc"):
+            active_check("big-head-npc",
+            "(begin (logior! (-> *pc-settings* cheats) (pc-cheats big-head-npc)) (logclear! (-> *pc-settings* cheats-known) (pc-cheats big-head-npc)))",
+            "(logclear! (-> *pc-settings* cheats) (pc-cheats big-head-npc))")
+            message = ""
+
+        if PREFIX + "huge-head" == str(args[0]).lower() and on_check("huge-head") and cd_check("huge-head"):
+            active_check("huge-head",
+            "(begin (logior! (-> *pc-settings* cheats) (pc-cheats huge-head)) (logclear! (-> *pc-settings* cheats-known) (pc-cheats huge-head)))",
+            "(logclear! (-> *pc-settings* cheats) (pc-cheats huge-head))")
+            message = ""
+
         if PREFIX + "mirror" == str(args[0]).lower() and on_check("mirror") and cd_check("mirror"):
             active_check("mirror",
-            "(begin (logior! (-> *pc-settings* cheats) (pc-cheats mirror)) (logclear! (-> *pc-settings* cheats-known) (pc-cheats mirror))"
-            "(logiclear! (-> *pc-settings* cheats) (pc-cheats mirror))")
+            "(begin (logior! (-> *pc-settings* cheats) (pc-cheats mirror)) (logclear! (-> *pc-settings* cheats-known) (pc-cheats mirror)))",
+            "(logclear! (-> *pc-settings* cheats) (pc-cheats mirror))")
+            message = ""
+
+        if PREFIX + "no-tex" == str(args[0]).lower() and on_check("no-tex") and cd_check("no-tex"):
+            active_check("no-tex",
+            "(begin (logior! (-> *pc-settings* cheats) (pc-cheats no-tex)) (logclear! (-> *pc-settings* cheats-known) (pc-cheats no-tex)))",
+            "(logclear! (-> *pc-settings* cheats) (pc-cheats no-tex))")
             message = ""
             
         if str(args[0]) == PREFIX + "repl" and len(args) >= 2 and on_check("repl") and cd_check("repl"):
@@ -660,8 +696,14 @@ def gamecontrol():
         active_sweep("slippery", "(set! (-> *stone-surface* slope-slip-angle) 8192.0)(set! (-> *stone-surface* slip-factor) 1.0)(set! (-> *stone-surface* transv-max) 1.0)(set! (-> *stone-surface* turnv) 1.0)(set! (-> *stone-surface* nonlin-fric-dist) 5120.0)(set! (-> *stone-surface* fric) 153600.0)")
         active_sweep("protect", "")
         active_sweep("rocketman", "(stop 'debug)(set! (-> *standard-dynamics* gravity-length) (meters 60.0))(start 'play (get-or-create-continue! *game-info*))")
-        active_sweep("mirror", "(logiclear! (-> *pc-settings* cheats) (pc-cheats mirror))")
-			
+        active_sweep("big-head", "(logclear! (-> *pc-settings* cheats) (pc-cheats big-head))")
+        active_sweep("small-head", "(logclear! (-> *pc-settings* cheats) (pc-cheats small-head))")
+        active_sweep("big-fist", "(logclear! (-> *pc-settings* cheats) (pc-cheats big-fist))")
+        active_sweep("big-head-npc", "(logclear! (-> *pc-settings* cheats) (pc-cheats big-head-npc))")
+        active_sweep("huge-head", "(logclear! (-> *pc-settings* cheats) (pc-cheats huge-head))")
+        active_sweep("mirror", "(logclear! (-> *pc-settings* cheats) (pc-cheats mirror))")
+        active_sweep("no-tex", "(logclear! (-> *pc-settings* cheats) (pc-cheats no-tex))")
+            
 #Dont touch
 def twitch():
 
