@@ -182,7 +182,7 @@ command_names = ["protect","rjto","superjump","superboosted","noboosteds","fastj
 				 "quickcam","dark","dax","smallnet","widefish","lowpoly","moveplantboss","moveplantboss2",
 				 "basincell","resetactors","repl","debug","save","resetcooldowns","cd","dur","enable","disable",
 				 "widejak","flatjak","smalljak","bigjak","color","scale","slippery","rocketman","actorson",
-				 "actorsoff","unzoom"]
+				 "actorsoff","unzoom","mirror"]
 
 #array of valid checkpoints so user cant send garbage data
 point_list = ["training-start","game-start","village1-hut","village1-warp","beach-start",
@@ -618,6 +618,12 @@ def gamecontrol():
         #if (PREFIX + "setecotime" == str(args[0]).lower() or PREFIX + "ecotime" == str(args[0]).lower()) and len(args) >= 2:
         #    sendForm("(set! (-> *FACT-bank* eco-full-timeout) (seconds " + str(args[1]) + "))")
         #    message = ""
+
+        if PREFIX + "mirror" == str(args[0]).lower() and on_check("mirror") and cd_check("mirror"):
+            active_check("mirror",
+            "(begin (logior! (-> *pc-settings* cheats) (pc-cheats mirror)) (logclear! (-> *pc-settings* cheats-known) (pc-cheats mirror))"
+            "(logiclear! (-> *pc-settings* cheats) (pc-cheats mirror))")
+            message = ""
             
         if str(args[0]) == PREFIX + "repl" and len(args) >= 2 and on_check("repl") and cd_check("repl"):
             if COMMANDMODS.count(user) > 0:
@@ -654,6 +660,7 @@ def gamecontrol():
         active_sweep("slippery", "(set! (-> *stone-surface* slope-slip-angle) 8192.0)(set! (-> *stone-surface* slip-factor) 1.0)(set! (-> *stone-surface* transv-max) 1.0)(set! (-> *stone-surface* turnv) 1.0)(set! (-> *stone-surface* nonlin-fric-dist) 5120.0)(set! (-> *stone-surface* fric) 153600.0)")
         active_sweep("protect", "")
         active_sweep("rocketman", "(stop 'debug)(set! (-> *standard-dynamics* gravity-length) (meters 60.0))(start 'play (get-or-create-continue! *game-info*))")
+        active_sweep("mirror", "(logiclear! (-> *pc-settings* cheats) (pc-cheats mirror))")
 			
 #Dont touch
 def twitch():
