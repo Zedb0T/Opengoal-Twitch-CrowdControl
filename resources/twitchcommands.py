@@ -676,7 +676,6 @@ def gamecontrol():
             "(logclear! (-> *pc-settings* cheats) (pc-cheats no-tex))")
             message = ""
 
-<<<<<<< HEAD
         if PREFIX + "x" == str(args[0]).lower():
           sendForm("(logior! (cpad-pressed 0) (pad-buttons x))")
           message = ""
@@ -726,11 +725,7 @@ def gamecontrol():
         if PREFIX + "cam-out" == str(args[0]).lower():
           sendForm("(set! (-> *cpad-list* cpads 0 righty) (the-as uint 255))")
           message = ""
-
-          # (-> *target* root dir-targ) for rotating
             
-=======
->>>>>>> 1288157f1a7c648516ed839fe17e0428f40159f9
         if str(args[0]) == PREFIX + "repl" and len(args) >= 2 and on_check("repl") and cd_check("repl"):
             if COMMAND_MODS.count(user) > 0:
                 args = message.split(" ", 1)
