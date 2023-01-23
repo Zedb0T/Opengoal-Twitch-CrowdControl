@@ -660,6 +660,58 @@ def gamecontrol():
             "(begin (logior! (-> *pc-settings* cheats) (pc-cheats no-tex)) (logclear! (-> *pc-settings* cheats-known) (pc-cheats no-tex)))",
             "(logclear! (-> *pc-settings* cheats) (pc-cheats no-tex))")
             message = ""
+
+        if PREFIX + "x" == str(args[0]).lower():
+          sendForm("(logior! (cpad-pressed 0) (pad-buttons x))")
+          message = ""
+        if PREFIX + "square" == str(args[0]).lower():
+          sendForm("(logior! (cpad-pressed 0) (pad-buttons square))")
+          message = ""
+        if PREFIX + "triangle" == str(args[0]).lower():
+          sendForm("(logior! (cpad-pressed 0) (pad-buttons triangle))")
+          message = ""
+        if PREFIX + "circle" == str(args[0]).lower():
+          sendForm("(logior! (cpad-pressed 0) (pad-buttons circle))")
+          message = "" 
+        # if PREFIX + "start" == str(args[0]).lower():
+        #   sendForm("(logior! (cpad-pressed 0) (pad-buttons start))")
+        #   message = ""
+        if PREFIX + "left" == str(args[0]).lower():
+          sendForm("(logior! (cpad-pressed 0) (pad-buttons left))")
+          message = ""
+        if PREFIX + "right" == str(args[0]).lower():
+          sendForm("(logior! (cpad-pressed 0) (pad-buttons right))")
+          message = ""
+        if PREFIX + "up" == str(args[0]).lower():
+          sendForm("(logior! (cpad-pressed 0) (pad-buttons up))")
+          message = ""
+        if PREFIX + "down" == str(args[0]).lower():
+          sendForm("(logior! (cpad-pressed 0) (pad-buttons down))")
+          message = ""
+        
+        if PREFIX + "turn-left" == str(args[0]).lower():
+          sendForm("(quaternion-rotate-local-y! (-> *target* root dir-targ) (-> *target* root dir-targ) (/ DEGREES_PER_ROT 8.0))")
+          message = ""
+        if PREFIX + "turn-right" == str(args[0]).lower():
+          sendForm("(quaternion-rotate-local-y! (-> *target* root dir-targ) (-> *target* root dir-targ) (/ DEGREES_PER_ROT -8.0))")
+          message = ""
+        if PREFIX + "turn-180" == str(args[0]).lower():
+          sendForm("(quaternion-rotate-local-y! (-> *target* root dir-targ) (-> *target* root dir-targ) (/ DEGREES_PER_ROT 2.0))")
+          message = ""
+        if PREFIX + "cam-right" == str(args[0]).lower():
+          sendForm("(set! (-> *cpad-list* cpads 0 rightx) (the-as uint 0))")
+          message = ""
+        if PREFIX + "cam-left" == str(args[0]).lower():
+          sendForm("(set! (-> *cpad-list* cpads 0 rightx) (the-as uint 255))")
+          message = ""
+        if PREFIX + "cam-in" == str(args[0]).lower():
+          sendForm("(set! (-> *cpad-list* cpads 0 righty) (the-as uint 0))")
+          message = ""
+        if PREFIX + "cam-out" == str(args[0]).lower():
+          sendForm("(set! (-> *cpad-list* cpads 0 righty) (the-as uint 255))")
+          message = ""
+
+          # (-> *target* root dir-targ) for rotating
             
         if str(args[0]) == PREFIX + "repl" and len(args) >= 2 and on_check("repl") and cd_check("repl"):
             if COMMANDMODS.count(user) > 0:
