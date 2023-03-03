@@ -114,9 +114,8 @@ def active_sweep(cmd, line):
         sendForm(line)
 
 def activate(cmd):
-    if not active[command_names.index(cmd)]:
-        if ACTIVATE_MSG != "f":
-            sendMessage(irc, "/me > '"+command_names[command_names.index(cmd)]+"' activated!")
+    if ACTIVATE_MSG != "f":
+        sendMessage(irc, "/me > '"+command_names[command_names.index(cmd)]+"' activated!")
         activated[command_names.index(cmd)] = time.time()
         active[command_names.index(cmd)] = True
 
@@ -173,14 +172,15 @@ sendForm("(set! *debug-segment* #f)")
 #End Int block
 
 #add all commands into an array so we can reference via index
-command_names = ["protect","rjto","superjump","superboosted","noboosteds","fastjak","slowjak","pacifist","trip",
+command_names = ["protect","rjto","superjump","superboosted","noboosteds","nojumps","fastjak","slowjak","pacifist","trip",
                  "shortfall","ghostjak","getoff","flutspeed","freecam","enemyspeed","give","collected",
                  "eco","sucksuck","noeco","die","topoint","randompoint","setpoint","tp","shift","movetojak","ouch",
-                 "burn","hp","melt","drown","endlessfall","iframes","invertcam","normalcam","cam","stickycam","deload",
+                 "burn","hp","melt","drown","endlessfall","iframes","invertcam","cam","stickycam","deload",
                  "quickcam","dark","nodax","smallnet","widefish","lowpoly","moveplantboss","moveplantboss2",
                  "basincell","resetactors","repl","debug","save","resetcooldowns","cd","dur","enable","disable",
                  "widejak","flatjak","smalljak","bigjak","color","scale","slippery","rocketman","actorson",
-                 "actorsoff","unzoom","bighead","smallhead","bigfist","bigheadnpc","hugehead","mirror","notex","press","fixoldsave"]
+                 "actorsoff","unzoom","bighead","smallhead","bigfist","bigheadnpc","hugehead","mirror","notex","press",
+                 "lang","fixoldsave"]
 
 #array of valid checkpoints so user cant send garbage data
 point_list = ["training-start","game-start","village1-hut","village1-warp","beach-start",
@@ -192,12 +192,16 @@ point_list = ["training-start","game-start","village1-hut","village1-warp","beac
               "swamp-cave2","swamp-game","swamp-cave3","ogre-start","ogre-race","ogre-end",
               "village3-start","village3-warp","village3-farside","maincave-start",
               "maincave-to-darkcave","maincave-to-robocave","darkcave-start","robocave-start",
-              "robocave-bottom","snow-start","snow-fort","snow-snow-flut-flut","snow-pass-to-fort",
+              "robocave-bottom","snow-start","snow-fort","snow-flut-flut","snow-pass-to-fort",
               "snow-by-ice-lake","snow-by-ice-lake-alt","snow-outside-fort","snow-outside-cave",
               "snow-across-from-flut","lavatube-start","lavatube-middle","lavatube-after-ribbon",
               "lavatube-end","citadel-start","citadel-entrance","citadel-warp","citadel-launch-start",
               "citadel-launch-end","citadel-generator-start","citadel-generator-end","citadel-plat-start",
               "citadel-plat-end","citadel-elevator","finalboss-start","finalboss-fight"]
+
+lang_list = ["english","french","german","spanish","italian","japanese","uk-english"]
+input_list = ["square","circle","x","triangle","up","down","left","right"]
+cam_list = ["endlessfall","eye","standoff","bike","stick"]
 
 #intialize arrays same length as command_names
 on_off = ["t"] * len(command_names)
@@ -259,7 +263,7 @@ def gamecontrol():
                 sendMessage(irc, "/me "+user+" sacrificed themselves to protect "+CHANNEL+" for "+str(int(durations[command_names.index("protect")]))+"s!")
             message = ""
 
-        if PREFIX + "rjto" == str(args[0]).lower() or PREFIX + "rj" == str(args[0]).lower() and len(args) >= 2 and max_val(args[1], -200, 200) and on_check("rjto") and cd_check("rjto"):
+        if (PREFIX + "rjto" == str(args[0]).lower() or PREFIX + "rj" == str(args[0]).lower()) and len(args) >= 2 and max_val(args[1], -200, 200) and on_check("rjto") and cd_check("rjto"):
             activate("rjto")
             sendForm("(set! (-> *TARGET-bank* wheel-flip-dist) (meters " + str(args[1]) + "))")
             message = ""
@@ -280,6 +284,12 @@ def gamecontrol():
             active_check("noboosteds", 
             "(set! (-> *edge-surface* fric) 1530000.0)",
             "(set! (-> *edge-surface* fric) 30720.0)")
+            message = ""
+        
+        if (PREFIX + "nojumps" == str(args[0]).lower() or PREFIX + "nojumping" == str(args[0]).lower() or PREFIX + "nojump" == str(args[0]).lower()) and on_check("nojumps") and cd_check("nojumps"):
+            active_check("nojumps", 
+            "(logior! (-> *target* state-flags) (state-flags prevent-jump))",
+            "(logclear! (-> *target* state-flags) (state-flags prevent-jump))")
             message = ""
 
         if PREFIX + "fastjak" == str(args[0]).lower() and on_check("fastjak") and cd_check("fastjak"):
@@ -440,18 +450,22 @@ def gamecontrol():
             sendForm("(set! (-> *pc-settings* " + str(args[1]) + "-camera-" + str(args[2]) + "-inverted?) (not (-> *pc-settings* " + str(args[1]) + "-camera-" + str(args[2]) + "-inverted?)))")
             message = ""
 
-        if PREFIX + "normalcam" == str(args[0]).lower() and on_check("normalcam") and cd_check("normalcam"):
-            deactivate("invertcam")
-            sendForm("(set! (-> *pc-settings* third-camera-h-inverted?) #t)(set! (-> *pc-settings* third-camera-v-inverted?) #t)(set! (-> *pc-settings* first-camera-v-inverted?) #t)(set! (-> *pc-settings* first-camera-h-inverted?) #f)")
-            message = ""
+       # if PREFIX + "normalcam" == str(args[0]).lower() and on_check("normalcam") and cd_check("normalcam"):
+       #     deactivate("invertcam")
+       #     sendForm("(set! (-> *pc-settings* third-camera-h-inverted?) #t)(set! (-> *pc-settings* third-camera-v-inverted?) #t)(set! (-> *pc-settings* first-camera-v-inverted?) #t)(set! (-> *pc-settings* first-camera-h-inverted?) #f)")
+       #     message = ""
 
-        if PREFIX + "cam" == str(args[0]).lower() and len(args) >= 2 and on_check("cam") and cd_check("cam"):
+        if PREFIX + "cam" == str(args[0]).lower() and len(args) >= 2 and cam_list.count(str(args[1]).lower()) == 1 and on_check("cam") and cd_check("cam"):
+            deactivate("stickycam")
             activate("cam")
             sendForm("(send-event *camera* 'change-state cam-" + str(args[1]) + " 0)(send-event *target* 'no-look-around (seconds " + str(durations[command_names.index("cam")]) + "))")
             message = ""
 
         if PREFIX + "stickycam" == str(args[0]).lower() and on_check("stickycam") and cd_check("stickycam"):
-            sendForm("(send-event *target* 'no-look-around (seconds 5))(send-event *camera* 'change-state cam-fixed 0)")
+            deactivate("cam")
+            active_check("stickycam",
+            "(send-event *target* 'no-look-around (seconds " + str(durations[command_names.index("stickycam")]) + "))(send-event *camera* 'change-state cam-circular 0)",
+            "(send-event *target* 'no-look-around (seconds 0))(send-event *camera* 'change-state cam-string 0)")
             message = ""
 
         if PREFIX + "deload" == str(args[0]).lower() and on_check("deload") and cd_check("deload"):
@@ -683,41 +697,20 @@ def gamecontrol():
             "(logclear! (-> *pc-settings* cheats) (pc-cheats mirror))")
             message = ""
 
-        if PREFIX + "notex" == str(args[0]).lower() and on_check("notex") and cd_check("notex"):
+        if (PREFIX + "notex" == str(args[0]).lower() or PREFIX + "notextures" == str(args[0]).lower()) and on_check("notex") and cd_check("notex"):
             active_check("notex",
             "(begin (logior! (-> *pc-settings* cheats) (pc-cheats no-tex)) (logclear! (-> *pc-settings* cheats-known) (pc-cheats no-tex)))",
             "(logclear! (-> *pc-settings* cheats) (pc-cheats no-tex))")
             message = ""
 
-        if PREFIX + "press" == str(args[0]).lower() and len(args) >= 2 and on_check("press") and cd_check("press"):
+        if PREFIX + "press" == str(args[0]).lower() and len(args) >= 2 and input_list.count(str(args[1]).lower()) == 1 and on_check("press") and cd_check("press"):
             sendForm("(logior! (cpad-pressed 0) (pad-buttons " + str(args[1]) + "))")
             message = ""
+
+        if (PREFIX + "lang" == str(args[0]).lower() or PREFIX + "language" == str(args[0]).lower()) and len(args) >= 2 and lang_list.count(str(args[1]).lower()) == 1 and on_check("lang") and cd_check("lang"):
+            sendForm("(set! (-> *setting-control* default language) (language-enum " + str(args[1]).lower() + "))")
+            message = ""
             
-        #if PREFIX + "square" == str(args[0]).lower():
-        #  sendForm("(logior! (cpad-pressed 0) (pad-buttons square))")
-        #  message = ""
-        #if PREFIX + "triangle" == str(args[0]).lower():
-        #  sendForm("(logior! (cpad-pressed 0) (pad-buttons triangle))")
-        #  message = ""
-        #if PREFIX + "circle" == str(args[0]).lower():
-        #  sendForm("(logior! (cpad-pressed 0) (pad-buttons circle))")
-        #  message = "" 
-        # if PREFIX + "start" == str(args[0]).lower():
-        #   sendForm("(logior! (cpad-pressed 0) (pad-buttons start))")
-        #   message = ""
-        #if PREFIX + "left" == str(args[0]).lower():
-        #  sendForm("(logior! (cpad-pressed 0) (pad-buttons left))")
-        #  message = ""
-        #if PREFIX + "right" == str(args[0]).lower():
-        #  sendForm("(logior! (cpad-pressed 0) (pad-buttons right))")
-        #  message = ""
-        #if PREFIX + "up" == str(args[0]).lower():
-        #  sendForm("(logior! (cpad-pressed 0) (pad-buttons up))")
-        #  message = ""
-        #if PREFIX + "down" == str(args[0]).lower():
-        #  sendForm("(logior! (cpad-pressed 0) (pad-buttons down))")
-        #  message = ""
-        
         if PREFIX + "turn-left" == str(args[0]).lower() and COMMAND_MODS.count(user) > 0:
           sendForm("(quaternion-rotate-local-y! (-> *target* root dir-targ) (-> *target* root dir-targ) (/ DEGREES_PER_ROT 8.0))")
           message = ""
@@ -754,6 +747,7 @@ def gamecontrol():
         active_sweep("superjump","(set! (-> *TARGET-bank* jump-height-max)(meters 3.5))(set! (-> *TARGET-bank* jump-height-min)(meters 1.01))(set! (-> *TARGET-bank* double-jump-height-max)(meters 2.5))(set! (-> *TARGET-bank* double-jump-height-min)(meters 1))")
         active_sweep("superboosted","(set! (-> *edge-surface* fric) 30720.0)")
         active_sweep("noboosteds","(set! (-> *edge-surface* fric) 30720.0)")
+        active_sweep("nojumps","(logclear! (-> *target* state-flags) (state-flags prevent-jump))")
         active_sweep("fastjak","(set! (-> *walk-mods* target-speed) 40960.0)(set! (-> *double-jump-mods* target-speed) 32768.0)(set! (-> *jump-mods* target-speed) 40960.0)(set! (-> *jump-attack-mods* target-speed) 24576.0)(set! (-> *attack-mods* target-speed) 40960.0)(set! (-> *forward-high-jump-mods* target-speed) 45056.0)(set! (-> *jump-attack-mods* target-speed) 24576.0)(set! (-> *stone-surface* target-speed) 1.0)")
         active_sweep("slowjak", "(pc-cheat-toggle-and-tune *pc-settings* eco-yellow)(set! (-> *walk-mods* target-speed) 40960.0)(set! (-> *double-jump-mods* target-speed) 32768.0)(set! (-> *jump-mods* target-speed) 40960.0)(set! (-> *jump-attack-mods* target-speed) 24576.0)(set! (-> *attack-mods* target-speed) 40960.0)(set! (-> *forward-high-jump-mods* target-speed) 45056.0)(set! (-> *jump-attack-mods* target-speed) 24576.0)(set! (-> *TARGET-bank* wheel-flip-dist) (meters 17.3))(send-event *target* 'reset-pickup 'eco)")
         active_sweep("pacifist", "(set! (-> *TARGET-bank* punch-radius) (meters 1.3))(set! (-> *TARGET-bank* spin-radius) (meters 2.2))(set! (-> *TARGET-bank* flop-radius) (meters 1.4))(set! (-> *TARGET-bank* uppercut-radius) (meters 1))")
@@ -762,6 +756,7 @@ def gamecontrol():
         active_sweep("freecam", "(start 'play (get-or-create-continue! *game-info*))")
         active_sweep("noeco", "(set! (-> *FACT-bank* eco-full-timeout) (seconds 20.0))")
         active_sweep("invertcam", "(set! (-> *pc-settings* third-camera-h-inverted?) #t)(set! (-> *pc-settings* third-camera-v-inverted?) #t)(set! (-> *pc-settings* first-camera-v-inverted?) #t)(set! (-> *pc-settings* first-camera-h-inverted?) #f)")
+        active_sweep("stickycam", "(send-event *target* 'no-look-around (seconds 0))(send-event *camera* 'change-state cam-string 0)")
         active_sweep("cam", "(send-event *camera* 'change-state cam-string 0)")
         active_sweep("dark", "(set! (-> (level-get-target-inside *level*) mood-func)update-mood-darkcave)")
         active_sweep("nodax", "(send-event *target* 'sidekick #t)")
