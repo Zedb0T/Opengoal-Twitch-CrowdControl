@@ -783,6 +783,7 @@ def gamecontrol():
         
         #if GK_WIN.poll() is not None:
         #     code that closes goalc
+        time.sleep(0.16)
             
             
 #Dont touch
