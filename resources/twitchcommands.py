@@ -202,6 +202,10 @@ point_list = ["training-start","game-start","village1-hut","village1-warp","beac
 lang_list = ["english","french","german","spanish","italian","japanese","uk-english"]
 input_list = ["square","circle","x","triangle","up","down","left","right"]
 cam_list = ["endlessfall","eye","standoff","bike","stick"]
+eco_list = ["blue","yellow","green","red"]
+givecollected_list = ["fuel","money"]
+pov_list = ["first","third"]
+axis_list = ["h","v"]
 
 #intialize arrays same length as command_names
 on_off = ["t"] * len(command_names)
@@ -360,15 +364,15 @@ def gamecontrol():
             sendForm("(set! (-> *" + str(args[1]) + "-nav-enemy-info* run-travel-speed) (meters " + str(args[2]) + "))")
             message = ""
 
-        if PREFIX + "give" == str(args[0]).lower() and len(args) >= 3 and on_check("give") and cd_check("give"):
+        if PREFIX + "give" == str(args[0]).lower() and len(args) >= 3 and givecollected_list.count(str(args[1]).lower()) == 1 and on_check("give") and cd_check("give"):
             sendForm("(set! (-> *game-info* " + str(args[1]) + ") (+ (-> *game-info* " + str(args[1]) + ") " + str(args[2]) + "))")
             message = ""
 
-        if (PREFIX + "collected" == str(args[0]).lower() or PREFIX + "setcollected" == str(args[0]).lower()) and len(args) >= 3 and on_check("collected") and cd_check("give"):
+        if (PREFIX + "collected" == str(args[0]).lower() or PREFIX + "setcollected" == str(args[0]).lower()) and len(args) >= 3 and givecollected_list.count(str(args[1]).lower()) == 1 and on_check("collected") and cd_check("give"):
             sendForm("(set! (-> *game-info* " + str(args[1]) + ") (+ 0.0 " + str(args[2]) + "))")
             message = ""
 
-        if PREFIX + "eco" == str(args[0]).lower() and len(args) >= 2 and on_check("eco") and cd_check("eco"):
+        if PREFIX + "eco" == str(args[0]).lower() and len(args) >= 2 and eco_list.count(str(args[1]).lower()) == 1 and on_check("eco") and cd_check("eco"):
             sendForm("(send-event *target* 'get-pickup (pickup-type eco-" + str(args[1]) + ") 5.0)")
             message = ""
 
@@ -445,7 +449,7 @@ def gamecontrol():
             sendForm("(set! (-> *TARGET-bank* hit-invulnerable-timeout) (seconds " + str(args[1]) + "))")
             message = ""
 
-        if PREFIX + "invertcam" == str(args[0]).lower() and len(args) >= 3 and on_check("invertcam") and cd_check("invertcam"):
+        if PREFIX + "invertcam" == str(args[0]).lower() and len(args) >= 3 and pov_list.count(str(args[1]).lower()) == 1 and axis_list.count(str(args[2]).lower()) == 1 and on_check("invertcam") and cd_check("invertcam"):
             activate("invertcam")
             sendForm("(set! (-> *pc-settings* " + str(args[1]) + "-camera-" + str(args[2]) + "-inverted?) (not (-> *pc-settings* " + str(args[1]) + "-camera-" + str(args[2]) + "-inverted?)))")
             message = ""
