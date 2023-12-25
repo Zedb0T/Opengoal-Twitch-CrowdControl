@@ -116,8 +116,8 @@ def active_sweep(cmd, line):
 def activate(cmd):
     if ACTIVATE_MSG != "f":
         sendMessage(irc, "/me > '"+command_names[command_names.index(cmd)]+"' activated!")
-        activated[command_names.index(cmd)] = time.time()
-        active[command_names.index(cmd)] = True
+    activated[command_names.index(cmd)] = time.time()
+    active[command_names.index(cmd)] = True
 
 def deactivate(cmd):
     if active[command_names.index(cmd)]:
@@ -293,9 +293,7 @@ def gamecontrol():
             message = ""
 
         if PREFIX + "fastjak" == str(args[0]).lower() and on_check("fastjak") and cd_check("fastjak"):
-            if active[command_names.index("slowjak")]:
-                sendForm("(pc-cheat-toggle-and-tune *pc-settings* eco-yellow)(send-event *target* 'reset-pickup 'eco)")
-                deactivate("slowjak")
+            deactivate("slowjak")
             if not active[command_names.index("smalljak")]:
                 sendForm("(set! (-> *TARGET-bank* wheel-flip-dist) (meters 17.3))")
             active_check("fastjak", 
@@ -305,11 +303,9 @@ def gamecontrol():
 
         if PREFIX + "slowjak" == str(args[0]).lower() and on_check("slowjak") and cd_check("slowjak"):
             deactivate("fastjak")
-            deactivate("noeco")
-            sendForm("(set! (-> *FACT-bank* eco-full-timeout) (seconds 20.0))(pc-cheat-toggle-and-tune *pc-settings* eco-yellow)")
             active_check("slowjak",
-            "(send-event *target* 'reset-pickup 'eco)(set! (-> *walk-mods* target-speed) 20000.0)(set! (-> *double-jump-mods* target-speed) 20000.0)(set! (-> *jump-mods* target-speed) 20000.0)(set! (-> *jump-attack-mods* target-speed) 20000.0)(set! (-> *attack-mods* target-speed) 20000.0)(set! (-> *stone-surface* target-speed) 1.0)(set! (-> *TARGET-bank* wheel-flip-dist) (meters 0))",
-            "(set! (-> *walk-mods* target-speed) 40960.0)(set! (-> *double-jump-mods* target-speed) 32768.0)(set! (-> *jump-mods* target-speed) 40960.0)(set! (-> *jump-attack-mods* target-speed) 24576.0)(set! (-> *attack-mods* target-speed) 40960.0)(set! (-> *forward-high-jump-mods* target-speed) 45056.0)(set! (-> *jump-attack-mods* target-speed) 24576.0)(set! (-> *TARGET-bank* wheel-flip-dist) (meters 17.3))(send-event *target* 'get-pickup (pickup-type eco-blue) 0.1)")
+            "(send-event *target* 'reset-pickup 'eco)(set! (-> *walk-mods* target-speed) 22000.0)(set! (-> *double-jump-mods* target-speed) 20000.0)(set! (-> *jump-mods* target-speed) 22000.0)(set! (-> *jump-attack-mods* target-speed) 20000.0)(set! (-> *attack-mods* target-speed) 22000.0)(set! (-> *stone-surface* target-speed) 1.0)(set! (-> *TARGET-bank* wheel-flip-dist) (meters 5))",
+            "(set! (-> *walk-mods* target-speed) 40960.0)(set! (-> *double-jump-mods* target-speed) 32768.0)(set! (-> *jump-mods* target-speed) 40960.0)(set! (-> *jump-attack-mods* target-speed) 24576.0)(set! (-> *attack-mods* target-speed) 40960.0)(set! (-> *forward-high-jump-mods* target-speed) 45056.0)(set! (-> *jump-attack-mods* target-speed) 24576.0)(set! (-> *TARGET-bank* wheel-flip-dist) (meters 17.3))")
             message = ""
 
         if PREFIX + "pacifist" == str(args[0]).lower() and on_check("pacifist") and cd_check("pacifist"):
@@ -373,10 +369,12 @@ def gamecontrol():
             message = ""
 
         if (PREFIX + "sucksuck" == str(args[0]).lower() or PREFIX + "setsucksuck" == str(args[0]).lower()) and len(args) >= 2 and max_val(args[1], -200, 200) and on_check("sucksuck") and cd_check("sucksuck"):
-            sendForm("(set! (-> *FACT-bank* suck-suck-dist) (meters " + str(args[1]) + "))(set! (-> *FACT-bank* suck-bounce-dist) (meters " + str(args[1]) + "))")
+            active_check("sucksuck",
+            "(set! (-> *FACT-bank* suck-suck-dist) (meters " + str(args[1]) + "))(set! (-> *FACT-bank* suck-bounce-dist) (meters " + str(args[1]) + "))",
+            "(set! (-> *FACT-bank* suck-suck-dist) (meters 12))(set! (-> *FACT-bank* suck-bounce-dist) (meters 12))")
             message = ""
 
-        if PREFIX + "noeco" == str(args[0]).lower() and not active[command_names.index("slowjak")] and on_check("noeco") and cd_check("noeco"):
+        if PREFIX + "noeco" == str(args[0]).lower() and on_check("noeco") and cd_check("noeco"):
             active_check("noeco", 
             "(send-event *target* 'reset-pickup 'eco)(set! (-> *FACT-bank* eco-full-timeout) (seconds 0.0))",
             "(set! (-> *FACT-bank* eco-full-timeout) (seconds 20.0))")
@@ -402,7 +400,7 @@ def gamecontrol():
             sendForm("(when (not (movie?))(set! (-> (target-pos 0) x) (meters " + str(args[1]) + "))  (set! (-> (target-pos 0) y) (meters " + str(args[2]) + ")) (set! (-> (target-pos 0) z) (meters " + str(args[3]) + ")))")
             message = ""
 
-        if PREFIX + "shift" == str(args[0]).lower() and len(args) >= 4 and on_check("shift") and cd_check("tp"):
+        if PREFIX + "shift" == str(args[0]).lower() and len(args) >= 4 and max_val(args[1], -300, 300)and on_check("shift") and cd_check("tp"):
             sendForm("(when (not (movie?))(set! (-> (target-pos 0) x) (+ (-> (target-pos 0) x)(meters " + str(args[1]) + ")))  (set! (-> (target-pos 0) y) (+ (-> (target-pos 0) y)(meters " + str(args[2]) + "))) (set! (-> (target-pos 0) z) (+ (-> (target-pos 0) z)(meters " + str(args[3]) + "))))")
             message = ""
 
@@ -749,11 +747,12 @@ def gamecontrol():
         active_sweep("noboosteds","(set! (-> *edge-surface* fric) 30720.0)")
         active_sweep("nojumps","(logclear! (-> *target* state-flags) (state-flags prevent-jump))")
         active_sweep("fastjak","(set! (-> *walk-mods* target-speed) 40960.0)(set! (-> *double-jump-mods* target-speed) 32768.0)(set! (-> *jump-mods* target-speed) 40960.0)(set! (-> *jump-attack-mods* target-speed) 24576.0)(set! (-> *attack-mods* target-speed) 40960.0)(set! (-> *forward-high-jump-mods* target-speed) 45056.0)(set! (-> *jump-attack-mods* target-speed) 24576.0)(set! (-> *stone-surface* target-speed) 1.0)")
-        active_sweep("slowjak", "(pc-cheat-toggle-and-tune *pc-settings* eco-yellow)(set! (-> *walk-mods* target-speed) 40960.0)(set! (-> *double-jump-mods* target-speed) 32768.0)(set! (-> *jump-mods* target-speed) 40960.0)(set! (-> *jump-attack-mods* target-speed) 24576.0)(set! (-> *attack-mods* target-speed) 40960.0)(set! (-> *forward-high-jump-mods* target-speed) 45056.0)(set! (-> *jump-attack-mods* target-speed) 24576.0)(set! (-> *TARGET-bank* wheel-flip-dist) (meters 17.3))(send-event *target* 'reset-pickup 'eco)")
+        active_sweep("slowjak", "(set! (-> *walk-mods* target-speed) 40960.0)(set! (-> *double-jump-mods* target-speed) 32768.0)(set! (-> *jump-mods* target-speed) 40960.0)(set! (-> *jump-attack-mods* target-speed) 24576.0)(set! (-> *attack-mods* target-speed) 40960.0)(set! (-> *forward-high-jump-mods* target-speed) 45056.0)(set! (-> *jump-attack-mods* target-speed) 24576.0)(set! (-> *TARGET-bank* wheel-flip-dist) (meters 17.3))")
         active_sweep("pacifist", "(set! (-> *TARGET-bank* punch-radius) (meters 1.3))(set! (-> *TARGET-bank* spin-radius) (meters 2.2))(set! (-> *TARGET-bank* flop-radius) (meters 1.4))(set! (-> *TARGET-bank* uppercut-radius) (meters 1))")
         active_sweep("shortfall", "(set! (-> *TARGET-bank* fall-far) (meters 30))(set! (-> *TARGET-bank* fall-far-inc) (meters 20))")
         active_sweep("ghostjak", "(set! (-> *TARGET-bank* body-radius) (meters 0.7))")
         active_sweep("freecam", "(start 'play (get-or-create-continue! *game-info*))")
+        active_sweep("sucksuck","(set! (-> *FACT-bank* suck-suck-dist) (meters 12))(set! (-> *FACT-bank* suck-bounce-dist) (meters 12))")
         active_sweep("noeco", "(set! (-> *FACT-bank* eco-full-timeout) (seconds 20.0))")
         active_sweep("invertcam", "(set! (-> *pc-settings* third-camera-h-inverted?) #t)(set! (-> *pc-settings* third-camera-v-inverted?) #t)(set! (-> *pc-settings* first-camera-v-inverted?) #t)(set! (-> *pc-settings* first-camera-h-inverted?) #f)")
         active_sweep("stickycam", "(send-event *target* 'no-look-around (seconds 0))(send-event *camera* 'change-state cam-string 0)")
