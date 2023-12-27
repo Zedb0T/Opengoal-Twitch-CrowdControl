@@ -9,6 +9,7 @@ import random
 from dotenv import load_dotenv
 from os.path import exists
 import shutil
+import tkinter as tk
 
 """
 Created on Fri Apr 29 16:20:54 2022
@@ -75,6 +76,56 @@ def sendForm(form):
     print("Sent: " + form)
     return
 
+active_list = []
+def display_text_in_window():
+    # Create a new window
+    window = tk.Tk()
+    window.title("CC Active Effects")
+
+    # Create a text widget to display text
+    text_widget = tk.Text(window, wrap="word", height=13, width=15)
+    text_widget.pack()
+
+    # Configure the font
+    font_style = ("Franklin Gothic Medium", 14, "bold")  # Change the font family and size as needed
+    text_widget.configure(font=font_style)
+
+    # Function to update text in the text widget
+    def update_text():
+        while True:
+            # Update text content
+            text_content = '\n'.join(active_list)
+            text_widget.delete(1.0, tk.END)  # Clear existing text
+            text_widget.insert(tk.END, text_content)
+
+            # Pause for a short interval
+            time.sleep(1)
+
+    # Create a thread for updating the text
+    text_thread = threading.Thread(target=update_text, daemon=True)
+    text_thread.start()
+
+    # Start the Tkinter event loop
+    window.mainloop()
+
+# Main program logic
+def main_program_logic():
+    for i in range(5):
+        print(f"Main Program: {i}")
+
+# Create a thread for the main program logic
+main_thread = threading.Thread(target=main_program_logic)
+
+# Start the main program thread
+main_thread.start()
+
+# Start the thread for displaying text in the window
+display_thread = threading.Thread(target=display_text_in_window)
+display_thread.start()
+
+# Wait for the main program thread to finish
+main_thread.join()
+
 def cd_check(cmd):
     global message
     if (time.time() - last_used[command_names.index(cmd)]) > cooldowns[command_names.index(cmd)]:
@@ -118,12 +169,14 @@ def activate(cmd):
         sendMessage(irc, "/me > '"+command_names[command_names.index(cmd)]+"' activated!")
     activated[command_names.index(cmd)] = time.time()
     active[command_names.index(cmd)] = True
+    active_list.append(cmd)
 
 def deactivate(cmd):
     if active[command_names.index(cmd)]:
          if ACTIVATE_MSG != "f":
             sendMessage(irc, "/me > '"+command_names[command_names.index(cmd)]+"' deactivated!")
          active[command_names.index(cmd)] = False
+         active_list.remove(cmd)
 
 def max_val(val, min, max):
     global message
@@ -275,12 +328,14 @@ def gamecontrol():
             message = ""
 
         if (PREFIX + "superboosted" == str(args[0]).lower() or PREFIX + "superboosteds" == str(args[0]).lower()) and on_check("superboosted") and cd_check("superboosted"):
+            deactivate("noboosteds")
             active_check("superboosted", 
             "(set! (-> *edge-surface* fric) 1.0)",
             "(set! (-> *edge-surface* fric) 30720.0)")
             message = ""
 
         if (PREFIX + "noboosteds" == str(args[0]).lower() or PREFIX + "noboosted" == str(args[0]).lower()) and on_check("noboosteds") and cd_check("noboosteds"):
+            deactivate("superboosted")
             active_check("noboosteds", 
             "(set! (-> *edge-surface* fric) 1530000.0)",
             "(set! (-> *edge-surface* fric) 30720.0)")
@@ -558,8 +613,12 @@ def gamecontrol():
         if (PREFIX + "resetcooldowns" == str(args[0]).lower() or PREFIX + "resetcds" == str(args[0]).lower()) and COMMAND_MODS.count(user) > 0:           
             for x in range(len(command_names)):
                 last_used[x]=0.0
-                message = ""
             sendMessage(irc, "/me ~ All cooldowns reset.")
+            message = ""
+
+        if PREFIX + "active" == str(args[0]).lower() and COMMAND_MODS.count(user) > 0:           
+            sendMessage(irc, "/me ~ " + ", ".join(active_list))
+            message = ""
 			   
         if (PREFIX + "cd" == str(args[0]).lower() or PREFIX + "cooldown" == str(args[0]).lower()) and len(args) >= 3 and command_names.count(str(args[1]).lower()) == 1 and COMMAND_MODS.count(user) > 0:          
             cooldowns[command_names.index(str(args[1]))]=float(args[2])
