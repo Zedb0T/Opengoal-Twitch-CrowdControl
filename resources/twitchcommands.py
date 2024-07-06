@@ -41,6 +41,11 @@ PROTECT_SACRIFICE = False
 SACRIFICE_DURATION = str(os.getenv("SACRIFICE_DURATION"))
 PREFIX = str(os.getenv("PREFIX"))
 
+first_camera_v_inverted = str(os.getenv("first-camera-vertical-inverted"))
+first_camera_h_inverted = str(os.getenv("first-camera-horizontal-inverted"))
+third_camera_v_inverted = str(os.getenv("third-camera-vertical-inverted"))
+third_camera_h_inverted = str(os.getenv("third-camera-horizontal-inverted"))
+
 TOPOINT_PAST_CRATER = str(os.getenv("TOPOINT_PAST_CRATER"))
 
 SHIFTX_MIN = str(os.getenv("SHIFTX_MIN"))
@@ -61,6 +66,8 @@ MINUSORBS_AMT = str(os.getenv("MINUSORBS_AMT"))
 PLUSORBS_AMT = str(os.getenv("PLUSORBS_AMT"))
 SUCK_MIN = str(os.getenv("SUCK_MIN"))
 SUCK_MAX = str(os.getenv("SUCK_MAX"))
+BLIND_MIN = str(os.getenv("BLIND_MIN"))
+BLIND_MAX = str(os.getenv("BLIND_MAX"))
 
 
 #bool that checks if its the launcher version
@@ -240,7 +247,7 @@ print("opening " + PATHTOGOALC)
 GK_WIN = subprocess.Popen(GKCOMMANDLINElist)
 GOALC_WIN = subprocess.Popen([PATHTOGOALC])
 time.sleep(3)
-clientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM);
+clientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 clientSocket.connect(("127.0.0.1", 8181))
 time.sleep(1)
 data = clientSocket.recv(1024)
@@ -260,9 +267,9 @@ command_names = ["protect","rjto","superjump","superboosted","noboosteds","nojum
                  "shortfall","ghostjak","getoff","flutspeed","freecam","enemyspeed","give","minuscell","pluscell","minusorbs","plusorbs","collected",
                  "eco","rapidfire","sucksuck","noeco","die","topoint","randompoint","setpoint","tp","shift","movetojak","ouch",
                  "burn","hp","melt","drown","endlessfall","iframes","invertcam","cam","askew","stickycam","deload",
-                 "quickcam","dark","nodax","smallnet","widefish","lowpoly","moveplantboss","moveplantboss2",
+                 "quickcam","dark","blind","nodax","smallnet","widefish","lowpoly","moveplantboss","moveplantboss2",
                  "basincell","resetactors","repl","debug","save","resetcooldowns","cd","dur","enable","disable",
-                 "widejak","flatjak","smalljak","bigjak","color","scale","slippery","lowgrav","pinball","rocketman","actorson",
+                 "widejak","flatjak","smalljak","bigjak","color","scale","slippery","pinball","rocketman","actorson",
                  "actorsoff","unzoom","bighead","smallhead","bigfist","bigheadnpc","hugehead","mirror","notex","press",
                  "lang","fixoldsave"]
 
@@ -387,7 +394,7 @@ def gamecontrol():
                 # sendMessage(irc, "/me " + user + " sacrificed themselves to protect "+ CHANNEL + " for " + str(int(durations[command_names.index("protect")])) +"s!")
             message = ""
 
-        if (PREFIX + "rjto" == str(args[0]).lower() or PREFIX + "rj" == str(args[0]).lower()) and len(args) >= 2 and max_val(args[1], RJTO_MIN, RJTO_MAX) and on_check("rjto") and cd_check("rjto"):
+        if (PREFIX + "rjto" == str(args[0]).lower() or PREFIX + "rj" == str(args[0]).lower()) and len(args) >= 2 and on_check("rjto") and max_val(args[1], RJTO_MIN, RJTO_MAX) and cd_check("rjto"):
             activate("rjto")
             sendForm("(set! (-> *TARGET-bank* wheel-flip-dist) (meters " + str(args[1]) + "))(set! (-> *TARGET-bank* wheel-flip-height) (meters " + str(min(max(abs(float(args[1]) / 4.91), 3.52), 7)) + "))")
             message = ""
@@ -480,7 +487,7 @@ def gamecontrol():
             sendForm("(send-event *target* 'no-look-around (seconds 0.1))")
             message = ""
 
-        if (PREFIX + "flutspeed" == str(args[0]).lower() or PREFIX + "setflutflut" == str(args[0]).lower()) and len(args) >= 2 and max_val(args[1], -200, 200) and on_check("flutspeed") and cd_check("flutspeed"):
+        if (PREFIX + "flutspeed" == str(args[0]).lower() or PREFIX + "setflutflut" == str(args[0]).lower()) and len(args) >= 2 and on_check("flutspeed") and max_val(args[1], -200, 200) and cd_check("flutspeed"):
             sendForm("(set! (-> *flut-walk-mods* target-speed)(meters " + str(args[1]) + "))")
             message = ""
 
@@ -490,11 +497,11 @@ def gamecontrol():
             "(start 'play (get-or-create-continue! *game-info*))")
             message = ""
 
-        if PREFIX + "enemyspeed" == str(args[0]).lower() and len(args) >= 3 and max_val(args[2], -200, 200) and on_check("enemyspeed") and cd_check("enemyspeed"):
+        if PREFIX + "enemyspeed" == str(args[0]).lower() and len(args) >= 3 and on_check("enemyspeed") and max_val(args[2], -200, 200) and cd_check("enemyspeed"):
             sendForm("(set! (-> *" + str(args[1]) + "-nav-enemy-info* run-travel-speed) (meters " + str(args[2]) + "))")
             message = ""
 
-        if PREFIX + "give" == str(args[0]).lower() and len(args) >= 3 and max_val(args[2], GIVE_MIN, GIVE_MAX) and on_check("give") and cd_check("give"):
+        if PREFIX + "give" == str(args[0]).lower() and len(args) >= 3 and on_check("give") and max_val(args[2], GIVE_MIN, GIVE_MAX) and cd_check("give"):
             item = args[1].lower()
             if item == "cell" or item == "cells":
                 item = "fuel"
@@ -504,19 +511,19 @@ def gamecontrol():
             message = ""
 
         if (PREFIX + "minuscell" == str(args[0]).lower() or PREFIX + "minuscells" == str(args[0]).lower()) and on_check("minuscell") and cd_check("minuscell"):
-            sendForm("(set! (-> *game-info* fuel) (- (-> *game-info* fuel)" + MINUSCELL_AMT + "))")
+            sendForm("(set! (-> *game-info* fuel) (- (-> *game-info* fuel) " + MINUSCELL_AMT + "))")
             message = ""
 
         if (PREFIX + "pluscell" == str(args[0]).lower() or PREFIX + "pluscells" == str(args[0]).lower()) and on_check("pluscell") and cd_check("pluscell"):
-            sendForm("(set! (-> *game-info* fuel) (+ (-> *game-info* fuel)" + PLUSCELL_AMT + "))")
+            sendForm("(set! (-> *game-info* fuel) (+ (-> *game-info* fuel) " + PLUSCELL_AMT + "))")
             message = ""
 
         if (PREFIX + "minusorbs" == str(args[0]).lower() or PREFIX + "minusorb" == str(args[0]).lower()) and on_check("minusorbs") and cd_check("minusorbs"):
-            sendForm("(set! (-> *game-info* money) (- (-> *game-info* money)" + MINUSORBS_AMT + "))")
+            sendForm("(set! (-> *game-info* money) (- (-> *game-info* money) " + MINUSORBS_AMT + "))")
             message = ""
 
         if (PREFIX + "plusorbs" == str(args[0]).lower() or PREFIX + "plusorb" == str(args[0]).lower()) and on_check("plusorbs") and cd_check("plusorbs"):
-            sendForm("(set! (-> *game-info* money) (+ (-> *game-info* money)" + PLUSORBS_AMT + "))")
+            sendForm("(set! (-> *game-info* money) (+ (-> *game-info* money) " + PLUSORBS_AMT + "))")
             message = ""
 
         if (PREFIX + "collected" == str(args[0]).lower() or PREFIX + "setcollected" == str(args[0]).lower()) and len(args) >= 3 and on_check("collected") and cd_check("give"):
@@ -538,7 +545,7 @@ def gamecontrol():
             "(set! (-> *TARGET-bank* yellow-projectile-speed) (meters 60))(set! (-> *TARGET-bank* yellow-attack-timeout) (seconds 0.2))")
             message = ""
 
-        if (PREFIX + "sucksuck" == str(args[0]).lower() or PREFIX + "setsucksuck" == str(args[0]).lower()) and len(args) >= 2 and max_val(args[1], SUCK_MIN, SUCK_MAX) and on_check("sucksuck") and cd_check("sucksuck"):
+        if (PREFIX + "sucksuck" == str(args[0]).lower() or PREFIX + "setsucksuck" == str(args[0]).lower()) and len(args) >= 2 and on_check("sucksuck") and max_val(args[1], SUCK_MIN, SUCK_MAX) and cd_check("sucksuck"):
             active_check("sucksuck",
             "(set! (-> *FACT-bank* suck-suck-dist) (meters " + str(args[1]) + "))(set! (-> *FACT-bank* suck-bounce-dist) (meters " + str(args[1]) + "))",
             "(set! (-> *FACT-bank* suck-suck-dist) (meters 12))(set! (-> *FACT-bank* suck-bounce-dist) (meters 12))")
@@ -588,7 +595,7 @@ def gamecontrol():
             sendForm("(when (not (movie?))(set! (-> (target-pos 0) x) (meters " + str(args[1]) + "))  (set! (-> (target-pos 0) y) (meters " + str(args[2]) + ")) (set! (-> (target-pos 0) z) (meters " + str(args[3]) + ")))")
             message = ""
 
-        if PREFIX + "shift" == str(args[0]).lower() and len(args) >= 4 and max_val(args[1], SHIFTX_MIN, SHIFTX_MAX) and max_val(args[2], SHIFTY_MIN, SHIFTY_MAX) and max_val(args[3], SHIFTZ_MIN, SHIFTZ_MAX) and on_check("shift") and cd_check("shift"):
+        if PREFIX + "shift" == str(args[0]).lower() and len(args) >= 4 and on_check("shift") and max_val(args[1], SHIFTX_MIN, SHIFTX_MAX) and max_val(args[2], SHIFTY_MIN, SHIFTY_MAX) and max_val(args[3], SHIFTZ_MIN, SHIFTZ_MAX) and cd_check("shift"):
             sendForm("(when (not (movie?))(set! (-> (target-pos 0) x) (+ (-> (target-pos 0) x)(meters " + str(args[1]) + ")))  (set! (-> (target-pos 0) y) (+ (-> (target-pos 0) y)(meters " + str(args[2]) + "))) (set! (-> (target-pos 0) z) (+ (-> (target-pos 0) z)(meters " + str(args[3]) + "))))")
             message = ""
 
@@ -674,6 +681,11 @@ def gamecontrol():
             active_check("dark", 
             "(set! (-> (level-get-target-inside *level*) mood-func)update-mood-finalboss)",
             "(set! (-> (level-get-target-inside *level*) mood-func)update-mood-darkcave)")
+            message = ""
+
+        if PREFIX + "blind" == str(args[0]).lower() and len(args) >= 2 and on_check("blind") and cd_check("blind") and max_val(args[1], BLIND_MIN, BLIND_MAX):
+            activate("blind")
+            sendForm("(set-blackout-frames (seconds " + str(args[1]) + "))")
             message = ""
 
         if (PREFIX + "nodax" == str(args[0]).lower() or PREFIX + "nodaxter" == str(args[0]).lower()) and on_check("nodax") and cd_check("nodax"):
@@ -824,7 +836,7 @@ def gamecontrol():
             sendForm("(set! (-> *target* draw color-mult x) (+ 0.0 " + str(args[1]) + "))(set! (-> *target* draw color-mult y) (+ 0.0 " + str(args[2]) + "))(set! (-> *target* draw color-mult z) (+ 0.0 " + str(args[3]) + "))")
             message = ""
 			
-        if PREFIX + "scale" == str(args[0]).lower() and len(args) >= 4 and max_val(str(args[1]), SCALE_MIN, SCALE_MAX) and max_val(str(args[2]), SCALE_MIN, SCALE_MAX) and max_val(str(args[3]), SCALE_MIN, SCALE_MAX) and on_check("scale") and cd_check("scale"):
+        if PREFIX + "scale" == str(args[0]).lower() and len(args) >= 4 and on_check("scale") and max_val(str(args[1]), SCALE_MIN, SCALE_MAX) and max_val(str(args[2]), SCALE_MIN, SCALE_MAX) and max_val(str(args[3]), SCALE_MIN, SCALE_MAX) and cd_check("scale"):
             deactivate("bigjak")
             deactivate("smalljak")
             deactivate("widejak")
@@ -839,11 +851,11 @@ def gamecontrol():
             "(set! (-> *stone-surface* slope-slip-angle) 8192.0)(set! (-> *stone-surface* slip-factor) 1.0)(set! (-> *stone-surface* transv-max) 1.0)(set! (-> *stone-surface* turnv) 1.0)(set! (-> *stone-surface* nonlin-fric-dist) 5120.0)(set! (-> *stone-surface* fric) 153600.0)(set! (-> *grass-surface* slope-slip-angle) 16384.0)(set! (-> *grass-surface* slip-factor) 1.0)(set! (-> *grass-surface* transv-max) 1.0)(set! (-> *grass-surface* turnv) 1.0)(set! (-> *grass-surface* nonlin-fric-dist) 4096.0)(set! (-> *grass-surface* fric) 122880.0)(set! (-> *ice-surface* slip-factor) 0.7)(set! (-> *ice-surface* nonlin-fric-dist) 4091904.0)(set! (-> *ice-surface* fric) 23756.8)")
             message = ""
 
-        if PREFIX + "lowgrav" == str(args[0]).lower() and on_check("lowgrav") and cd_check("lowgrav"):
-            active_check("lowgrav", 
-            "(set! (-> *TARGET-bank* double-jump-height-max) (meters 4.0))(set! (-> *standard-dynamics* gravity-length) (meters 15.0))",
-            "(set! (-> *TARGET-bank* double-jump-height-max) (meters 2.5))(set! (-> *standard-dynamics* gravity-length) (meters 60.0)")
-            message = ""
+        #if PREFIX + "lowgrav" == str(args[0]).lower() and on_check("lowgrav") and cd_check("lowgrav"):
+        #   active_check("lowgrav", 
+        #   "(set! (-> *TARGET-bank* double-jump-height-max) (meters 4.0))(set! (-> *standard-dynamics* gravity-length) (meters 15.0))",
+        #   "(set! (-> *TARGET-bank* double-jump-height-max) (meters 2.5))(set! (-> *standard-dynamics* gravity-length) (meters 60.0))")
+        #   message = ""
 
         if PREFIX + "pinball" == str(args[0]).lower() and on_check("pinball") and cd_check("pinball"):
             active_check("pinball", 
@@ -968,11 +980,12 @@ def gamecontrol():
         active_sweep("sucksuck","(set! (-> *FACT-bank* suck-suck-dist) (meters 12))(set! (-> *FACT-bank* suck-bounce-dist) (meters 12))")
         active_sweep("noeco", "(set! (-> *FACT-bank* eco-full-timeout) (seconds 20.0))")
         active_sweep("rapidfire","(set! (-> *TARGET-bank* yellow-projectile-speed) (meters 60))(set! (-> *TARGET-bank* yellow-attack-timeout) (seconds 0.2))")
-        active_sweep("invertcam", "(set! (-> *pc-settings* third-camera-h-inverted?) #t)(set! (-> *pc-settings* third-camera-v-inverted?) #t)(set! (-> *pc-settings* first-camera-v-inverted?) #t)(set! (-> *pc-settings* first-camera-h-inverted?) #f)")
+        active_sweep("invertcam", "(set! (-> *pc-settings* third-camera-h-inverted?) #" + third_camera_h_inverted +")(set! (-> *pc-settings* third-camera-v-inverted?) #" + third_camera_v_inverted +")(set! (-> *pc-settings* first-camera-v-inverted?) #" + first_camera_v_inverted +")(set! (-> *pc-settings* first-camera-h-inverted?) #" + first_camera_h_inverted +")")
         active_sweep("stickycam", "(send-event *target* 'no-look-around (seconds 0))(send-event *camera* 'change-state cam-string 0)")
         active_sweep("cam", "(send-event *camera* 'change-state cam-string 0)")
         active_sweep("askew","(set! (-> *standard-dynamics* gravity x) 0.0)")
         active_sweep("dark", "(set! (-> (level-get-target-inside *level*) mood-func)update-mood-darkcave)")
+        active_sweep("blind","")
         active_sweep("nodax", "(send-event *target* 'sidekick #t)")
         active_sweep("smallnet", "(when (process-by-ename \"fisher-1\")(set! (-> *FISHER-bank* net-radius)(meters 0.7)))")
         active_sweep("widefish", "(when (process-by-ename \"fisher-1\")(set! (-> *FISHER-bank* width)(meters 3.3)))")
@@ -984,7 +997,7 @@ def gamecontrol():
         active_sweep("color", "(set! (-> *target* draw color-mult x) 1.0)(set! (-> *target* draw color-mult y) 1.0)(set! (-> *target* draw color-mult z) 1.0)")
         active_sweep("scale", "(set! (-> (-> (the-as target *target* )root)scale x) 1.0)(set! (-> (-> (the-as target *target* )root)scale y) 1.0)(set! (-> (-> (the-as target *target* )root)scale z) 1.0)")
         active_sweep("slippery", "(set! (-> *stone-surface* slope-slip-angle) 8192.0)(set! (-> *stone-surface* slip-factor) 1.0)(set! (-> *stone-surface* transv-max) 1.0)(set! (-> *stone-surface* turnv) 1.0)(set! (-> *stone-surface* nonlin-fric-dist) 5120.0)(set! (-> *stone-surface* fric) 153600.0)(set! (-> *grass-surface* slope-slip-angle) 16384.0)(set! (-> *grass-surface* slip-factor) 1.0)(set! (-> *grass-surface* transv-max) 1.0)(set! (-> *grass-surface* turnv) 1.0)(set! (-> *grass-surface* nonlin-fric-dist) 4096.0)(set! (-> *grass-surface* fric) 122880.0)(set! (-> *ice-surface* slip-factor) 0.7)(set! (-> *ice-surface* nonlin-fric-dist) 4091904.0)(set! (-> *ice-surface* fric) 23756.8)")
-        active_sweep("lowgrav", "(set! (-> *TARGET-bank* double-jump-height-max) (meters 2.5))(set! (-> *standard-dynamics* gravity-length) (meters 60.0)")
+        #active_sweep("lowgrav", "(set! (-> *TARGET-bank* double-jump-height-max) (meters 2.5))(set! (-> *standard-dynamics* gravity-length) (meters 60.0))")
         active_sweep("pinball","(set! (-> *stone-surface* fric) 153600.0)")
         active_sweep("protect", "")
         active_sweep("iframes","(set! (-> *TARGET-bank* hit-invulnerable-timeout) (seconds 3))")
