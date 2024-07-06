@@ -258,11 +258,11 @@ sendForm("(set! *debug-segment* #f)")
 #add all commands into an array so we can reference via index
 command_names = ["protect","rjto","superjump","superboosted","noboosteds","nojumps","fastjak","slowjak","pacifist","nuka","invul","trip",
                  "shortfall","ghostjak","getoff","flutspeed","freecam","enemyspeed","give","minuscell","pluscell","minusorbs","plusorbs","collected",
-                 "eco","sucksuck","noeco","die","topoint","randompoint","setpoint","tp","shift","movetojak","ouch",
-                 "burn","hp","melt","drown","endlessfall","iframes","invertcam","cam","stickycam","deload",
+                 "eco","rapidfire","sucksuck","noeco","die","topoint","randompoint","setpoint","tp","shift","movetojak","ouch",
+                 "burn","hp","melt","drown","endlessfall","iframes","invertcam","cam","askew","stickycam","deload",
                  "quickcam","dark","nodax","smallnet","widefish","lowpoly","moveplantboss","moveplantboss2",
                  "basincell","resetactors","repl","debug","save","resetcooldowns","cd","dur","enable","disable",
-                 "widejak","flatjak","smalljak","bigjak","color","scale","slippery","rocketman","actorson",
+                 "widejak","flatjak","smalljak","bigjak","color","scale","slippery","lowgrav","pinball","rocketman","actorson",
                  "actorsoff","unzoom","bighead","smallhead","bigfist","bigheadnpc","hugehead","mirror","notex","press",
                  "lang","fixoldsave"]
 
@@ -532,6 +532,12 @@ def gamecontrol():
             sendForm("(send-event *target* 'get-pickup (pickup-type eco-" + str(args[1]) + ") 5.0)")
             message = ""
 
+        if PREFIX + "rapidfire" == str(args[0]).lower() and on_check("rapidfire") and cd_check("rapidfire"):
+            active_check("rapidfire", 
+            "(set! (-> *TARGET-bank* yellow-projectile-speed) (meters 100))(set! (-> *TARGET-bank* yellow-attack-timeout) (seconds 0))",
+            "(set! (-> *TARGET-bank* yellow-projectile-speed) (meters 60))(set! (-> *TARGET-bank* yellow-attack-timeout) (seconds 0.2))")
+            message = ""
+
         if (PREFIX + "sucksuck" == str(args[0]).lower() or PREFIX + "setsucksuck" == str(args[0]).lower()) and len(args) >= 2 and max_val(args[1], SUCK_MIN, SUCK_MAX) and on_check("sucksuck") and cd_check("sucksuck"):
             active_check("sucksuck",
             "(set! (-> *FACT-bank* suck-suck-dist) (meters " + str(args[1]) + "))(set! (-> *FACT-bank* suck-bounce-dist) (meters " + str(args[1]) + "))",
@@ -588,8 +594,8 @@ def gamecontrol():
 
         if PREFIX + "rocketman" == str(args[0]).lower() and on_check("rocketman") and cd_check("rocketman"):
             active_check("rocketman", 
-            "(stop 'debug)(set! (-> *standard-dynamics* gravity-length) (meters -60.0))(start 'play (get-or-create-continue! *game-info*))",
-            "(stop 'debug)(set! (-> *standard-dynamics* gravity-length) (meters 60.0))(start 'play (get-or-create-continue! *game-info*))")
+            "(set! (-> *standard-dynamics* gravity-normal y) -0.5)",
+            "(set! (-> *standard-dynamics* gravity-normal y) 1.0)")
             message = ""
 
         if PREFIX + "movetojak" == str(args[0]).lower() and len(args) >= 2 and on_check("movetojak") and cd_check("movetojak"):
@@ -646,6 +652,12 @@ def gamecontrol():
             active_check("stickycam",
             "(send-event *target* 'no-look-around (seconds " + str(durations[command_names.index("stickycam")]) + "))(send-event *camera* 'change-state cam-circular 0)",
             "(send-event *target* 'no-look-around (seconds 0))(send-event *camera* 'change-state cam-string 0)")
+            message = ""
+
+        if PREFIX + "askew" == str(args[0]).lower() and on_check("askew") and cd_check("askew"):
+            active_check("askew", 
+            "(set! (-> *standard-dynamics* gravity x) 0.25)",
+            "(set! (-> *standard-dynamics* gravity x) 0.0)")
             message = ""
 
         if PREFIX + "deload" == str(args[0]).lower() and on_check("deload") and cd_check("deload"):
@@ -823,9 +835,22 @@ def gamecontrol():
             
         if PREFIX + "slippery" == str(args[0]).lower() and on_check("slippery") and cd_check("slippery"):
             active_check("slippery", 
-            "(set! (-> *stone-surface* slope-slip-angle) 16384.0)(set! (-> *stone-surface* slip-factor) 0.7)(set! (-> *stone-surface* transv-max) 1.5)(set! (-> *stone-surface* transv-max) 1.5)(set! (-> *stone-surface* turnv) 0.5)(set! (-> *stone-surface* nonlin-fric-dist) 4091904.0)(set! (-> *stone-surface* fric) 23756.8)",
-            "(set! (-> *stone-surface* slope-slip-angle) 8192.0)(set! (-> *stone-surface* slip-factor) 1.0)(set! (-> *stone-surface* transv-max) 1.0)(set! (-> *stone-surface* turnv) 1.0)(set! (-> *stone-surface* nonlin-fric-dist) 5120.0)(set! (-> *stone-surface* fric) 153600.0)")
+            "(set! (-> *stone-surface* slope-slip-angle) 16384.0)(set! (-> *stone-surface* slip-factor) 0.7)(set! (-> *stone-surface* transv-max) 1.5)(set! (-> *stone-surface* turnv) 0.5)(set! (-> *stone-surface* nonlin-fric-dist) 4091904.0)(set! (-> *stone-surface* fric) 23756.8)(set! (-> *grass-surface* slope-slip-angle) 16384.0)(set! (-> *grass-surface* slip-factor) 0.7)(set! (-> *grass-surface* transv-max) 1.5)(set! (-> *grass-surface* turnv) 0.5)(set! (-> *grass-surface* nonlin-fric-dist) 4091904.0)(set! (-> *grass-surface* fric) 23756.8)(set! (-> *ice-surface* slip-factor) 0.3)(set! (-> *ice-surface* nonlin-fric-dist) 8183808.0)(set! (-> *ice-surface* fric) 11878.4)",
+            "(set! (-> *stone-surface* slope-slip-angle) 8192.0)(set! (-> *stone-surface* slip-factor) 1.0)(set! (-> *stone-surface* transv-max) 1.0)(set! (-> *stone-surface* turnv) 1.0)(set! (-> *stone-surface* nonlin-fric-dist) 5120.0)(set! (-> *stone-surface* fric) 153600.0)(set! (-> *grass-surface* slope-slip-angle) 16384.0)(set! (-> *grass-surface* slip-factor) 1.0)(set! (-> *grass-surface* transv-max) 1.0)(set! (-> *grass-surface* turnv) 1.0)(set! (-> *grass-surface* nonlin-fric-dist) 4096.0)(set! (-> *grass-surface* fric) 122880.0)(set! (-> *ice-surface* slip-factor) 0.7)(set! (-> *ice-surface* nonlin-fric-dist) 4091904.0)(set! (-> *ice-surface* fric) 23756.8)")
             message = ""
+
+        if PREFIX + "lowgrav" == str(args[0]).lower() and on_check("lowgrav") and cd_check("lowgrav"):
+            active_check("lowgrav", 
+            "(set! (-> *TARGET-bank* double-jump-height-max) (meters 4.0))(set! (-> *standard-dynamics* gravity-length) (meters 15.0))",
+            "(set! (-> *TARGET-bank* double-jump-height-max) (meters 2.5))(set! (-> *standard-dynamics* gravity-length) (meters 60.0)")
+            message = ""
+
+        if PREFIX + "pinball" == str(args[0]).lower() and on_check("pinball") and cd_check("pinball"):
+            active_check("pinball", 
+            "(set! (-> *stone-surface* fric) -153600.0)",
+            "(set! (-> *stone-surface* fric) 153600.0)")
+            message = ""
+
 
         #if PREFIX + "heatmax" == str(args[0]).lower() and len(args) >= 2:
         #    sendForm("(set! (-> *RACER-bank* heat-max) " + str(args[1]) + ")")
@@ -942,9 +967,11 @@ def gamecontrol():
         active_sweep("freecam", "(start 'play (get-or-create-continue! *game-info*))")
         active_sweep("sucksuck","(set! (-> *FACT-bank* suck-suck-dist) (meters 12))(set! (-> *FACT-bank* suck-bounce-dist) (meters 12))")
         active_sweep("noeco", "(set! (-> *FACT-bank* eco-full-timeout) (seconds 20.0))")
+        active_sweep("rapidfire","(set! (-> *TARGET-bank* yellow-projectile-speed) (meters 60))(set! (-> *TARGET-bank* yellow-attack-timeout) (seconds 0.2))")
         active_sweep("invertcam", "(set! (-> *pc-settings* third-camera-h-inverted?) #t)(set! (-> *pc-settings* third-camera-v-inverted?) #t)(set! (-> *pc-settings* first-camera-v-inverted?) #t)(set! (-> *pc-settings* first-camera-h-inverted?) #f)")
         active_sweep("stickycam", "(send-event *target* 'no-look-around (seconds 0))(send-event *camera* 'change-state cam-string 0)")
         active_sweep("cam", "(send-event *camera* 'change-state cam-string 0)")
+        active_sweep("askew","(set! (-> *standard-dynamics* gravity x) 0.0)")
         active_sweep("dark", "(set! (-> (level-get-target-inside *level*) mood-func)update-mood-darkcave)")
         active_sweep("nodax", "(send-event *target* 'sidekick #t)")
         active_sweep("smallnet", "(when (process-by-ename \"fisher-1\")(set! (-> *FISHER-bank* net-radius)(meters 0.7)))")
@@ -956,10 +983,12 @@ def gamecontrol():
         active_sweep("bigjak", "(set! (-> (-> (the-as target *target* )root)scale x) 1.0)(set! (-> (-> (the-as target *target* )root)scale y) 1.0)(set! (-> (-> (the-as target *target* )root)scale z) 1.0)")
         active_sweep("color", "(set! (-> *target* draw color-mult x) 1.0)(set! (-> *target* draw color-mult y) 1.0)(set! (-> *target* draw color-mult z) 1.0)")
         active_sweep("scale", "(set! (-> (-> (the-as target *target* )root)scale x) 1.0)(set! (-> (-> (the-as target *target* )root)scale y) 1.0)(set! (-> (-> (the-as target *target* )root)scale z) 1.0)")
-        active_sweep("slippery", "(set! (-> *stone-surface* slope-slip-angle) 8192.0)(set! (-> *stone-surface* slip-factor) 1.0)(set! (-> *stone-surface* transv-max) 1.0)(set! (-> *stone-surface* turnv) 1.0)(set! (-> *stone-surface* nonlin-fric-dist) 5120.0)(set! (-> *stone-surface* fric) 153600.0)")
+        active_sweep("slippery", "(set! (-> *stone-surface* slope-slip-angle) 8192.0)(set! (-> *stone-surface* slip-factor) 1.0)(set! (-> *stone-surface* transv-max) 1.0)(set! (-> *stone-surface* turnv) 1.0)(set! (-> *stone-surface* nonlin-fric-dist) 5120.0)(set! (-> *stone-surface* fric) 153600.0)(set! (-> *grass-surface* slope-slip-angle) 16384.0)(set! (-> *grass-surface* slip-factor) 1.0)(set! (-> *grass-surface* transv-max) 1.0)(set! (-> *grass-surface* turnv) 1.0)(set! (-> *grass-surface* nonlin-fric-dist) 4096.0)(set! (-> *grass-surface* fric) 122880.0)(set! (-> *ice-surface* slip-factor) 0.7)(set! (-> *ice-surface* nonlin-fric-dist) 4091904.0)(set! (-> *ice-surface* fric) 23756.8)")
+        active_sweep("lowgrav", "(set! (-> *TARGET-bank* double-jump-height-max) (meters 2.5))(set! (-> *standard-dynamics* gravity-length) (meters 60.0)")
+        active_sweep("pinball","(set! (-> *stone-surface* fric) 153600.0)")
         active_sweep("protect", "")
         active_sweep("iframes","(set! (-> *TARGET-bank* hit-invulnerable-timeout) (seconds 3))")
-        active_sweep("rocketman", "(stop 'debug)(set! (-> *standard-dynamics* gravity-length) (meters 60.0))(start 'play (get-or-create-continue! *game-info*))")
+        active_sweep("rocketman", "(set! (-> *standard-dynamics* gravity-normal y) 1.0)")
         active_sweep("bighead", "(logclear! (-> *pc-settings* cheats) (pc-cheats big-head))")
         active_sweep("smallhead", "(logclear! (-> *pc-settings* cheats) (pc-cheats small-head))")
         active_sweep("bigfist", "(logclear! (-> *pc-settings* cheats) (pc-cheats big-fist))")
