@@ -639,9 +639,10 @@ def gamecontrol():
             message = ""
 
         if PREFIX + "invertcam" == str(args[0]).lower() and len(args) >= 3 and on_check("invertcam") and cd_check("invertcam"):
-            activate("invertcam")
-            sendForm("(set! (-> *pc-settings* " + str(args[1]) + "-camera-" + str(args[2]) + "-inverted?) (not (-> *pc-settings* " + str(args[1]) + "-camera-" + str(args[2]) + "-inverted?)))")
-            message = ""
+            if (args[1] == "third" or args[1] == "first") and (args[2] == "h" or args[2] == "v"):
+                activate("invertcam")
+                sendForm("(set! (-> *pc-settings* " + str(args[1]) + "-camera-" + str(args[2]) + "-inverted?) (not (-> *pc-settings* " + str(args[1]) + "-camera-" + str(args[2]) + "-inverted?)))")
+                message = ""
 
        # if PREFIX + "normalcam" == str(args[0]).lower() and on_check("normalcam") and cd_check("normalcam"):
        #     deactivate("invertcam")
