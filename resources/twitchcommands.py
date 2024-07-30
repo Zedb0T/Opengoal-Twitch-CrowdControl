@@ -69,6 +69,9 @@ SUCK_MAX = str(os.getenv("SUCK_MAX"))
 BLIND_MIN = str(os.getenv("BLIND_MIN"))
 BLIND_MAX = str(os.getenv("BLIND_MAX"))
 
+FINALBOSS_MUL = 3
+FINALBOSS_MODE = False
+
 
 #bool that checks if its the launcher version
 launcher_version = exists(application_path+"\OpenGOAL-Launcher.exe")
@@ -164,7 +167,7 @@ def cd_check(cmd):
         remaining_time = int(cooldowns[command_names.index(cmd)] - (time.time() - last_used[command_names.index(cmd)]))
         minutes = remaining_time // 60
         seconds = remaining_time % 60
-        sendMessage(irc, "/me @" + user + " Command '" + command_names[command_names.index(cmd)] + "' is on cooldown (" + str(minutes) + "m " + str(seconds) + "s left).")
+        sendMessage(irc, "/me @" + user + " Command '" + command_names[command_names.index(cmd)] + "' is on cooldown (" + str(minutes) + "m" + str(seconds) + "s left).")
         message = ""
         return False
     else:
@@ -271,7 +274,7 @@ command_names = ["protect","rjto","superjump","superboosted","noboosteds","nojum
                  "basincell","resetactors","repl","debug","save","resetcooldowns","cd","dur","enable","disable",
                  "widejak","flatjak","smalljak","bigjak","color","scale","slippery","pinball","rocketman","actorson",
                  "actorsoff","unzoom","bighead","smallhead","bigfist","bigheadnpc","hugehead","mirror","notex","press",
-                 "lang","fixoldsave"]
+                 "lang","fixoldsave","finalboss"]
 
 #array of valid checkpoints so user cant send garbage data
 point_list = ["training-start","game-start","village1-hut","village1-warp","beach-start",
@@ -595,7 +598,7 @@ def gamecontrol():
             sendForm("(when (not (movie?))(set! (-> (target-pos 0) x) (meters " + str(args[1]) + "))  (set! (-> (target-pos 0) y) (meters " + str(args[2]) + ")) (set! (-> (target-pos 0) z) (meters " + str(args[3]) + ")))")
             message = ""
 
-        if PREFIX + "shift" == str(args[0]).lower() and len(args) >= 4 and on_check("shift") and max_val(args[1], SHIFTX_MIN, SHIFTX_MAX) and max_val(args[2], SHIFTY_MIN, SHIFTY_MAX) and max_val(args[3], SHIFTZ_MIN, SHIFTZ_MAX) and cd_check("shift"):
+        if PREFIX + "shift" == str(args[0]).lower() and len(args) >= 4 and on_check("shift") and max_val(args[1], SHIFTX_MIN, SHIFTX_MAX) and max_val(args[2], SHIFTY_MIN, SHIFTY_MAX) and max_val(args[3], SHIFTZ_MIN, SHIFTZ_MAX) and cd_check("tp"):
             sendForm("(when (not (movie?))(set! (-> (target-pos 0) x) (+ (-> (target-pos 0) x)(meters " + str(args[1]) + ")))  (set! (-> (target-pos 0) y) (+ (-> (target-pos 0) y)(meters " + str(args[2]) + "))) (set! (-> (target-pos 0) z) (+ (-> (target-pos 0) z)(meters " + str(args[3]) + "))))")
             message = ""
 
@@ -684,7 +687,7 @@ def gamecontrol():
             "(set! (-> (level-get-target-inside *level*) mood-func)update-mood-darkcave)")
             message = ""
 
-        if PREFIX + "blind" == str(args[0]).lower() and len(args) >= 2 and on_check("blind") and cd_check("blind") and max_val(args[1], BLIND_MIN, BLIND_MAX):
+        if PREFIX + "blind" == str(args[0]).lower() and len(args) >= 2 and on_check("blind") and cd_check("dark") and max_val(args[1], BLIND_MIN, BLIND_MAX):
             activate("blind")
             sendForm("(set-blackout-frames (seconds " + str(args[1]) + "))")
             message = ""
@@ -954,6 +957,64 @@ def gamecontrol():
         if PREFIX + "cam-out" == str(args[0]).lower() and COMMAND_MODS.count(user) > 0:
           sendForm("(set! (-> *cpad-list* cpads 0 righty) (the-as uint 255))")
           message = ""
+
+        if PREFIX + "finalboss" == str(args[0]).lower() and COMMAND_MODS.count(user) > 0 and on_check("finalboss") :
+            global FINALBOSS_MODE
+            if not FINALBOSS_MODE:
+                on_off[command_names.index("die")] = "f"
+                on_off[command_names.index("drown")] = "f"
+                on_off[command_names.index("melt")] = "f"
+                on_off[command_names.index("endlessfall")] = "f"
+                on_off[command_names.index("resetactors")] = "f"
+                on_off[command_names.index("deload")] = "f"
+                on_off[command_names.index("ghostjak")] = "f"
+                on_off[command_names.index("shift")] = "f"
+                on_off[command_names.index("tp")] = "f"
+                on_off[command_names.index("topoint")] = "f"
+                on_off[command_names.index("randompoint")] = "f"
+                cooldowns[command_names.index("scale")] *= FINALBOSS_MUL
+                cooldowns[command_names.index("hp")] *= FINALBOSS_MUL 
+                cooldowns[command_names.index("iframes")] *= FINALBOSS_MUL
+                cooldowns[command_names.index("ouch")] *= FINALBOSS_MUL
+                cooldowns[command_names.index("movetojak")] *= FINALBOSS_MUL
+                cooldowns[command_names.index("rocketman")] *= FINALBOSS_MUL
+                cooldowns[command_names.index("noeco")] *= FINALBOSS_MUL
+                cooldowns[command_names.index("eco")] *= FINALBOSS_MUL
+                cooldowns[command_names.index("shortfall")] *= FINALBOSS_MUL
+                cooldowns[command_names.index("nuka")] *= FINALBOSS_MUL
+                cooldowns[command_names.index("pinball")] *= FINALBOSS_MUL
+                cooldowns[command_names.index("slippery")] *= FINALBOSS_MUL
+                cooldowns[command_names.index("nojumps")] *= FINALBOSS_MUL
+                FINALBOSS_MODE = True
+                sendMessage(irc, "/me ~ Final Boss Mode activated! Cooldowns are longer and some commands are disabled.")
+            else:
+                on_off[command_names.index("die")] = (os.getenv("die"))
+                on_off[command_names.index("drown")] = (os.getenv("drown"))
+                on_off[command_names.index("melt")] = (os.getenv("melt"))
+                on_off[command_names.index("endlessfall")] = (os.getenv("endlessfall"))
+                on_off[command_names.index("resetactors")] = (os.getenv("resetactors"))
+                on_off[command_names.index("deload")] = (os.getenv("deload"))
+                on_off[command_names.index("ghostjak")] = (os.getenv("ghostjak"))
+                on_off[command_names.index("shift")] = (os.getenv("shift"))
+                on_off[command_names.index("tp")] = (os.getenv("tp"))
+                on_off[command_names.index("topoint")] = (os.getenv("topoint"))
+                on_off[command_names.index("randompoint")] = (os.getenv("randompoint"))
+                cooldowns[command_names.index("scale")] /= FINALBOSS_MUL
+                cooldowns[command_names.index("hp")] /= FINALBOSS_MUL 
+                cooldowns[command_names.index("iframes")] /= FINALBOSS_MUL
+                cooldowns[command_names.index("ouch")] /= FINALBOSS_MUL
+                cooldowns[command_names.index("movetojak")] /= FINALBOSS_MUL
+                cooldowns[command_names.index("rocketman")] /= FINALBOSS_MUL
+                cooldowns[command_names.index("noeco")] /= FINALBOSS_MUL
+                cooldowns[command_names.index("eco")] /= FINALBOSS_MUL
+                cooldowns[command_names.index("shortfall")] /= FINALBOSS_MUL
+                cooldowns[command_names.index("nuka")] /= FINALBOSS_MUL
+                cooldowns[command_names.index("pinball")] /= FINALBOSS_MUL
+                cooldowns[command_names.index("slippery")] /= FINALBOSS_MUL
+                cooldowns[command_names.index("nojumps")] /= FINALBOSS_MUL
+                FINALBOSS_MODE = False
+                sendMessage(irc, "/me ~ Final Boss Mode deactivated.")
+        message = ""
             
         if str(args[0]) == PREFIX + "repl" and len(args) >= 2 and on_check("repl") and cd_check("repl"):
             if COMMAND_MODS.count(user) > 0:
@@ -971,7 +1032,7 @@ def gamecontrol():
         active_sweep("noboosteds","(set! (-> *edge-surface* fric) 30720.0)")
         active_sweep("nojumps","(logclear! (-> *target* state-flags) (state-flags prevent-jump))")
         active_sweep("fastjak","(set! (-> *walk-mods* target-speed) 40960.0)(set! (-> *double-jump-mods* target-speed) 32768.0)(set! (-> *jump-mods* target-speed) 40960.0)(set! (-> *jump-attack-mods* target-speed) 24576.0)(set! (-> *attack-mods* target-speed) 40960.0)(set! (-> *forward-high-jump-mods* target-speed) 45056.0)(set! (-> *jump-attack-mods* target-speed) 24576.0)(set! (-> *stone-surface* target-speed) 1.0)")
-        active_sweep("slowjak", "(set! (-> *walk-mods* target-speed) 40960.0)(set! (-> *double-jump-mods* target-speed) 32768.0)(set! (-> *jump-mods* target-speed) 40960.0)(set! (-> *jump-attack-mods* target-speed) 24576.0)(set! (-> *attack-mods* target-speed) 40960.0)(set! (-> *forward-high-jump-mods* target-speed) 45056.0)(set! (-> *jump-attack-mods* target-speed) 24576.0)(set! (-> *TARGET-bank* wheel-flip-dist) (meters 17.3))")
+        active_sweep("slowjak", "(set! (-> *walk-mods* target-speed) 40960.0)(set! (-> *double-jump-mods* target-speed) 32768.0)(set! (-> *jump-mods* target-speed) 40960.0)(set! (-> *jump-attack-mods* target-speed) 24576.0)(set! (-> *attack-mods* target-speed) 40960.0)(set! (-> *forward-high-jump-mods* target-speed) 45056.0)(set! (-> *jump-attack-mods* target-speed) 24576.0)(set! (set! (-> *TARGET-bank* wheel-flip-dist) (meters 17.3))(set! (-> *TARGET-bank* wheel-flip-height) (meters 3.52))")
         active_sweep("pacifist", "(set! (-> *TARGET-bank* punch-radius) (meters 1.3))(set! (-> *TARGET-bank* spin-radius) (meters 2.2))(set! (-> *TARGET-bank* flop-radius) (meters 1.4))(set! (-> *TARGET-bank* uppercut-radius) (meters 1))")
         active_sweep("nuka","(logior! (-> *target* state-flags) (state-flags dangerous))")
         active_sweep("invul","(logior! (-> *target* state-flags) (state-flags dangerous))")
