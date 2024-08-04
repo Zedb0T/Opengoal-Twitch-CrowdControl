@@ -460,7 +460,7 @@ def gamecontrol():
             deactivate("fastjak")
             active_check("slowjak",
             "(send-event *target* 'reset-pickup 'eco)(set! (-> *walk-mods* target-speed) 22000.0)(set! (-> *double-jump-mods* target-speed) 20000.0)(set! (-> *jump-mods* target-speed) 22000.0)(set! (-> *jump-attack-mods* target-speed) 20000.0)(set! (-> *attack-mods* target-speed) 22000.0)(set! (-> *stone-surface* target-speed) 1.0)(set! (-> *TARGET-bank* wheel-flip-dist) (meters 5))(set! (-> *TARGET-bank* wheel-flip-height) (meters 3.52))",
-            "(set! (-> *walk-mods* target-speed) 40960.0)(set! (-> *double-jump-mods* target-speed) 32768.0)(set! (-> *jump-mods* target-speed) 40960.0)(set! (-> *jump-attack-mods* target-speed) 24576.0)(set! (-> *attack-mods* target-speed) 40960.0)(set! (-> *forward-high-jump-mods* target-speed) 45056.0)(set! (-> *jump-attack-mods* target-speed) 24576.0)(set! (set! (-> *TARGET-bank* wheel-flip-dist) (meters 17.3))(set! (-> *TARGET-bank* wheel-flip-height) (meters 3.52))")
+            "(set! (-> *walk-mods* target-speed) 40960.0) (set! (-> *double-jump-mods* target-speed) 32768.0) (set! (-> *jump-mods* target-speed) 40960.0) (set! (-> *jump-attack-mods* target-speed) 24576.0) (set! (-> *attack-mods* target-speed) 40960.0) (set! (-> *forward-high-jump-mods* target-speed) 45056.0) (set! (-> *jump-attack-mods* target-speed) 24576.0) (set! (-> *TARGET-bank* wheel-flip-dist) (meters 17.3)) (set! (-> *TARGET-bank* wheel-flip-height) (meters 3.52))")
             message = ""
 
         if PREFIX + "pacifist" == str(args[0]).lower() and on_check("pacifist") and cd_check("pacifist"):
@@ -470,15 +470,11 @@ def gamecontrol():
             message = ""
 
         if PREFIX + "nuka" == str(args[0]).lower() and on_check("nuka") and cd_check("nuka"):
-            active_check("nuka", 
-            "(logior! (-> *target* state-flags) (state-flags dying))",
-            "(logior! (-> *target* state-flags) (state-flags dangerous))")
+            sendForm("(logior! (-> *target* state-flags) (state-flags dying))")
             message = ""
 
         if (PREFIX + "invul" == str(args[0]).lower() or PREFIX + "invuln" == str(args[0]).lower()) and on_check("invul") and cd_check("invul"):
-            active_check("invul", 
-            "(logior! (-> *target* state-flags) (state-flags invulnerable))",
-            "(logior! (-> *target* state-flags) (state-flags dangerous))")
+            sendForm("(logior! (-> *target* state-flags) (state-flags invulnerable))")
             message = ""
 
         if PREFIX + "trip" == str(args[0]).lower() and on_check("trip") and cd_check("trip"):
@@ -1050,10 +1046,10 @@ def gamecontrol():
         active_sweep("noboosteds","(set! (-> *edge-surface* fric) 30720.0)")
         active_sweep("nojumps","(logclear! (-> *target* state-flags) (state-flags prevent-jump))")
         active_sweep("fastjak","(set! (-> *walk-mods* target-speed) 40960.0)(set! (-> *double-jump-mods* target-speed) 32768.0)(set! (-> *jump-mods* target-speed) 40960.0)(set! (-> *jump-attack-mods* target-speed) 24576.0)(set! (-> *attack-mods* target-speed) 40960.0)(set! (-> *forward-high-jump-mods* target-speed) 45056.0)(set! (-> *jump-attack-mods* target-speed) 24576.0)(set! (-> *stone-surface* target-speed) 1.0)")
-        active_sweep("slowjak", "(set! (-> *walk-mods* target-speed) 40960.0)(set! (-> *double-jump-mods* target-speed) 32768.0)(set! (-> *jump-mods* target-speed) 40960.0)(set! (-> *jump-attack-mods* target-speed) 24576.0)(set! (-> *attack-mods* target-speed) 40960.0)(set! (-> *forward-high-jump-mods* target-speed) 45056.0)(set! (-> *jump-attack-mods* target-speed) 24576.0)(set! (set! (-> *TARGET-bank* wheel-flip-dist) (meters 17.3))(set! (-> *TARGET-bank* wheel-flip-height) (meters 3.52))")
+        active_sweep("slowjak", "(set! (-> *walk-mods* target-speed) 40960.0) (set! (-> *double-jump-mods* target-speed) 32768.0) (set! (-> *jump-mods* target-speed) 40960.0) (set! (-> *jump-attack-mods* target-speed) 24576.0) (set! (-> *attack-mods* target-speed) 40960.0) (set! (-> *forward-high-jump-mods* target-speed) 45056.0) (set! (-> *jump-attack-mods* target-speed) 24576.0) (set! (-> *TARGET-bank* wheel-flip-dist) (meters 17.3)) (set! (-> *TARGET-bank* wheel-flip-height) (meters 3.52))")
         active_sweep("pacifist", "(set! (-> *TARGET-bank* punch-radius) (meters 1.3))(set! (-> *TARGET-bank* spin-radius) (meters 2.2))(set! (-> *TARGET-bank* flop-radius) (meters 1.4))(set! (-> *TARGET-bank* uppercut-radius) (meters 1))")
-        active_sweep("nuka","(logior! (-> *target* state-flags) (state-flags dangerous))")
-        active_sweep("invul","(logior! (-> *target* state-flags) (state-flags dangerous))")
+        #active_sweep("nuka","(logior! (-> *target* state-flags) (state-flags dangerous))")
+        #active_sweep("invul","(logior! (-> *target* state-flags) (state-flags dangerous))")
         active_sweep("shortfall", "(set! (-> *TARGET-bank* fall-far) (meters 30))(set! (-> *TARGET-bank* fall-far-inc) (meters 20))")
         active_sweep("ghostjak", "(set! (-> *TARGET-bank* body-radius) (meters 0.7))")
         active_sweep("freecam", "(start 'play (get-or-create-continue! *game-info*))")
