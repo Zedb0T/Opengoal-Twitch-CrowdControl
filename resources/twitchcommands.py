@@ -10,6 +10,7 @@ from dotenv import load_dotenv
 from os.path import exists
 import shutil
 import tkinter as tk
+import math
 
 """
 Created on Fri Apr 29 16:20:54 2022
@@ -37,14 +38,15 @@ CONNECT_MSG = str(os.getenv("CONNECT_MSG"))
 COOLDOWN_MSG = str(os.getenv("COOLDOWN_MSG"))
 DISABLED_MSG = str(os.getenv("DISABLED_MSG"))
 ACTIVATE_MSG = str(os.getenv("ACTIVATE_MSG"))
+DEACTIVATE_MSG = str(os.getenv("DEACTIVATE_MSG"))
 PROTECT_SACRIFICE = False
 SACRIFICE_DURATION = str(os.getenv("SACRIFICE_DURATION"))
 PREFIX = str(os.getenv("PREFIX"))
 
-first_camera_v_inverted = str(os.getenv("first-camera-vertical-inverted"))
-first_camera_h_inverted = str(os.getenv("first-camera-horizontal-inverted"))
-third_camera_v_inverted = str(os.getenv("third-camera-vertical-inverted"))
-third_camera_h_inverted = str(os.getenv("third-camera-horizontal-inverted"))
+FIRST_CAMERA_V_INVERTED = str(os.getenv("first-camera-vertical-inverted"))
+FIRST_CAMERA_H_INVERTED = str(os.getenv("first-camera-horizontal-inverted"))
+THIRD_CAMERA_V_INVERTED = str(os.getenv("third-camera-vertical-inverted"))
+THIRD_CAMERA_H_INVERTED = str(os.getenv("third-camera-horizontal-inverted"))
 
 TOPOINT_PAST_CRATER = str(os.getenv("TOPOINT_PAST_CRATER"))
 
@@ -68,6 +70,9 @@ SUCK_MIN = str(os.getenv("SUCK_MIN"))
 SUCK_MAX = str(os.getenv("SUCK_MAX"))
 BLIND_MIN = str(os.getenv("BLIND_MIN"))
 BLIND_MAX = str(os.getenv("BLIND_MAX"))
+
+FINALBOSS_MUL = 3
+FINALBOSS_MODE = False
 
 
 #bool that checks if its the launcher version
@@ -106,13 +111,15 @@ def sendForm(form):
     return
 
 active_list = []
+active_list_times = []
+
 def display_text_in_window():
     # Create a new window
     window = tk.Tk()
-    window.title("CC Active Effects")
+    window.title("J1T Active Effects")
 
     # Create a text widget to display text
-    text_widget = tk.Text(window, wrap="word", height=13, width=15)
+    text_widget = tk.Text(window, wrap="word", height=13, width=20)
     text_widget.pack()
 
     # Configure the font
@@ -123,13 +130,25 @@ def display_text_in_window():
     def update_text():
         while True:
             # Update text content
-            text_content = '\n'.join(active_list)
+            text_content = ''
+            for effect, time_remaining in zip(active_list, active_list_times):
+                minutes = int(time_remaining) // 60
+                seconds = int(time_remaining) % 60
+                formatted_time = f"{minutes}:{seconds:02d}"
+                text_content += f"{effect} ~ {formatted_time}\n"
+            
             text_widget.delete(1.0, tk.END)  # Clear existing text
             text_widget.insert(tk.END, text_content)
 
+            for i in range(len(active_list_times)):
+                total_duration = durations[command_names.index(active_list[i])]
+                start_time = activated[command_names.index(active_list[i])]
+                elapsed_time = time.time() - start_time
+                remaining_time = max(0, total_duration - elapsed_time)
+                active_list_times[i] = math.floor(remaining_time)
+
             # Pause for a short interval
             time.sleep(1)
-
     # Create a thread for updating the text
     text_thread = threading.Thread(target=update_text, daemon=True)
     text_thread.start()
@@ -155,16 +174,17 @@ display_thread.start()
 # Wait for the main program thread to finish
 main_thread.join()
 
+
 def cd_check(cmd):
     global message
     if (time.time() - last_used[command_names.index(cmd)]) > cooldowns[command_names.index(cmd)]:
         last_used[command_names.index(cmd)] = time.time()
         return True
-    elif COOLDOWN_MSG == "t":
+    elif COOLDOWN_MSG:
         remaining_time = int(cooldowns[command_names.index(cmd)] - (time.time() - last_used[command_names.index(cmd)]))
         minutes = remaining_time // 60
         seconds = remaining_time % 60
-        sendMessage(irc, "/me @" + user + " Command '" + command_names[command_names.index(cmd)] + "' is on cooldown (" + str(minutes) + "m " + str(seconds) + "s left).")
+        sendMessage(irc, "/me @" + user + " Command '" + command_names[command_names.index(cmd)] + "' is on cooldown (" + str(minutes) + "m" + str(seconds) + "s left).")
         message = ""
         return False
     else:
@@ -173,9 +193,9 @@ def cd_check(cmd):
 
 def on_check(cmd):
     global message
-    if on_off[command_names.index(cmd)] != "f" and not active[command_names.index("protect")]:
+    if on_off[command_names.index(cmd)] and not active[command_names.index("protect")]:
         return True 
-    elif DISABLED_MSG == "t":
+    elif DISABLED_MSG:
         sendMessage(irc, "/me @"+user+" Command '"+command_names[command_names.index(cmd)]+"' is disabled.")
         message = ""
         return False
@@ -197,17 +217,19 @@ def active_sweep(cmd, line):
         sendForm(line)
 
 def activate(cmd):
-    if ACTIVATE_MSG != "f":
+    if ACTIVATE_MSG:
         sendMessage(irc, "/me > '"+command_names[command_names.index(cmd)]+"' activated!")
     activated[command_names.index(cmd)] = time.time()
     active[command_names.index(cmd)] = True
     active_list.append(cmd)
+    active_list_times.append(durations[command_names.index(cmd)])
 
 def deactivate(cmd):
     if active[command_names.index(cmd)]:
-         if ACTIVATE_MSG != "f":
+         if DEACTIVATE_MSG:
             sendMessage(irc, "/me > '"+command_names[command_names.index(cmd)]+"' deactivated!")
          active[command_names.index(cmd)] = False
+         del active_list_times[active_list.index(cmd)]
          active_list.remove(cmd)
 
 def max_val(val, min, max):
@@ -269,9 +291,9 @@ command_names = ["protect","rjto","superjump","superboosted","noboosteds","nojum
                  "burn","hp","melt","drown","endlessfall","iframes","invertcam","cam","askew","stickycam","deload",
                  "quickcam","dark","blind","nodax","smallnet","widefish","lowpoly","moveplantboss","moveplantboss2",
                  "basincell","resetactors","repl","debug","save","resetcooldowns","cd","dur","enable","disable",
-                 "widejak","flatjak","smalljak","bigjak","color","scale","slippery","pinball","rocketman","actorson",
-                 "actorsoff","unzoom","bighead","smallhead","bigfist","bigheadnpc","hugehead","mirror","notex","press",
-                 "lang","fixoldsave"]
+                 "widejak","flatjak","smalljak","bigjak","color","scale","slippery","pinball","rocketman","actors-on",
+                 "actors-off","unzoom","bighead","smallhead","bigfist","bigheadnpc","hugehead","mirror","notex","press",
+                 "lang","fixoldsave","finalboss","turn-left","turn-right","turn-180","cam-left","cam-right","cam-in","cam-out"]
 
 #array of valid checkpoints so user cant send garbage data
 point_list = ["training-start","game-start","village1-hut","village1-warp","beach-start",
@@ -335,7 +357,7 @@ input_list = ["square","circle","x","triangle","up","down","left","right"]
 cam_list = ["endlessfall","eye","standoff","bike","stick"]
 
 #intialize arrays same length as command_names
-on_off = ["t"] * len(command_names)
+on_off = [True] * len(command_names)
 cooldowns = [0.0] * len(command_names)
 last_used = [0.0] * len(command_names)
 activated = [0.0] * len(command_names)
@@ -389,7 +411,7 @@ def gamecontrol():
         
         if PREFIX + "protect" == str(args[0]).lower() and on_check("protect") and cd_check("protect"):
             activate("protect")
-            # if PROTECT_SACRIFICE == "t":
+            # if PROTECT_SACRIFICE:
                 # sendMessage(irc, "/timeout " + user + " " + str(SACRIFICE_DURATION))
                 # sendMessage(irc, "/me " + user + " sacrificed themselves to protect "+ CHANNEL + " for " + str(int(durations[command_names.index("protect")])) +"s!")
             message = ""
@@ -437,8 +459,8 @@ def gamecontrol():
         if PREFIX + "slowjak" == str(args[0]).lower() and on_check("slowjak") and cd_check("slowjak"):
             deactivate("fastjak")
             active_check("slowjak",
-            "(send-event *target* 'reset-pickup 'eco)(set! (-> *walk-mods* target-speed) 22000.0)(set! (-> *double-jump-mods* target-speed) 20000.0)(set! (-> *jump-mods* target-speed) 22000.0)(set! (-> *jump-attack-mods* target-speed) 20000.0)(set! (-> *attack-mods* target-speed) 22000.0)(set! (-> *stone-surface* target-speed) 1.0)(set! (-> *TARGET-bank* wheel-flip-dist) (meters 5))",
-            "(set! (-> *walk-mods* target-speed) 40960.0)(set! (-> *double-jump-mods* target-speed) 32768.0)(set! (-> *jump-mods* target-speed) 40960.0)(set! (-> *jump-attack-mods* target-speed) 24576.0)(set! (-> *attack-mods* target-speed) 40960.0)(set! (-> *forward-high-jump-mods* target-speed) 45056.0)(set! (-> *jump-attack-mods* target-speed) 24576.0)(set! (-> *TARGET-bank* wheel-flip-dist) (meters 17.3))")
+            "(send-event *target* 'reset-pickup 'eco)(set! (-> *walk-mods* target-speed) 22000.0)(set! (-> *double-jump-mods* target-speed) 20000.0)(set! (-> *jump-mods* target-speed) 22000.0)(set! (-> *jump-attack-mods* target-speed) 20000.0)(set! (-> *attack-mods* target-speed) 22000.0)(set! (-> *stone-surface* target-speed) 1.0)(set! (-> *TARGET-bank* wheel-flip-dist) (meters 5))(set! (-> *TARGET-bank* wheel-flip-height) (meters 3.52))",
+            "(set! (-> *walk-mods* target-speed) 40960.0)(set! (-> *double-jump-mods* target-speed) 32768.0)(set! (-> *jump-mods* target-speed) 40960.0)(set! (-> *jump-attack-mods* target-speed) 24576.0)(set! (-> *attack-mods* target-speed) 40960.0)(set! (-> *forward-high-jump-mods* target-speed) 45056.0)(set! (-> *jump-attack-mods* target-speed) 24576.0)(set! (set! (-> *TARGET-bank* wheel-flip-dist) (meters 17.3))(set! (-> *TARGET-bank* wheel-flip-height) (meters 3.52))")
             message = ""
 
         if PREFIX + "pacifist" == str(args[0]).lower() and on_check("pacifist") and cd_check("pacifist"):
@@ -453,7 +475,7 @@ def gamecontrol():
             "(logior! (-> *target* state-flags) (state-flags dangerous))")
             message = ""
 
-        if PREFIX + "invul" == str(args[0]).lower() and on_check("invul") and cd_check("invul"):
+        if (PREFIX + "invul" == str(args[0]).lower() or PREFIX + "invuln" == str(args[0]).lower()) and on_check("invul") and cd_check("invul"):
             active_check("invul", 
             "(logior! (-> *target* state-flags) (state-flags invulnerable))",
             "(logior! (-> *target* state-flags) (state-flags dangerous))")
@@ -511,19 +533,19 @@ def gamecontrol():
             message = ""
 
         if (PREFIX + "minuscell" == str(args[0]).lower() or PREFIX + "minuscells" == str(args[0]).lower()) and on_check("minuscell") and cd_check("minuscell"):
-            sendForm("(set! (-> *game-info* fuel) (- (-> *game-info* fuel) " + MINUSCELL_AMT + "))")
+            sendForm("(set! (-> *game-info* fuel)(max 0.0 (- (-> *game-info* fuel) " + MINUSCELL_AMT + ")))")
             message = ""
 
         if (PREFIX + "pluscell" == str(args[0]).lower() or PREFIX + "pluscells" == str(args[0]).lower()) and on_check("pluscell") and cd_check("pluscell"):
-            sendForm("(set! (-> *game-info* fuel) (+ (-> *game-info* fuel) " + PLUSCELL_AMT + "))")
+            sendForm("(set! (-> *game-info* fuel)(max 0.0 (+ (-> *game-info* fuel) " + PLUSCELL_AMT + ")))")
             message = ""
 
         if (PREFIX + "minusorbs" == str(args[0]).lower() or PREFIX + "minusorb" == str(args[0]).lower()) and on_check("minusorbs") and cd_check("minusorbs"):
-            sendForm("(set! (-> *game-info* money) (- (-> *game-info* money) " + MINUSORBS_AMT + "))")
+            sendForm("(set! (-> *game-info* money)(max 0.0 (- (-> *game-info* money) " + MINUSORBS_AMT + ")))")
             message = ""
 
         if (PREFIX + "plusorbs" == str(args[0]).lower() or PREFIX + "plusorb" == str(args[0]).lower()) and on_check("plusorbs") and cd_check("plusorbs"):
-            sendForm("(set! (-> *game-info* money) (+ (-> *game-info* money) " + PLUSORBS_AMT + "))")
+            sendForm("(set! (-> *game-info* money)(max 0.0 (+ (-> *game-info* money) " + PLUSORBS_AMT + ")))")
             message = ""
 
         if (PREFIX + "collected" == str(args[0]).lower() or PREFIX + "setcollected" == str(args[0]).lower()) and len(args) >= 3 and on_check("collected") and cd_check("give"):
@@ -570,7 +592,7 @@ def gamecontrol():
                 point = arg1_lower
 
             if point:
-                if TOPOINT_PAST_CRATER != "t" and (point.startswith("lavatube") or point.startswith("citadel") or point.startswith("finalboss") or point.startswith("lt")):
+                if not TOPOINT_PAST_CRATER and (point.startswith("lavatube") or point.startswith("citadel") or point.startswith("finalboss") or point.startswith("lt")):
                     sendMessage(irc, "/me @"+user+" Cannot go past Volcanic Crater.")
                     last_used[command_names.index("topoint")] = 0
                     message = ""
@@ -595,7 +617,7 @@ def gamecontrol():
             sendForm("(when (not (movie?))(set! (-> (target-pos 0) x) (meters " + str(args[1]) + "))  (set! (-> (target-pos 0) y) (meters " + str(args[2]) + ")) (set! (-> (target-pos 0) z) (meters " + str(args[3]) + ")))")
             message = ""
 
-        if PREFIX + "shift" == str(args[0]).lower() and len(args) >= 4 and on_check("shift") and max_val(args[1], SHIFTX_MIN, SHIFTX_MAX) and max_val(args[2], SHIFTY_MIN, SHIFTY_MAX) and max_val(args[3], SHIFTZ_MIN, SHIFTZ_MAX) and cd_check("shift"):
+        if PREFIX + "shift" == str(args[0]).lower() and len(args) >= 4 and on_check("shift") and max_val(args[1], SHIFTX_MIN, SHIFTX_MAX) and max_val(args[2], SHIFTY_MIN, SHIFTY_MAX) and max_val(args[3], SHIFTZ_MIN, SHIFTZ_MAX) and cd_check("tp"):
             sendForm("(when (not (movie?))(set! (-> (target-pos 0) x) (+ (-> (target-pos 0) x)(meters " + str(args[1]) + ")))  (set! (-> (target-pos 0) y) (+ (-> (target-pos 0) y)(meters " + str(args[2]) + "))) (set! (-> (target-pos 0) z) (+ (-> (target-pos 0) z)(meters " + str(args[3]) + "))))")
             message = ""
 
@@ -684,8 +706,7 @@ def gamecontrol():
             "(set! (-> (level-get-target-inside *level*) mood-func)update-mood-darkcave)")
             message = ""
 
-        if PREFIX + "blind" == str(args[0]).lower() and len(args) >= 2 and on_check("blind") and cd_check("blind") and max_val(args[1], BLIND_MIN, BLIND_MAX):
-            activate("blind")
+        if PREFIX + "blind" == str(args[0]).lower() and len(args) >= 2 and on_check("blind") and cd_check("dark") and max_val(args[1], BLIND_MIN, BLIND_MAX):
             sendForm("(set-blackout-frames (seconds " + str(args[1]) + "))")
             message = ""
 
@@ -742,11 +763,11 @@ def gamecontrol():
         #    sendForm("(set! (-> *FACT-bank* eco-full-timeout) (seconds 20 ))(pc-cheat-toggle-and-tune *pc-settings* eco-yellow)")
         #    message = ""
 
-        if PREFIX + "actorson" == str(args[0]).lower() and COMMAND_MODS.count(user) > 0:
+        if PREFIX + "actors-on" == str(args[0]).lower() and COMMAND_MODS.count(user) > 0:
             sendForm("(set! (-> *pc-settings* force-actors?) #t)")
             message = ""
 
-        if PREFIX + "actorsoff" == str(args[0]).lower() and COMMAND_MODS.count(user) > 0:
+        if PREFIX + "actors-off" == str(args[0]).lower() and COMMAND_MODS.count(user) > 0:
             sendForm("(set! (-> *pc-settings* force-actors?) #f)")
             message = ""
 
@@ -783,12 +804,12 @@ def gamecontrol():
             message = ""
    
         if PREFIX + "enable" == str(args[0]).lower() and len(args) >= 2 and command_names.count(str(args[1]).lower()) == 1 and COMMAND_MODS.count(user) > 0:          
-            on_off[command_names.index(str(args[1]))]="t"
+            on_off[command_names.index(str(args[1]))] = True
             sendMessage(irc, "/me ~ '" + str(args[1]) + "' enabled.")
             message = ""
 			   
         if PREFIX + "disable" == str(args[0]).lower() and len(args) >= 2 and command_names.count(str(args[1]).lower()) == 1 and COMMAND_MODS.count(user) > 0:          
-            on_off[command_names.index(str(args[1]))]="f"
+            on_off[command_names.index(str(args[1]))] = False
             sendMessage(irc, "/me ~ '" + str(args[1]) + "' disabled.")
             message = ""
 			   
@@ -933,27 +954,85 @@ def gamecontrol():
             sendForm("(set! (-> *setting-control* default language) (language-enum " + str(args[1]).lower() + "))")
             message = ""
             
-        if PREFIX + "turn-left" == str(args[0]).lower() and COMMAND_MODS.count(user) > 0:
+        if PREFIX + "turn-left" == str(args[0]).lower() and on_check("turn-left") and cd_check("turn-left"):
           sendForm("(quaternion-rotate-local-y! (-> *target* root dir-targ) (-> *target* root dir-targ) (/ DEGREES_PER_ROT 8.0))")
           message = ""
-        if PREFIX + "turn-right" == str(args[0]).lower() and COMMAND_MODS.count(user) > 0:
+        if PREFIX + "turn-right" == str(args[0]).lower() and on_check("turn-right") and cd_check("turn-right"):
           sendForm("(quaternion-rotate-local-y! (-> *target* root dir-targ) (-> *target* root dir-targ) (/ DEGREES_PER_ROT -8.0))")
           message = ""
-        if PREFIX + "turn-180" == str(args[0]).lower() and COMMAND_MODS.count(user) > 0:
+        if PREFIX + "turn-180" == str(args[0]).lower() and on_check("turn-180") and cd_check("turn-180"):
           sendForm("(quaternion-rotate-local-y! (-> *target* root dir-targ) (-> *target* root dir-targ) (/ DEGREES_PER_ROT 2.0))")
           message = ""
-        if PREFIX + "cam-right" == str(args[0]).lower() and COMMAND_MODS.count(user) > 0:
+        if PREFIX + "cam-right" == str(args[0]).lower() and on_check("cam-right") and cd_check("cam-right"):
           sendForm("(set! (-> *cpad-list* cpads 0 rightx) (the-as uint 0))")
           message = ""
-        if PREFIX + "cam-left" == str(args[0]).lower() and COMMAND_MODS.count(user) > 0:
+        if PREFIX + "cam-left" == str(args[0]).lower() and on_check("cam-left") and cd_check("cam-left"):
           sendForm("(set! (-> *cpad-list* cpads 0 rightx) (the-as uint 255))")
           message = ""
-        if PREFIX + "cam-in" == str(args[0]).lower() and COMMAND_MODS.count(user) > 0:
+        if PREFIX + "cam-in" == str(args[0]).lower() and on_check("collected") and cd_check("cam-in"):
           sendForm("(set! (-> *cpad-list* cpads 0 righty) (the-as uint 0))")
           message = ""
-        if PREFIX + "cam-out" == str(args[0]).lower() and COMMAND_MODS.count(user) > 0:
+        if PREFIX + "cam-out" == str(args[0]).lower() and on_check("cam-out") and cd_check("cam-out"):
           sendForm("(set! (-> *cpad-list* cpads 0 righty) (the-as uint 255))")
           message = ""
+
+        if PREFIX + "finalboss" == str(args[0]).lower() and COMMAND_MODS.count(user) > 0 and on_check("finalboss") :
+            global FINALBOSS_MODE
+            if not FINALBOSS_MODE:
+                on_off[command_names.index("die")] = False
+                on_off[command_names.index("drown")] = False
+                on_off[command_names.index("melt")] = False
+                on_off[command_names.index("endlessfall")] = False
+                on_off[command_names.index("resetactors")] = False
+                on_off[command_names.index("deload")] = False
+                on_off[command_names.index("ghostjak")] = False
+                on_off[command_names.index("shift")] = False
+                on_off[command_names.index("tp")] = False
+                on_off[command_names.index("topoint")] = False
+                on_off[command_names.index("randompoint")] = False
+                cooldowns[command_names.index("scale")] *= FINALBOSS_MUL
+                cooldowns[command_names.index("hp")] *= FINALBOSS_MUL 
+                cooldowns[command_names.index("iframes")] *= FINALBOSS_MUL
+                cooldowns[command_names.index("ouch")] *= FINALBOSS_MUL
+                cooldowns[command_names.index("movetojak")] *= FINALBOSS_MUL
+                cooldowns[command_names.index("rocketman")] *= FINALBOSS_MUL
+                cooldowns[command_names.index("noeco")] *= FINALBOSS_MUL
+                cooldowns[command_names.index("eco")] *= FINALBOSS_MUL
+                cooldowns[command_names.index("shortfall")] *= FINALBOSS_MUL
+                cooldowns[command_names.index("nuka")] *= FINALBOSS_MUL
+                cooldowns[command_names.index("pinball")] *= FINALBOSS_MUL
+                cooldowns[command_names.index("slippery")] *= FINALBOSS_MUL
+                cooldowns[command_names.index("nojumps")] *= FINALBOSS_MUL
+                FINALBOSS_MODE = True
+                sendMessage(irc, "/me ~ Final Boss Mode activated! Cooldowns are longer and some commands are disabled.")
+            else:
+                on_off[command_names.index("die")] = (os.getenv("die"))
+                on_off[command_names.index("drown")] = (os.getenv("drown"))
+                on_off[command_names.index("melt")] = (os.getenv("melt"))
+                on_off[command_names.index("endlessfall")] = (os.getenv("endlessfall"))
+                on_off[command_names.index("resetactors")] = (os.getenv("resetactors"))
+                on_off[command_names.index("deload")] = (os.getenv("deload"))
+                on_off[command_names.index("ghostjak")] = (os.getenv("ghostjak"))
+                on_off[command_names.index("shift")] = (os.getenv("shift"))
+                on_off[command_names.index("tp")] = (os.getenv("tp"))
+                on_off[command_names.index("topoint")] = (os.getenv("topoint"))
+                on_off[command_names.index("randompoint")] = (os.getenv("randompoint"))
+                cooldowns[command_names.index("scale")] /= FINALBOSS_MUL
+                cooldowns[command_names.index("hp")] /= FINALBOSS_MUL 
+                cooldowns[command_names.index("iframes")] /= FINALBOSS_MUL
+                cooldowns[command_names.index("ouch")] /= FINALBOSS_MUL
+                cooldowns[command_names.index("movetojak")] /= FINALBOSS_MUL
+                cooldowns[command_names.index("rocketman")] /= FINALBOSS_MUL
+                cooldowns[command_names.index("noeco")] /= FINALBOSS_MUL
+                cooldowns[command_names.index("eco")] /= FINALBOSS_MUL
+                cooldowns[command_names.index("shortfall")] /= FINALBOSS_MUL
+                cooldowns[command_names.index("nuka")] /= FINALBOSS_MUL
+                cooldowns[command_names.index("pinball")] /= FINALBOSS_MUL
+                cooldowns[command_names.index("slippery")] /= FINALBOSS_MUL
+                cooldowns[command_names.index("nojumps")] /= FINALBOSS_MUL
+                FINALBOSS_MODE = False
+                sendMessage(irc, "/me ~ Final Boss Mode deactivated.")
+            message = ""
             
         if str(args[0]) == PREFIX + "repl" and len(args) >= 2 and on_check("repl") and cd_check("repl"):
             if COMMAND_MODS.count(user) > 0:
@@ -971,7 +1050,7 @@ def gamecontrol():
         active_sweep("noboosteds","(set! (-> *edge-surface* fric) 30720.0)")
         active_sweep("nojumps","(logclear! (-> *target* state-flags) (state-flags prevent-jump))")
         active_sweep("fastjak","(set! (-> *walk-mods* target-speed) 40960.0)(set! (-> *double-jump-mods* target-speed) 32768.0)(set! (-> *jump-mods* target-speed) 40960.0)(set! (-> *jump-attack-mods* target-speed) 24576.0)(set! (-> *attack-mods* target-speed) 40960.0)(set! (-> *forward-high-jump-mods* target-speed) 45056.0)(set! (-> *jump-attack-mods* target-speed) 24576.0)(set! (-> *stone-surface* target-speed) 1.0)")
-        active_sweep("slowjak", "(set! (-> *walk-mods* target-speed) 40960.0)(set! (-> *double-jump-mods* target-speed) 32768.0)(set! (-> *jump-mods* target-speed) 40960.0)(set! (-> *jump-attack-mods* target-speed) 24576.0)(set! (-> *attack-mods* target-speed) 40960.0)(set! (-> *forward-high-jump-mods* target-speed) 45056.0)(set! (-> *jump-attack-mods* target-speed) 24576.0)(set! (-> *TARGET-bank* wheel-flip-dist) (meters 17.3))")
+        active_sweep("slowjak", "(set! (-> *walk-mods* target-speed) 40960.0)(set! (-> *double-jump-mods* target-speed) 32768.0)(set! (-> *jump-mods* target-speed) 40960.0)(set! (-> *jump-attack-mods* target-speed) 24576.0)(set! (-> *attack-mods* target-speed) 40960.0)(set! (-> *forward-high-jump-mods* target-speed) 45056.0)(set! (-> *jump-attack-mods* target-speed) 24576.0)(set! (set! (-> *TARGET-bank* wheel-flip-dist) (meters 17.3))(set! (-> *TARGET-bank* wheel-flip-height) (meters 3.52))")
         active_sweep("pacifist", "(set! (-> *TARGET-bank* punch-radius) (meters 1.3))(set! (-> *TARGET-bank* spin-radius) (meters 2.2))(set! (-> *TARGET-bank* flop-radius) (meters 1.4))(set! (-> *TARGET-bank* uppercut-radius) (meters 1))")
         active_sweep("nuka","(logior! (-> *target* state-flags) (state-flags dangerous))")
         active_sweep("invul","(logior! (-> *target* state-flags) (state-flags dangerous))")
@@ -981,12 +1060,11 @@ def gamecontrol():
         active_sweep("sucksuck","(set! (-> *FACT-bank* suck-suck-dist) (meters 12))(set! (-> *FACT-bank* suck-bounce-dist) (meters 12))")
         active_sweep("noeco", "(set! (-> *FACT-bank* eco-full-timeout) (seconds 20.0))")
         active_sweep("rapidfire","(set! (-> *TARGET-bank* yellow-projectile-speed) (meters 60))(set! (-> *TARGET-bank* yellow-attack-timeout) (seconds 0.2))")
-        active_sweep("invertcam", "(set! (-> *pc-settings* third-camera-h-inverted?) #" + third_camera_h_inverted +")(set! (-> *pc-settings* third-camera-v-inverted?) #" + third_camera_v_inverted +")(set! (-> *pc-settings* first-camera-v-inverted?) #" + first_camera_v_inverted +")(set! (-> *pc-settings* first-camera-h-inverted?) #" + first_camera_h_inverted +")")
+        active_sweep("invertcam", "(set! (-> *pc-settings* third-camera-h-inverted?) #" + THIRD_CAMERA_H_INVERTED +")(set! (-> *pc-settings* third-camera-v-inverted?) #" + THIRD_CAMERA_V_INVERTED +")(set! (-> *pc-settings* first-camera-v-inverted?) #" + FIRST_CAMERA_V_INVERTED +")(set! (-> *pc-settings* first-camera-h-inverted?) #" + FIRST_CAMERA_H_INVERTED +")")
         active_sweep("stickycam", "(send-event *target* 'no-look-around (seconds 0))(send-event *camera* 'change-state cam-string 0)")
         active_sweep("cam", "(send-event *camera* 'change-state cam-string 0)")
         active_sweep("askew","(set! (-> *standard-dynamics* gravity x) 0.0)")
         active_sweep("dark", "(set! (-> (level-get-target-inside *level*) mood-func)update-mood-darkcave)")
-        active_sweep("blind","")
         active_sweep("nodax", "(send-event *target* 'sidekick #t)")
         active_sweep("smallnet", "(when (process-by-ename \"fisher-1\")(set! (-> *FISHER-bank* net-radius)(meters 0.7)))")
         active_sweep("widefish", "(when (process-by-ename \"fisher-1\")(set! (-> *FISHER-bank* width)(meters 3.3)))")
