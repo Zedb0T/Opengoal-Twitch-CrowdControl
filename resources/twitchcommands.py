@@ -39,7 +39,7 @@ COOLDOWN_MSG = str(os.getenv("COOLDOWN_MSG"))
 DISABLED_MSG = str(os.getenv("DISABLED_MSG"))
 ACTIVATE_MSG = str(os.getenv("ACTIVATE_MSG"))
 DEACTIVATE_MSG = str(os.getenv("DEACTIVATE_MSG"))
-PROTECT_SACRIFICE = False
+PROTECT_SACRIFICE = "f"
 SACRIFICE_DURATION = str(os.getenv("SACRIFICE_DURATION"))
 PREFIX = str(os.getenv("PREFIX"))
 
@@ -180,7 +180,7 @@ def cd_check(cmd):
     if (time.time() - last_used[command_names.index(cmd)]) > cooldowns[command_names.index(cmd)]:
         last_used[command_names.index(cmd)] = time.time()
         return True
-    elif COOLDOWN_MSG:
+    elif COOLDOWN_MSG != "f":
         remaining_time = int(cooldowns[command_names.index(cmd)] - (time.time() - last_used[command_names.index(cmd)]))
         minutes = remaining_time // 60
         seconds = remaining_time % 60
@@ -193,9 +193,9 @@ def cd_check(cmd):
 
 def on_check(cmd):
     global message
-    if on_off[command_names.index(cmd)] and not active[command_names.index("protect")]:
+    if on_off[command_names.index(cmd)] != "f" and not active[command_names.index("protect")]:
         return True 
-    elif DISABLED_MSG:
+    elif DISABLED_MSG != "f":
         sendMessage(irc, "/me @"+user+" Command '"+command_names[command_names.index(cmd)]+"' is disabled.")
         message = ""
         return False
@@ -217,7 +217,7 @@ def active_sweep(cmd, line):
         sendForm(line)
 
 def activate(cmd):
-    if ACTIVATE_MSG:
+    if ACTIVATE_MSG != "f":
         sendMessage(irc, "/me > '"+command_names[command_names.index(cmd)]+"' activated!")
     activated[command_names.index(cmd)] = time.time()
     active[command_names.index(cmd)] = True
@@ -226,7 +226,7 @@ def activate(cmd):
 
 def deactivate(cmd):
     if active[command_names.index(cmd)]:
-         if DEACTIVATE_MSG:
+         if DEACTIVATE_MSG != "f":
             sendMessage(irc, "/me > '"+command_names[command_names.index(cmd)]+"' deactivated!")
          active[command_names.index(cmd)] = False
          del active_list_times[active_list.index(cmd)]
@@ -588,7 +588,7 @@ def gamecontrol():
                 point = arg1_lower
 
             if point:
-                if not TOPOINT_PAST_CRATER and (point.startswith("lavatube") or point.startswith("citadel") or point.startswith("finalboss") or point.startswith("lt")):
+                if TOPOINT_PAST_CRATER == "f" and (point.startswith("lavatube") or point.startswith("citadel") or point.startswith("finalboss") or point.startswith("lt")):
                     sendMessage(irc, "/me @"+user+" Cannot go past Volcanic Crater.")
                     last_used[command_names.index("topoint")] = 0
                     message = ""
