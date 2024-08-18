@@ -56,19 +56,19 @@ class SettingsApp:
         self.add_checkboxes_section("Command Enable/Disable", ["DISABLED_MSG", "TARGET_ID_MODE",
             "protect", "rjto", "superjump", "superboosted", "noboosteds",
             "nojumps", "fastjak", "slowjak", "slippery", "pinball",
-            "pacifist", "nuka", "invul", "trip", "shortfall", "ghostjak",
+            "pacifist", "nuka", "invuln", "trip", "shortfall", "ghostjak",
             "getoff", "unzoom", "flutspeed", "freecam", "enemyspeed",
             "minuscell", "pluscell", "minusorbs", "plusorbs", "give",
             "collected", "eco", "rapidfire", "sucksuck", "noeco", "die",
             "topoint", "randompoint", "tp", "shift",
-            "rocketman", "movetojak", "ouch", "burn", "hp", "melt",
+            "rocketman", "sfx", "movetojak", "ouch", "burn", "hp", "melt",
             "endlessfall", "drown", "iframes", "invertcam", "cam",
             "askew", "stickycam", "deload", "quickcam", "dark", "blind",
             "nodax", "smallnet", "widefish", "lowpoly", "color", "scale",
             "widejak", "flatjak", "smalljak", "bigjak", "moveplantboss",
-            "moveplantboss2", "basincell", "resetactors", "bighead",
+            "moveplantboss2", "basincell", "resetactors", "noactors", "bighead",
             "smallhead", "bigfist", "bigheadnpc", "hugehead", "mirror",
-            "notex", "press", "lang", "turn-left", "turn-right",
+            "notex", "spiderman", "press", "lang", "turn-left", "turn-right",
             "turn-180", "cam-left", "cam-right", "cam-in", "cam-out",
             "repl", "debug", "save", "actorson", "actorsoff",
             "fixoldsave", "finalboss"
@@ -81,17 +81,17 @@ class SettingsApp:
         self.add_section("", [
             "protect_cd", "rjto_cd", "superjump_cd", "superboosted_cd",
             "noboosteds_cd", "nojumps_cd", "fastjak_cd", "slowjak_cd", "slippery_cd",
-            "pinball_cd", "pacifist_cd", "nuka_cd", "invul_cd", "trip_cd",
+            "pinball_cd", "pacifist_cd", "nuka_cd", "invuln_cd", "trip_cd",
             "shortfall_cd", "getoff_cd", "unzoom_cd", "flutspeed_cd", "freecam_cd",
             "enemyspeed_cd", "give_cd", "minuscell_cd", "pluscell_cd", "minusorbs_cd",
             "plusorbs_cd", "eco_cd", "rapidfire_cd", "sucksuck_cd", "noeco_cd",
-            "die_cd", "topoint_cd", "tp_cd", "rocketman_cd",
+            "die_cd", "topoint_cd", "tp_cd", "rocketman_cd", "sfx_cd",
             "movetojak_cd", "ouch_cd", "hp_cd", "iframes_cd", "invertcam_cd",
             "cam_cd", "askew_cd", "stickycam_cd", "deload_cd", "quickcam_cd",
             "dark_cd", "nodax_cd", "smallnet_cd", "widefish_cd", "lowpoly_cd",
             "color_cd", "scale_cd", "moveplantboss_cd", "moveplantboss2_cd", 
             "basincell_cd", "bighead_cd", "smallhead_cd", "bigfist_cd", 
-            "bigheadnpc_cd", "hugehead_cd", "mirror_cd", "notex_cd", "press_cd",
+            "bigheadnpc_cd", "hugehead_cd", "mirror_cd", "notex_cd", "spiderman_cd", "press_cd",
             "lang_cd", "resetactors_cd", "repl_cd", "turn-left_cd", "turn-right_cd",
             "turn-180_cd", "cam-left_cd", "cam-right_cd", "cam-in_cd", "cam-out_cd"
         ], False)
@@ -103,14 +103,14 @@ class SettingsApp:
         self.add_section("", [
             "protect_dur", "rjto_dur", "superjump_dur",
             "superboosted_dur", "noboosteds_dur", "nojumps_dur", "fastjak_dur", 
-            "slowjak_dur", "slippery_dur", "pinball_dur", "pacifist_dur", 
+            "slowjak_dur", "slippery_dur", "pinball_dur", "pacifist_dur",
             "shortfall_dur", "ghostjak_dur", "freecam_dur", "sucksuck_dur", 
             "noeco_dur", "rapidfire_dur", "iframes_dur", "rocketman_dur", 
             "invertcam_dur", "stickycam_dur", "cam_dur", "askew_dur", "dark_dur",
-            "nodax_dur", "smallnet_dur", "widefish_dur", "lowpoly_dur", "color_dur",
+            "nodax_dur", "spiderman_dur", "smallnet_dur", "widefish_dur", "lowpoly_dur", "color_dur",
             "scale_dur", "widejak_dur", "flatjak_dur", "smalljak_dur", "bigjak_dur",
             "bighead_dur", "smallhead_dur", "bigfist_dur", "bigheadnpc_dur", 
-            "hugehead_dur", "mirror_dur", "notex_dur"
+            "hugehead_dur", "mirror_dur", "notex_dur", "noactors_dur"
         ], False)
 
         # Buttons to save and load settings
@@ -252,6 +252,7 @@ moveplantboss_dur=0
 moveplantboss2_dur=0
 basincell_dur=0
 resetactors_dur=0
+noactors_cd
 repl_dur=0
 debug_dur=0
 debug_cd=0
@@ -261,7 +262,6 @@ burn_cd=0
 shift_cd=0
 randompoint_cd=0
 sfx_dur=0
-sfx_cd=0
 setpoint_cd=0
 setpoint_dur=0
 collected_cd=0
@@ -287,7 +287,10 @@ smalljak_cd=0
 bigjak_cd=0
 widejak_cd=0
 nuka_dur=0
-invul_dur=0
+invuln_dur=0
+bigpound=f
+bigpound_cd=0
+bigpound_dur=0
 actors-on_cd=0
 actors-on_dur=0
 actors-off_cd=0
@@ -307,7 +310,6 @@ dur=t
 enable=t
 disable=t
 setpoint=f
-sfx=f
 turn-left_dur=0
 turn-right_dur=0
 turn-180_dur=0
