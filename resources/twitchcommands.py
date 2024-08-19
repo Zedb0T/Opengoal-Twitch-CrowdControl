@@ -227,6 +227,7 @@ commands_deactivation = {
     "superboosted": "(set! (-> *edge-surface* fric) 30720.0)",
     "noboosteds": "(set! (-> *edge-surface* fric) 30720.0)",
     "nojumps": "(logclear! (-> *target* state-flags) (state-flags prevent-jump))",
+    "noledge": "(set! (-> *collide-edge-work* max-dir-cosa-delta) 0.6)",
     "fastjak": "(set! (-> *walk-mods* target-speed) 40960.0)(set! (-> *double-jump-mods* target-speed) 32768.0)(set! (-> *jump-mods* target-speed) 40960.0)(set! (-> *jump-attack-mods* target-speed) 24576.0)(set! (-> *attack-mods* target-speed) 40960.0)(set! (-> *forward-high-jump-mods* target-speed) 45056.0)(set! (-> *jump-attack-mods* target-speed) 24576.0)(set! (-> *stone-surface* target-speed) 1.0)",
     "slowjak": "(set! (-> *walk-mods* target-speed) 40960.0)(set! (-> *double-jump-mods* target-speed) 32768.0)(set! (-> *jump-mods* target-speed) 40960.0)(set! (-> *jump-attack-mods* target-speed) 24576.0)(set! (-> *attack-mods* target-speed) 40960.0)(set! (-> *forward-high-jump-mods* target-speed) 45056.0)(set! (-> *jump-attack-mods* target-speed) 24576.0)(set! (-> *TARGET-bank* wheel-flip-dist) (meters 17.3))(set! (-> *TARGET-bank* wheel-flip-height) (meters 3.52))",
     "pacifist": "(set! (-> *TARGET-bank* punch-radius) (meters 1.3))(set! (-> *TARGET-bank* spin-radius) (meters 2.2))(set! (-> *TARGET-bank* flop-radius) (meters 1.4))(set! (-> *TARGET-bank* uppercut-radius) (meters 1))",
@@ -239,7 +240,7 @@ commands_deactivation = {
     "invertcam": "(set! (-> *pc-settings* third-camera-h-inverted?) #t)(set! (-> *pc-settings* third-camera-v-inverted?) #t)(set! (-> *pc-settings* first-camera-v-inverted?) #t)(set! (-> *pc-settings* first-camera-h-inverted?) #t)",
     "stickycam": "(send-event *target* 'no-look-around (seconds 0))(send-event *camera* 'change-state cam-string 0)",
     "cam": "(send-event *camera* 'change-state cam-string 0)",
-    "askew": "(set! (-> *standard-dynamics* gravity x) 0.0)",
+    #"askew": "(set! (-> *standard-dynamics* gravity x) 0.0)",
     "dark": "(set! (-> (level-get-target-inside *level*) mood-func) update-mood-darkcave)",
     "nodax": "(send-event *target* 'sidekick #t)",
     "smallnet": "(when (process-by-ename \"fisher-1\")(set! (-> *FISHER-bank* net-radius)(meters 0.7)))",
@@ -265,6 +266,7 @@ commands_deactivation = {
     "notex": "(logclear! (-> *pc-settings* cheats) (pc-cheats no-tex))",
     "noactors": "(set! *spawn-actors* #t) (reset-actors 'debug)",
     "spiderman": "(set! (-> *pat-mode-info* 1 wall-angle) 2.0) (set! (-> *pat-mode-info* 2 wall-angle) 0.82)"
+    #"crazyplats": "(set! (-> *pontoonten-constants* player-weight) (meters 35))(set! (-> *pontoonfive-constants* player-weight) (meters 35))(set! (-> *tra-pontoon-constants* player-weight) (meters 35))(set! (-> *citb-chain-plat-constants* player-weight) (meters 35))(set! (-> *bone-platform-constants* player-weight) (meters 35))(set! (-> *ogre-step-constants* player-weight) (meters 35))(set! (-> *ogre-isle-constants* player-weight) (meters 35))(set! (-> *qbert-plat-constants* player-weight) (meters 35))(set! (-> *tar-plat-constants* player-weight) (meters 60))"
 }
         
 def active_sweep():
@@ -327,14 +329,14 @@ GKCOMMANDLINElist = PATHTOGK.split()
 
 #Close Gk and goalc if they were open.
 print("If it errors below that is O.K.")
-subprocess.Popen("""taskkill /F /IM gk.exe""",shell=True)
+subprocess.Popen("""taskkill /F /IM gk.exe""",shell=True)  #COMMENT OUT FOR TEAMRUNS
 subprocess.Popen("""taskkill /F /IM goalc.exe""",shell=True)
 time.sleep(2)
 
 #Open a fresh GK and goalc then wait a bit before trying to connect via socket
-print("opening " + PATHTOGK)
+print("opening " + PATHTOGK)  #COMMENT OUT FOR TEAMRUNS
 print("opening " + PATHTOGOALC)
-GK_WIN = subprocess.Popen(GKCOMMANDLINElist)
+GK_WIN = subprocess.Popen(GKCOMMANDLINElist)  #COMMENT OUT FOR TEAMRUNS
 GOALC_WIN = subprocess.Popen([PATHTOGOALC])
 time.sleep(3)
 clientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -349,14 +351,14 @@ sendForm("(mi)")
 sendForm("(send-event *target* 'get-pickup (pickup-type eco-red) 5.0)")
 sendForm("(dotimes (i 1) (sound-play-by-name (static-sound-name \"cell-prize\") (new-sound-id) 1024 0 0 (sound-group sfx) #t))")
 sendForm("(set! *cheat-mode* #f)")
-sendForm("(set! *debug-segment* #f)")
+sendForm("(set! *debug-segment* #f)")  #COMMENT OUT FOR TEAMRUNS
 #End Int block
 
 #add all commands into an array so we can reference via index
-command_names = ["protect","rjto","superjump","superboosted","noboosteds","nojumps","fastjak","slowjak","pacifist","bigpound","nuka","invuln","trip",
+command_names = ["protect","rjto","superjump","superboosted","noboosteds","nojumps","noledge","fastjak","slowjak","pacifist","bigpound","nuka","invuln","trip",
                  "shortfall","ghostjak","getoff","flutspeed","freecam","enemyspeed","give","minuscell","pluscell","minusorbs","plusorbs","collected",
-                 "eco","rapidfire","sucksuck","noeco","die","topoint","randompoint","setpoint","tp","shift","movetojak","ouch",
-                 "burn","hp","melt","drown","endlessfall","iframes","invertcam","cam","askew","stickycam","deload",
+                 "eco","rapidfire","sucksuck","noeco","die","topoint","randompoint","tp","shift","movetojak","ouch",
+                 "burn","hp","melt","drown","endlessfall","iframes","invertcam","cam","stickycam","deload",
                  "quickcam","dark","blind","nodax","smallnet","widefish","lowpoly","moveplantboss","moveplantboss2",
                  "basincell","resetactors","noactors","repl","debug","save","resetcooldowns","cd","dur","enable","disable",
                  "widejak","flatjak","smalljak","bigjak","color","scale","slippery","pinball","rocketman","sfx","actors-on",
@@ -551,6 +553,12 @@ def gamecontrol():
                 "(logclear! (-> *target* state-flags) (state-flags prevent-jump))")
                 message = ""
 
+            if PREFIX + "noledge" == str(args[0]).lower() and enabled_check("noledge") and cd_check("noledge"):
+                active_check("noledge", 
+                "(set! (-> *collide-edge-work* max-dir-cosa-delta) 999.0)",
+                "(set! (-> *collide-edge-work* max-dir-cosa-delta) 0.6)")
+                message = ""
+
             if PREFIX + "fastjak" == str(args[0]).lower() and enabled_check("fastjak") and cd_check("fastjak"):
                 deactivate("slowjak")
                 if not active[command_names.index("smalljak")]:
@@ -717,6 +725,12 @@ def gamecontrol():
                 sfx = sfx_names[str(args[1])]
                 sendForm("(sound-play \"" + sfx + "\")")
                 message = ""    
+
+            #if PREFIX + "crazyplats" == str(args[0]).lower() and enabled_check("crazyplats") and cd_check("crazyplats"):
+            #    active_check("crazyplats", 
+            #    "(set! (-> *pontoonten-constants* player-weight) (meters -150))(set! (-> *pontoonfive-constants* player-weight) (meters -150))(set! (-> *tra-pontoon-constants* player-weight) (meters -150))(set! (-> *citb-chain-plat-constants* player-weight) (meters -150))(set! (-> *bone-platform-constants* player-weight) (meters -150))(set! (-> *ogre-step-constants* player-weight) (meters -150))(set! (-> *ogre-isle-constants* player-weight) (meters -150))(set! (-> *qbert-plat-constants* player-weight) (meters -150))(set! (-> *tar-plat-constants* player-weight) (meters -150))",
+            #    "(set! (-> *pontoonten-constants* player-weight) (meters 35))(set! (-> *pontoonfive-constants* player-weight) (meters 35))(set! (-> *tra-pontoon-constants* player-weight) (meters 35))(set! (-> *citb-chain-plat-constants* player-weight) (meters 35))(set! (-> *bone-platform-constants* player-weight) (meters 35))(set! (-> *ogre-step-constants* player-weight) (meters 35))(set! (-> *ogre-isle-constants* player-weight) (meters 35))(set! (-> *qbert-plat-constants* player-weight) (meters 35))(set! (-> *tar-plat-constants* player-weight) (meters 60))")
+            #    message = ""
                 
             #if (PREFIX + "setpoint" == str(args[0]).lower() or PREFIX + "setcheckpoint" == str(args[0]).lower()) and enabled_check("setpoint") and cd_check("setpoint"):
             #    sendForm("(vector-copy! (-> (-> *game-info* current-continue) trans) (new 'static 'vector :x (-> (target-pos 0) x) :y (-> (target-pos 0) y) :z (-> (target-pos 0) z) :w 1.0))")
@@ -793,11 +807,11 @@ def gamecontrol():
                 "(send-event *target* 'no-look-around (seconds 0))(send-event *camera* 'change-state cam-string 0)")
                 message = ""
 
-            if PREFIX + "askew" == str(args[0]).lower() and enabled_check("askew") and cd_check("askew"):
-                active_check("askew", 
-                "(set! (-> *standard-dynamics* gravity x) 0.25)",
-                "(set! (-> *standard-dynamics* gravity x) 0.0)")
-                message = ""
+            #if PREFIX + "askew" == str(args[0]).lower() and enabled_check("askew") and cd_check("askew"):
+            #    active_check("askew", 
+            #    "(set! (-> *standard-dynamics* gravity x) 0.25)",
+            #    "(set! (-> *standard-dynamics* gravity x) 0.0)")
+            #    message = ""
 
             if PREFIX + "deload" == str(args[0]).lower() and enabled_check("deload") and cd_check("deload"):
                 sendForm("(when (not (movie?))(set! (-> *load-state* want 0 display?) #f))")
