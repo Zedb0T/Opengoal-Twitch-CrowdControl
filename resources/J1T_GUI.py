@@ -55,7 +55,7 @@ class SettingsApp:
 
         self.add_checkboxes_section("Command Enable/Disable", ["DISABLED_MSG", "TARGET_ID_MODE",
             "protect", "rjto", "superjump", "superboosted", "noboosteds",
-            "nojumps", "noledge", "fastjak", "slowjak", "slippery", "pinball",
+            "nojumps", "noledge", "fastjak", "slowjak", "slippery", "gravity", "pinball",
             "pacifist", "nuka", "invuln", "trip", "shortfall", "ghostjak",
             "getoff", "unzoom", "flutspeed", "freecam", "enemyspeed",
             "minuscell", "pluscell", "minusorbs", "plusorbs", "give",
@@ -68,7 +68,7 @@ class SettingsApp:
             "widejak", "flatjak", "smalljak", "bigjak", "moveplantboss",
             "moveplantboss2", "basincell", "resetactors", "noactors", "bighead",
             "smallhead", "bigfist", "bigheadnpc", "hugehead", "mirror",
-            "notex", "spiderman", "press", "lang", "turn-left", "turn-right",
+            "notex", "spiderman", "press", "lang", "timeofday", "turn-left", "turn-right",
             "turn-180", "cam-left", "cam-right", "cam-in", "cam-out",
             "repl", "debug", "save", "actorson", "actorsoff",
             "fixoldsave", "finalboss"
@@ -81,7 +81,7 @@ class SettingsApp:
         self.add_section("", [
             "protect_cd", "rjto_cd", "superjump_cd", "superboosted_cd",
             "noboosteds_cd", "nojumps_cd", "noledge_cd", "fastjak_cd", "slowjak_cd", "slippery_cd",
-            "pinball_cd", "pacifist_cd", "nuka_cd", "invuln_cd", "trip_cd",
+            "gravity_cd", "pinball_cd", "pacifist_cd", "nuka_cd", "invuln_cd", "trip_cd",
             "shortfall_cd", "getoff_cd", "unzoom_cd", "flutspeed_cd", "freecam_cd",
             "enemyspeed_cd", "give_cd", "minuscell_cd", "pluscell_cd", "minusorbs_cd",
             "plusorbs_cd", "eco_cd", "rapidfire_cd", "sucksuck_cd", "noeco_cd",
@@ -93,7 +93,7 @@ class SettingsApp:
             "basincell_cd", "bighead_cd", "smallhead_cd", "bigfist_cd", 
             "bigheadnpc_cd", "hugehead_cd", "mirror_cd", "notex_cd", "spiderman_cd", 
             "press_cd",
-            "lang_cd", "resetactors_cd", "repl_cd", "turn-left_cd", "turn-right_cd",
+            "lang_cd", "timeofday_cd", "resetactors_cd", "noactors_cd", "repl_cd", "turn-left_cd", "turn-right_cd",
             "turn-180_cd", "cam-left_cd", "cam-right_cd", "cam-in_cd", "cam-out_cd"
         ], False)
 
@@ -104,7 +104,7 @@ class SettingsApp:
         self.add_section("", [
             "protect_dur", "rjto_dur", "superjump_dur",
             "superboosted_dur", "noboosteds_dur", "nojumps_dur", "noledge_dur", "fastjak_dur", 
-            "slowjak_dur", "slippery_dur", "pinball_dur", "pacifist_dur",
+            "slowjak_dur", "slippery_dur", "gravity_dur", "pinball_dur", "pacifist_dur",
             "shortfall_dur", "ghostjak_dur", "freecam_dur", "sucksuck_dur", 
             "noeco_dur", "rapidfire_dur", "iframes_dur", "rocketman_dur", 
             "invertcam_dur", "stickycam_dur", "cam_dur", "dark_dur",
@@ -253,7 +253,6 @@ moveplantboss_dur=0
 moveplantboss2_dur=0
 basincell_dur=0
 resetactors_dur=0
-noactors_cd
 repl_dur=0
 debug_dur=0
 debug_cd=0
@@ -287,9 +286,6 @@ bigjak_cd=0
 widejak_cd=0
 nuka_dur=0
 invuln_dur=0
-bigpound=f
-bigpound_cd=0
-bigpound_dur=0
 actors-on_cd=0
 actors-on_dur=0
 actors-off_cd=0
@@ -303,6 +299,7 @@ fixoldsave_cd=0
 finalboss_dur=0
 finalboss_cd=0
 lang_dur=0
+timeofday_dur=0
 resetcooldowns=t
 cd=t
 dur=t
