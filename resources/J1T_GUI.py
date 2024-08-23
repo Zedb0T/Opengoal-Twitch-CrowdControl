@@ -7,11 +7,14 @@ class SettingsApp:
         self.master = master
         master.title("Properties File Editor")
 
+        # Set background color for the main window
+        master.configure(bg="#E9E9E9")
+
         # Set up the main container with a scrollbar
-        main_frame = tk.Frame(master)
+        main_frame = tk.Frame(master, bg="#E9E9E9")  # Set background color
         main_frame.pack(fill=tk.BOTH, expand=1)
 
-        canvas = tk.Canvas(main_frame)
+        canvas = tk.Canvas(main_frame, bg="#E9E9E9")  # Set background color
         canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=1)
 
         scrollbar = ttk.Scrollbar(main_frame, orient=tk.VERTICAL, command=canvas.yview)
@@ -20,7 +23,7 @@ class SettingsApp:
         canvas.configure(yscrollcommand=scrollbar.set)
         canvas.bind('<Configure>', lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
 
-        self.frame = tk.Frame(canvas)
+        self.frame = tk.Frame(canvas, bg="#E9E9E9")  # Set background color
         canvas.create_window((0, 0), window=self.frame, anchor="nw")
 
         self.entries = {}
@@ -50,10 +53,10 @@ class SettingsApp:
         ], True)
 
         self.add_checkboxes_section("Misc Settings", [
-            "TOPOINT_PAST_CRATER"
+            "DISABLED_MSG", "TARGET_ID_MODE", "TOPOINT_PAST_CRATER", "COOLDOWN_MSG", "ACTIVATION_MSG", "DEACTIVATION_MSG", "COST_MODE"
         ], True)
 
-        self.add_checkboxes_section("Command Enable/Disable", ["DISABLED_MSG", "TARGET_ID_MODE",
+        self.add_checkboxes_section("Command Enable/Disable", [
             "protect", "rjto", "superjump", "superboosted", "noboosteds",
             "nojumps", "noledge", "fastjak", "slowjak", "slippery", "gravity", "pinball",
             "pacifist", "nuka", "invuln", "trip", "shortfall", "ghostjak",
@@ -70,15 +73,10 @@ class SettingsApp:
             "smallhead", "bigfist", "bigheadnpc", "hugehead", "mirror",
             "notex", "spiderman", "press", "lang", "timeofday", "turn-left", "turn-right",
             "turn-180", "cam-left", "cam-right", "cam-in", "cam-out",
-            "repl", "debug", "save", "actorson", "actorsoff",
-            "fixoldsave", "finalboss"
+            "repl", "fixoldsave", "save", "actors-on", "actors-off", "debug"
         ], False)
 
-        self.add_checkboxes_section("Command Cooldowns", [
-            "COOLDOWN_MSG"
-        ], True)
-
-        self.add_section("", [
+        self.add_section("Command Cooldowns", [
             "protect_cd", "rjto_cd", "superjump_cd", "superboosted_cd",
             "noboosteds_cd", "nojumps_cd", "noledge_cd", "fastjak_cd", "slowjak_cd", "slippery_cd",
             "gravity_cd", "pinball_cd", "pacifist_cd", "nuka_cd", "invuln_cd", "trip_cd",
@@ -97,11 +95,27 @@ class SettingsApp:
             "turn-180_cd", "cam-left_cd", "cam-right_cd", "cam-in_cd", "cam-out_cd"
         ], False)
 
-        self.add_checkboxes_section("Command Durations", [
-            "ACTIVATION_MSG", "DEACTIVATION_MSG"
-        ], True)
+        self.add_section("Command Costs", [
+            "protect_cost", "rjto_cost", "superjump_cost", "superboosted_cost", "noboosteds_cost",
+            "nojumps_cost", "noledge_cost", "fastjak_cost", "slowjak_cost", "slippery_cost", "gravity_cost", "pinball_cost",
+            "pacifist_cost", "nuka_cost", "invuln_cost", "trip_cost", "shortfall_cost", "ghostjak_cost",
+            "getoff_cost", "unzoom_cost", "flutspeed_cost", "freecam_cost", "enemyspeed_cost",
+            "minuscell_cost", "pluscell_cost", "minusorbs_cost", "plusorbs_cost", "give_cost",
+            "collected_cost", "eco_cost", "rapidfire_cost", "sucksuck_cost", "noeco_cost", "die_cost",
+            "topoint_cost", "randompoint_cost", "tp_cost", "shift_cost",
+            "rocketman_cost", "sfx_cost", "movetojak_cost", "ouch_cost", "burn_cost", "hp_cost", "melt_cost",
+            "endlessfall_cost", "drown_cost", "iframes_cost", "invertcam_cost", "cam_cost",
+            "stickycam_cost", "deload_cost", "quickcam_cost", "dark_cost", "blind_cost",
+            "nodax_cost", "smallnet_cost", "widefish_cost", "lowpoly_cost", "color_cost", "scale_cost",
+            "widejak_cost", "flatjak_cost", "smalljak_cost", "bigjak_cost", "moveplantboss_cost",
+            "moveplantboss2_cost", "basincell_cost", "resetactors_cost", "noactors_cost", "bighead_cost",
+            "smallhead_cost", "bigfist_cost", "bigheadnpc_cost", "hugehead_cost", "mirror_cost",
+            "notex_cost", "spiderman_cost", "press_cost", "lang_cost", "timeofday_cost", "turn-left_cost", "turn-right_cost",
+            "turn-180_cost", "cam-left_cost", "cam-right_cost", "cam-in_cost", "cam-out_cost",
+            "repl_cost"
+        ], False)
 
-        self.add_section("", [
+        self.add_section("Command Durations", [
             "protect_dur", "rjto_dur", "superjump_dur",
             "superboosted_dur", "noboosteds_dur", "nojumps_dur", "noledge_dur", "fastjak_dur", 
             "slowjak_dur", "slippery_dur", "gravity_dur", "pinball_dur", "pacifist_dur",
@@ -122,66 +136,86 @@ class SettingsApp:
         if format:
             return key.replace('MSG', 'MESSAGE').replace(' MIN', ' MINIMUM').replace(' MAX', ' MAXIMUM').replace(' AMT', ' AMOUNT')
         else:
-            return key.replace('_cd', '').replace('_dur', '')
+            return key.replace('_cd', '').replace('_dur', '').replace('_cost', '')
         # return key
 
     def add_section(self, section_name, keys, format):
-        tk.Label(self.frame, text=section_name, font=("Arial", 12, "bold")).pack(anchor="w", pady=3)
-        container = tk.Frame(self.frame)
-        container.pack(fill="x", padx=5, pady=2)
+        tk.Label(self.frame, text=section_name, font=("Arial", 12, "bold"), bg="#E9E9E9").pack(anchor="w", pady=2)
+        container = tk.Frame(self.frame, bg="#E9E9E9")
+        container.pack(fill="x", padx=2, pady=1)
 
-        left_frame = tk.Frame(container)
-        left_frame.pack(side="left", fill="both", expand=True, padx=3)
+        left_frame = tk.Frame(container, bg="#E9E9E9")
+        left_frame.pack(side="left", fill="both", expand=True, padx=2)
 
-        right_frame = tk.Frame(container)
-        right_frame.pack(side="right", fill="both", expand=True, padx=3)
+        center_frame = tk.Frame(container, bg="#E9E9E9")
+        center_frame.pack(side="left", fill="both", expand=True, padx=2)
 
-        half = len(keys) // 2
-        left_keys = keys[:half]
-        right_keys = keys[half:]
+        right_frame = tk.Frame(container, bg="#E9E9E9")
+        right_frame.pack(side="right", fill="both", expand=True, padx=2)
+
+        third = len(keys) // 3
+        left_keys = keys[:third]
+        center_keys = keys[third:2*third]
+        right_keys = keys[2*third:]
 
         for key in left_keys:
-            frame = tk.Frame(left_frame)
+            frame = tk.Frame(left_frame, bg="#E9E9E9")
             frame.pack(fill="x", pady=1)
-            tk.Label(frame, text=self.format_key(key, format), width=20, anchor="w").pack(side="left")
+            tk.Label(frame, text=self.format_key(key, format), width=17, anchor="w", bg="#E9E9E9").pack(side="left")
+            entry = tk.Entry(frame, width=20)
+            entry.pack(fill="x", expand=True)
+            self.entries[key] = entry
+
+        for key in center_keys:
+            frame = tk.Frame(center_frame, bg="#E9E9E9")
+            frame.pack(fill="x", pady=1)
+            tk.Label(frame, text=self.format_key(key, format), width=17, anchor="w", bg="#E9E9E9").pack(side="left")
             entry = tk.Entry(frame, width=20)
             entry.pack(fill="x", expand=True)
             self.entries[key] = entry
 
         for key in right_keys:
-            frame = tk.Frame(right_frame)
+            frame = tk.Frame(right_frame, bg="#E9E9E9")
             frame.pack(fill="x", pady=1)
-            tk.Label(frame, text=self.format_key(key, format), width=20, anchor="w").pack(side="left")
+            tk.Label(frame, text=self.format_key(key, format), width=17, anchor="w", bg="#E9E9E9").pack(side="left")
             entry = tk.Entry(frame, width=20)
             entry.pack(fill="x", expand=True)
             self.entries[key] = entry
 
+    def add_checkboxes_section(self, section_name, keys, format, bg_color="#E9E9E9"):
+        tk.Label(self.frame, text=section_name, font=("Arial", 12, "bold"), bg=bg_color).pack(anchor="w", pady=1, fill="x")
+        container = tk.Frame(self.frame, bg=bg_color)
+        container.pack(fill="x", padx=1)
 
+        left_frame = tk.Frame(container, bg=bg_color)
+        left_frame.pack(side="left", fill="both", expand=True, padx=1)
 
-    def add_checkboxes_section(self, section_name, keys, format):
-        tk.Label(self.frame, text=section_name, font=("Arial", 12, "bold")).pack(anchor="w", pady=3)
-        container = tk.Frame(self.frame)
-        container.pack(fill="x", padx=5)
+        center_frame = tk.Frame(container, bg=bg_color)
+        center_frame.pack(side="left", fill="both", expand=True, padx=1)
 
-        left_frame = tk.Frame(container)
-        left_frame.pack(side="left", fill="both", expand=True, padx=3)
+        right_frame = tk.Frame(container, bg=bg_color)
+        right_frame.pack(side="right", fill="both", expand=True, padx=1)
 
-        right_frame = tk.Frame(container)
-        right_frame.pack(side="right", fill="both", expand=True, padx=3)
-
-        half = len(keys) // 2
-        left_keys = keys[:half]
-        right_keys = keys[half:]
+        third = len(keys) // 3
+        left_keys = keys[:third]
+        center_keys = keys[third:2*third]
+        right_keys = keys[2*third:]
 
         for key in left_keys:
             self.check_vars[key] = tk.BooleanVar()
-            check = tk.Checkbutton(left_frame, text=self.format_key(key, format), variable=self.check_vars[key])
+            check = tk.Checkbutton(left_frame, text=self.format_key(key, format), variable=self.check_vars[key], bg=bg_color)
+            check.pack(anchor="w")
+
+        for key in center_keys:
+            self.check_vars[key] = tk.BooleanVar()
+            check = tk.Checkbutton(center_frame, text=self.format_key(key, format), variable=self.check_vars[key], bg=bg_color)
             check.pack(anchor="w")
 
         for key in right_keys:
             self.check_vars[key] = tk.BooleanVar()
-            check = tk.Checkbutton(right_frame, text=self.format_key(key, format), variable=self.check_vars[key])
+            check = tk.Checkbutton(right_frame, text=self.format_key(key, format), variable=self.check_vars[key], bg=bg_color)
             check.pack(anchor="w")
+
 
     def load_settings(self):
         # Load settings from .env file
@@ -256,6 +290,14 @@ resetactors_dur=0
 repl_dur=0
 debug_dur=0
 debug_cd=0
+save_cd=0
+save_dur=0
+fixoldsave_cd=0
+fixoldsave_dur=0
+actors-on_dur=0
+actors-off_dur=0
+actors-on_cd=0
+actors-off_cd=0
 melt_cd=0
 endlessfall_cd=0
 burn_cd=0
@@ -268,43 +310,18 @@ pluscell_dur=0
 minusorbs_dur=0
 plusorbs_dur=0
 ghostjak_cd=0
-save_cd=0
-save_dur=0
-resetcooldowns_cd=0
-resetcooldowns_dur=0
-cd_dur=0
-cd_cd=0
-dur_dur=0
-dur_cd=0
-enable_cd=0
-disable_cd=0
-disable_dur=0
-enable_dur=0
 flatjak_cd=0
 smalljak_cd=0
 bigjak_cd=0
 widejak_cd=0
 nuka_dur=0
 invuln_dur=0
-actors-on_cd=0
-actors-on_dur=0
-actors-off_cd=0
-actors-off_dur=0
 unzoom_dur=0
 drown_cd=0
 drown_dur=0
 press_dur=0
-fixoldsave_dur=0
-fixoldsave_cd=0
-finalboss_dur=0
-finalboss_cd=0
 lang_dur=0
 timeofday_dur=0
-resetcooldowns=t
-cd=t
-dur=t
-enable=t
-disable=t
 turn-left_dur=0
 turn-right_dur=0
 turn-180_dur=0
@@ -312,6 +329,11 @@ cam-left_dur=0
 cam-right_dur=0
 cam-in_dur=0
 cam-out_dur=0
+save_cost=0
+fixoldsave_cost=0
+actors-on_cost=0
+actors-off_cost=0
+debug_cost=0
 """
         with open(self.settings_file, 'a') as f:
             f.write(fixed_settings.strip())
@@ -319,6 +341,8 @@ cam-out_dur=0
 
 if __name__ == "__main__":
     root = tk.Tk()
-    root.geometry("600x600")  # Set the window size
+    root.geometry("800x600")  # Set the window size
+    root.configure(bg="#E9E9E9")  # Change background color of the main window
     app = SettingsApp(root)
     root.mainloop()
+
