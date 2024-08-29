@@ -456,6 +456,7 @@ sfx_names = {
     "shutdown": "shut-down",
     "startup": "start-up",
     "warning": "warning",
+    "warning2": "robo-warning",
     "death": "jak-deatha",
     "drown": "death-drown",
     "fall": "death-fall",
@@ -464,7 +465,15 @@ sfx_names = {
     "grunt": "grunt",
     "stretch": "jak-stretch",
     "clap": "jak-clap",
-    "orb": "money-pickup"
+    "orb": "money-pickup",
+    "eel": "caught-eel",
+    "shock": "get-shocked",
+    "shock2": "jak-shocked",
+    "allorbs": "get-all-orbs",
+    "dizzy": "hit-dizzy",
+    "miss": "fish-miss",
+    "ring": "close-racering",
+    "miss": "fish-miss"
 
 }
 
@@ -724,7 +733,7 @@ def gamecontrol():
             elif command in {"randompoint", "randomcheckpoint"} and enabled_check("randompoint") and cd_check("topoint"):
                 sendForm(f"(start 'play (get-continue-by-name *game-info* \"{point_list[random.choice(range(0,52))]}\"))(auto-save-command 'auto-save 0 0 *default-pool*)")
 
-            elif command in {"sfx"} and len(args) >= 2 and str(args[1]).lower() in sfx_names and enabled_check("sfx") and cd_check("sfx"):
+            elif command in {"sfx", "sound"} and len(args) >= 2 and str(args[1]).lower() in sfx_names and enabled_check("sfx") and cd_check("sfx"):
                 sfx = sfx_names[str(args[1])]
                 sendForm(f"(sound-play \"{sfx}\")")
 
@@ -830,12 +839,14 @@ def gamecontrol():
                 active_check("hardfish", 
                 "(when (process-by-ename \"fisher-1\")(set! (-> (the fisher (process-by-ename \"fisher-1\")) difficulty) 5)(set! (-> *FISHER-bank* max-caught) 400))")   
                 
-            elif command in {"customfish"} and user in COMMAND_MODS and len(args) >= 5 and enabled_check("customfish") and cd_check("customfish") and args[3] in fish_list and range_check(args[1], 0, 5) and range_check(args[2], 1, 7):
+            elif command in {"customfish"} and len(args) >= 5 and enabled_check("customfish") and cd_check("customfish") and args[3] in fish_list and range_check(args[1], 0, 5) and range_check(args[2], 1, 7) and range_check(args[4], 0, 100):
                 phase = (2 * int(args[2])) - 1
                 difficulty = int(args[1])
-                if args[3] in {"swing-min", "swing-max", "period"}:
-                    args[4] = f"(seconds {args[4]})"
-                sendForm(f"(when (process-by-ename \"fisher-1\")(set! (-> (-> (-> *fisher-params* {difficulty}) {phase}) {args[3]}) {args[4]}))")
+                if args[3] in {"swing-min", "swing-max", "period", "timeout"}:
+                    value = f"(seconds {args[4]})"
+                else:
+                    value = float(args[4])
+                sendForm(f"(when (process-by-ename \"fisher-1\")(set! (-> (-> (-> *fisher-params* {difficulty}) {phase}) {args[3]}) {value}))")
 
             elif command in {"lowpoly", "lod"} and enabled_check("lowpoly") and cd_check("lowpoly"):
                 active_check("lowpoly", 
