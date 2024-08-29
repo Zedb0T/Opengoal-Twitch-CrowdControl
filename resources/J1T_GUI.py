@@ -67,7 +67,7 @@ class SettingsApp:
             "rocketman", "sfx", "movetojak", "ouch", "burn", "hp", "melt",
             "endlessfall", "drown", "iframes", "invertcam", "cam",
             "stickycam", "deload", "quickcam", "dark", "blind",
-            "nodax", "smallnet", "widefish", "maxfish", "lowpoly", "color", "scale",
+            "nodax", "smallnet", "widefish", "maxfish", "hardfish", "customfish", "lowpoly", "color", "scale",
             "widejak", "flatjak", "smalljak", "bigjak", "moveplantboss",
             "moveplantboss2", "basincell", "resetactors", "noactors", "bighead",
             "smallhead", "bigfist", "bigheadnpc", "hugehead", "mirror",
@@ -86,7 +86,7 @@ class SettingsApp:
             "die_cd", "topoint_cd", "tp_cd", "rocketman_cd", "sfx_cd",
             "movetojak_cd", "ouch_cd", "hp_cd", "iframes_cd", "invertcam_cd",
             "cam_cd", "stickycam_cd", "deload_cd", "quickcam_cd", "earthquake_cd",
-            "dark_cd", "nodax_cd", "smallnet_cd", "widefish_cd", "maxfish_cd", "lowpoly_cd",
+            "dark_cd", "nodax_cd", "smallnet_cd", "widefish_cd", "maxfish_cd", "hardfish_cd", "customfish_cd", "lowpoly_cd",
             "color_cd", "scale_cd", "moveplantboss_cd", "moveplantboss2_cd", 
             "basincell_cd", "bighead_cd", "smallhead_cd", "bigfist_cd", 
             "bigheadnpc_cd", "hugehead_cd", "mirror_cd", "notex_cd", "spiderman_cd", 
@@ -106,7 +106,7 @@ class SettingsApp:
             "rocketman_cost", "sfx_cost", "movetojak_cost", "ouch_cost", "burn_cost", "hp_cost", "melt_cost",
             "endlessfall_cost", "drown_cost", "iframes_cost", "invertcam_cost", "cam_cost",
             "stickycam_cost", "deload_cost", "quickcam_cost", "dark_cost", "blind_cost",
-            "nodax_cost", "smallnet_cost", "widefish_cost", "maxfish_cost", "lowpoly_cost", "color_cost", "scale_cost",
+            "nodax_cost", "smallnet_cost", "widefish_cost", "maxfish_cost", "hardfish_cost", "customfish_cost", "lowpoly_cost", "color_cost", "scale_cost",
             "widejak_cost", "flatjak_cost", "smalljak_cost", "bigjak_cost", "moveplantboss_cost",
             "moveplantboss2_cost", "basincell_cost", "resetactors_cost", "noactors_cost", "bighead_cost",
             "smallhead_cost", "bigfist_cost", "bigheadnpc_cost", "hugehead_cost", "mirror_cost",
@@ -122,7 +122,7 @@ class SettingsApp:
             "shortfall_dur", "ghostjak_dur", "freecam_dur", "sucksuck_dur", 
             "noeco_dur", "rapidfire_dur", "iframes_dur", "rocketman_dur", 
             "invertcam_dur", "stickycam_dur", "cam_dur", "dark_dur",
-            "nodax_dur", "spiderman_dur", "smallnet_dur", "widefish_dur", "lowpoly_dur", "color_dur",
+            "nodax_dur", "spiderman_dur", "smallnet_dur", "widefish_dur", "hardfish_dur", "lowpoly_dur", "color_dur",
             "scale_dur", "widejak_dur", "flatjak_dur", "smalljak_dur", "bigjak_dur",
             "bighead_dur", "smallhead_dur", "bigfist_dur", "bigheadnpc_dur", 
             "hugehead_dur", "mirror_dur", "notex_dur", "noactors_dur"
@@ -323,6 +323,7 @@ drown_dur=0
 press_dur=0
 lang_dur=0
 maxfish_dur=0
+customfish_dur=0
 timeofday_dur=0
 turn-left_dur=0
 turn-right_dur=0
