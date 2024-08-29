@@ -49,7 +49,7 @@ class SettingsApp:
             "SHIFTZ_MIN", "SHIFTZ_MAX", "GIVE_MIN", "GIVE_MAX",
             "RJTO_MIN", "RJTO_MAX", "SCALE_MIN", "SCALE_MAX",
             "MINUSCELL_AMT", "PLUSCELL_AMT", "MINUSORBS_AMT", "PLUSORBS_AMT",
-            "SUCK_MIN", "SUCK_MAX", "BLIND_MIN", "BLIND_MAX"
+            "SUCK_MIN", "SUCK_MAX", "BLIND_MIN", "BLIND_MAX", "MAXFISH_MIN", "MAXFISH_MAX"
         ], True)
 
         self.add_checkboxes_section("Misc Settings", [
@@ -58,16 +58,16 @@ class SettingsApp:
 
         self.add_checkboxes_section("Command Enable/Disable", [
             "protect", "rjto", "superjump", "superboosted", "noboosteds",
-            "nojumps", "noledge", "fastjak", "slowjak", "slippery", "gravity", "pinball",
+            "nojumps", "noduck", "noledge", "fastjak", "slowjak", "slippery", "gravity", "pinball",
             "pacifist", "nuka", "invuln", "trip", "shortfall", "ghostjak",
             "getoff", "unzoom", "flutspeed", "freecam", "enemyspeed",
             "minuscell", "pluscell", "minusorbs", "plusorbs", "give",
             "collected", "eco", "rapidfire", "sucksuck", "noeco", "die",
-            "topoint", "randompoint", "tp", "shift",
+            "topoint", "randompoint", "tp", "shift", "earthquake",
             "rocketman", "sfx", "movetojak", "ouch", "burn", "hp", "melt",
             "endlessfall", "drown", "iframes", "invertcam", "cam",
             "stickycam", "deload", "quickcam", "dark", "blind",
-            "nodax", "smallnet", "widefish", "lowpoly", "color", "scale",
+            "nodax", "smallnet", "widefish", "maxfish", "lowpoly", "color", "scale",
             "widejak", "flatjak", "smalljak", "bigjak", "moveplantboss",
             "moveplantboss2", "basincell", "resetactors", "noactors", "bighead",
             "smallhead", "bigfist", "bigheadnpc", "hugehead", "mirror",
@@ -78,15 +78,15 @@ class SettingsApp:
 
         self.add_section("Command Cooldowns", [
             "protect_cd", "rjto_cd", "superjump_cd", "superboosted_cd",
-            "noboosteds_cd", "nojumps_cd", "noledge_cd", "fastjak_cd", "slowjak_cd", "slippery_cd",
+            "noboosteds_cd", "nojumps_cd", "noduck_cd", "noledge_cd", "fastjak_cd", "slowjak_cd", "slippery_cd",
             "gravity_cd", "pinball_cd", "pacifist_cd", "nuka_cd", "invuln_cd", "trip_cd",
             "shortfall_cd", "getoff_cd", "unzoom_cd", "flutspeed_cd", "freecam_cd",
             "enemyspeed_cd", "give_cd", "minuscell_cd", "pluscell_cd", "minusorbs_cd",
             "plusorbs_cd", "eco_cd", "rapidfire_cd", "sucksuck_cd", "noeco_cd",
             "die_cd", "topoint_cd", "tp_cd", "rocketman_cd", "sfx_cd",
             "movetojak_cd", "ouch_cd", "hp_cd", "iframes_cd", "invertcam_cd",
-            "cam_cd", "stickycam_cd", "deload_cd", "quickcam_cd",
-            "dark_cd", "nodax_cd", "smallnet_cd", "widefish_cd", "lowpoly_cd",
+            "cam_cd", "stickycam_cd", "deload_cd", "quickcam_cd", "earthquake_cd",
+            "dark_cd", "nodax_cd", "smallnet_cd", "widefish_cd", "maxfish_cd", "lowpoly_cd",
             "color_cd", "scale_cd", "moveplantboss_cd", "moveplantboss2_cd", 
             "basincell_cd", "bighead_cd", "smallhead_cd", "bigfist_cd", 
             "bigheadnpc_cd", "hugehead_cd", "mirror_cd", "notex_cd", "spiderman_cd", 
@@ -97,16 +97,16 @@ class SettingsApp:
 
         self.add_section("Command Costs", [
             "protect_cost", "rjto_cost", "superjump_cost", "superboosted_cost", "noboosteds_cost",
-            "nojumps_cost", "noledge_cost", "fastjak_cost", "slowjak_cost", "slippery_cost", "gravity_cost", "pinball_cost",
+            "nojumps_cost", "noduck_cost", "noledge_cost", "fastjak_cost", "slowjak_cost", "slippery_cost", "gravity_cost", "pinball_cost",
             "pacifist_cost", "nuka_cost", "invuln_cost", "trip_cost", "shortfall_cost", "ghostjak_cost",
             "getoff_cost", "unzoom_cost", "flutspeed_cost", "freecam_cost", "enemyspeed_cost",
             "minuscell_cost", "pluscell_cost", "minusorbs_cost", "plusorbs_cost", "give_cost",
             "collected_cost", "eco_cost", "rapidfire_cost", "sucksuck_cost", "noeco_cost", "die_cost",
-            "topoint_cost", "randompoint_cost", "tp_cost", "shift_cost",
+            "topoint_cost", "randompoint_cost", "tp_cost", "shift_cost", "earthquake_cost",
             "rocketman_cost", "sfx_cost", "movetojak_cost", "ouch_cost", "burn_cost", "hp_cost", "melt_cost",
             "endlessfall_cost", "drown_cost", "iframes_cost", "invertcam_cost", "cam_cost",
             "stickycam_cost", "deload_cost", "quickcam_cost", "dark_cost", "blind_cost",
-            "nodax_cost", "smallnet_cost", "widefish_cost", "lowpoly_cost", "color_cost", "scale_cost",
+            "nodax_cost", "smallnet_cost", "widefish_cost", "maxfish_cost", "lowpoly_cost", "color_cost", "scale_cost",
             "widejak_cost", "flatjak_cost", "smalljak_cost", "bigjak_cost", "moveplantboss_cost",
             "moveplantboss2_cost", "basincell_cost", "resetactors_cost", "noactors_cost", "bighead_cost",
             "smallhead_cost", "bigfist_cost", "bigheadnpc_cost", "hugehead_cost", "mirror_cost",
@@ -117,7 +117,7 @@ class SettingsApp:
 
         self.add_section("Command Durations", [
             "protect_dur", "rjto_dur", "superjump_dur",
-            "superboosted_dur", "noboosteds_dur", "nojumps_dur", "noledge_dur", "fastjak_dur", 
+            "superboosted_dur", "noboosteds_dur", "nojumps_dur", "noduck_dur", "noledge_dur", "fastjak_dur", 
             "slowjak_dur", "slippery_dur", "gravity_dur", "pinball_dur", "pacifist_dur",
             "shortfall_dur", "ghostjak_dur", "freecam_dur", "sucksuck_dur", 
             "noeco_dur", "rapidfire_dur", "iframes_dur", "rocketman_dur", 
@@ -287,6 +287,7 @@ moveplantboss_dur=0
 moveplantboss2_dur=0
 basincell_dur=0
 resetactors_dur=0
+earthquake_dur=0
 repl_dur=0
 debug_dur=0
 debug_cd=0
@@ -321,6 +322,7 @@ drown_cd=0
 drown_dur=0
 press_dur=0
 lang_dur=0
+maxfish_dur=0
 timeofday_dur=0
 turn-left_dur=0
 turn-right_dur=0

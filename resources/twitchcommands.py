@@ -72,6 +72,8 @@ SUCK_MIN = str(os.getenv("SUCK_MIN"))
 SUCK_MAX = str(os.getenv("SUCK_MAX"))
 BLIND_MIN = str(os.getenv("BLIND_MIN"))
 BLIND_MAX = str(os.getenv("BLIND_MAX"))
+MAXFISH_MIN = str(os.getenv("MAXFISH_MIN"))
+MAXFISH_MAX = str(os.getenv("MAXFISH_MAX"))
 
 game = False
 FINALBOSS_MUL = 2
@@ -121,8 +123,6 @@ def display_text_in_window():
     # Create a new window
     window = tk.Tk()
     window.title("J1T Active Effects")
-
-    # Create a text widget to display text
     text_widget = tk.Text(window, wrap="word", height=13, width=20)
     text_widget.pack()
 
@@ -132,32 +132,26 @@ def display_text_in_window():
 
     # Function to update text in the text widget
     def update_text():
-        while True:
-            # Update text content
-            text_content = ''
-            for effect, time_remaining in zip(active_list, active_list_times):
-                minutes = int(time_remaining) // 60
-                seconds = int(time_remaining) % 60
-                formatted_time = f"{minutes}:{seconds:02d}"
-                text_content += f"{effect} ~ {formatted_time}\n"
-            
-            text_widget.delete(1.0, tk.END)  # Clear existing text
-            text_widget.insert(tk.END, text_content)
+        text_content = ''
+        for effect, time_remaining in zip(active_list, active_list_times):
+            minutes = int(time_remaining) // 60
+            seconds = int(time_remaining) % 60
+            formatted_time = f"{minutes}:{seconds:02d}"
+            text_content += f"{effect} ~ {formatted_time}\n"
+        
+        text_widget.delete(1.0, tk.END)  # Clear existing text
+        text_widget.insert(tk.END, text_content)
 
-            for i in range(len(active_list_times)):
-                total_duration = durations[command_names.index(active_list[i])]
-                start_time = activated[command_names.index(active_list[i])]
-                elapsed_time = time.time() - start_time
-                remaining_time = max(0, total_duration - elapsed_time)
-                active_list_times[i] = math.floor(remaining_time)
-
-            # Pause for a short interval
-            time.sleep(1)
-    # Create a thread for updating the text
-    text_thread = threading.Thread(target=update_text, daemon=True)
-    text_thread.start()
-
-    # Start the Tkinter event loop
+        for i in range(len(active_list_times)):
+            total_duration = durations[command_names.index(active_list[i])]
+            start_time = activated[command_names.index(active_list[i])]
+            elapsed_time = time.time() - start_time
+            remaining_time = max(0, total_duration - elapsed_time)
+            active_list_times[i] = math.floor(remaining_time)
+        # Schedule the next update
+        if window.winfo_exists():
+            window.after(1000, update_text)
+    update_text()
     window.mainloop()
 
 # Main program logic
@@ -165,10 +159,8 @@ def main_program_logic():
     for i in range(5):
         print(f"Main Program: {i}")
 
-# Create a thread for the main program logic
 main_thread = threading.Thread(target=main_program_logic)
 
-# Start the main program thread
 main_thread.start()
 
 # Start the thread for displaying text in the window
@@ -229,6 +221,7 @@ commands_deactivation = {
     "superboosted": "(set! (-> *edge-surface* fric) 30720.0)",
     "noboosteds": "(set! (-> *edge-surface* fric) 30720.0)",
     "nojumps": "(logclear! (-> *target* state-flags) (state-flags prevent-jump))",
+    "noduck": "(logclear! (-> *target* state-flags) (state-flags prevent-duck))",
     "noledge": "(set! (-> *collide-edge-work* max-dir-cosa-delta) 0.6)",
     "fastjak": "(set! (-> *walk-mods* target-speed) 40960.0)(set! (-> *double-jump-mods* target-speed) 32768.0)(set! (-> *jump-mods* target-speed) 40960.0)(set! (-> *jump-attack-mods* target-speed) 24576.0)(set! (-> *attack-mods* target-speed) 40960.0)(set! (-> *forward-high-jump-mods* target-speed) 45056.0)(set! (-> *jump-attack-mods* target-speed) 24576.0)(set! (-> *stone-surface* target-speed) 1.0)",
     "slowjak": "(set! (-> *walk-mods* target-speed) 40960.0)(set! (-> *double-jump-mods* target-speed) 32768.0)(set! (-> *jump-mods* target-speed) 40960.0)(set! (-> *jump-attack-mods* target-speed) 24576.0)(set! (-> *attack-mods* target-speed) 40960.0)(set! (-> *forward-high-jump-mods* target-speed) 45056.0)(set! (-> *jump-attack-mods* target-speed) 24576.0)(set! (-> *TARGET-bank* wheel-flip-dist) (meters 17.3))(set! (-> *TARGET-bank* wheel-flip-height) (meters 3.52))",
@@ -372,11 +365,11 @@ sendForm("(set! *debug-segment* #f)")  #COMMENT OUT FOR TEAMRUNS
 #End Int block
 
 #add all commands into an array so we can reference via index
-command_names = ["protect","rjto","superjump","superboosted","noboosteds","nojumps","noledge","fastjak","slowjak","pacifist","nuka","invuln","trip",
+command_names = ["protect","rjto","superjump","superboosted","noboosteds","nojumps","noduck","noledge","fastjak","slowjak","pacifist","nuka","invuln","trip",
                  "shortfall","ghostjak","getoff","flutspeed","freecam","enemyspeed","give","minuscell","pluscell","minusorbs","plusorbs","collected",
                  "eco","rapidfire","sucksuck","noeco","die","topoint","randompoint","tp","shift","movetojak","ouch",
-                 "burn","hp","melt","drown","endlessfall","iframes","invertcam","cam","stickycam","deload",
-                 "quickcam","dark","blind","nodax","smallnet","widefish","lowpoly","moveplantboss","moveplantboss2",
+                 "burn","hp","melt","drown","endlessfall","iframes","invertcam","cam","stickycam","deload","earthquake",
+                 "quickcam","dark","blind","nodax","smallnet","widefish","maxfish","lowpoly","moveplantboss","moveplantboss2",
                  "basincell","resetactors","noactors","repl","debug","fixoldsave","save","actors-on","actors-off",
                  "widejak","flatjak","smalljak","bigjak","color","scale","slippery","gravity","pinball","rocketman","sfx",
                  "unzoom","bighead","smallhead","bigfist","bigheadnpc","hugehead","mirror","notex","spiderman","press",
@@ -539,14 +532,14 @@ def gamecontrol():
         args = message.split(" ")
         command = str(args[0])[1:].lower()
 
-        if command in {"start"} and user in COMMAND_MODS:          
+        if command in {"start"} and user in COMMAND_MODS and str(args[0]).lower().startswith(PREFIX):          
             if game:
                 sendMessage(irc, f"/me ~ Game has already started! Use {PREFIX}stop to stop.")
             else:
                 game = True 
                 sendMessage(irc, f"/me ~ Game has started! Use {PREFIX}stop to stop.")
 
-        elif command in {"stop"} and user in COMMAND_MODS:          
+        elif command in {"stop"} and user in COMMAND_MODS and str(args[0]).lower().startswith(PREFIX):          
             if game:
                 game = False
                 sendMessage(irc, f"/me ~ Game stopped! Use {PREFIX}start to start.")
@@ -568,7 +561,7 @@ def gamecontrol():
                 activate("protect")
                 # if PROTECT_SACRIFICE:
                     # sendMessage(irc, "/timeout " + user + " " + str(SACRIFICE_DURATION))
-                    # sendMessage(irc, "/me " + user + " sacrificed themselves to protect "+ CHANNEL + " for " + str(int(durations[command_names.index("protect")])) +"s!")
+                    # sendMessage(irc, "/me " + user + " sacrificed themselves to protect "+ TARGET_ID + " for " + str(int(durations[command_names.index("protect")])) +"s!")
 
             elif command in {"rjto", "rj"} and len(args) >= 2 and enabled_check("rjto") and range_check(args[1], RJTO_MIN, RJTO_MAX) and cd_check("rjto"):
                 deactivate("rjto")
@@ -596,6 +589,11 @@ def gamecontrol():
                 active_check("nojumps", 
                 "(logior! (-> *target* state-flags) (state-flags prevent-jump))",
                 "(logclear! (-> *target* state-flags) (state-flags prevent-jump))")
+
+            elif command in {"noduck", "norj"} and enabled_check("noduck") and cd_check("noduck"):
+                active_check("nojumps", 
+                "(logior! (-> *target* state-flags) (state-flags prevent-duck))",
+                "(logclear! (-> *target* state-flags) (state-flags prevent-duck))")
 
             elif command in {"noledge", "noledgegrab"} and enabled_check("noledge") and cd_check("noledge"):
                 active_check("noledge", 
@@ -633,6 +631,9 @@ def gamecontrol():
 
             elif command in {"invuln", "invul"} and enabled_check("invuln") and cd_check("invuln"):
                 sendForm("(logior! (-> *target* state-flags) (state-flags invulnerable))")
+
+            elif command in {"earthquake", "shake"} and enabled_check("earthquake") and cd_check("earthquake"):
+                sendForm("(activate! *camera-smush-control* 1500.6 12 350 1.0 0.9)")
 
             elif command in {"trip"} and enabled_check("trip") and cd_check("trip"):
                 sendForm("(send-event *target* 'loading)")
@@ -837,6 +838,9 @@ def gamecontrol():
                 active_check("widefish", 
                 "(when (process-by-ename \"fisher-1\")(set! (-> *FISHER-bank* width)(meters 10.0)))",
                 "(when (process-by-ename \"fisher-1\")(set! (-> *FISHER-bank* width)(meters 3.3)))")
+
+            elif command in {"maxfish"} and len(args) >= 2 and enabled_check("maxfish") and cd_check("maxfish") and range_check(args[1], MAXFISH_MIN, MAXFISH_MAX):
+                sendForm(f"(set! (-> *FISHER-bank* max-caught) {args[1]})")
 
             elif command in {"lowpoly", "lod"} and enabled_check("lowpoly") and cd_check("lowpoly"):
                 active_check("lowpoly", 
