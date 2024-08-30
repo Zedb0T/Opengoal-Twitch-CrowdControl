@@ -7,11 +7,14 @@ class SettingsApp:
         self.master = master
         master.title("Properties File Editor")
 
+        # Set background color for the main window
+        master.configure(bg="#E9E9E9")
+
         # Set up the main container with a scrollbar
-        main_frame = tk.Frame(master)
+        main_frame = tk.Frame(master, bg="#E9E9E9")  # Set background color
         main_frame.pack(fill=tk.BOTH, expand=1)
 
-        canvas = tk.Canvas(main_frame)
+        canvas = tk.Canvas(main_frame, bg="#E9E9E9")  # Set background color
         canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=1)
 
         scrollbar = ttk.Scrollbar(main_frame, orient=tk.VERTICAL, command=canvas.yview)
@@ -20,7 +23,7 @@ class SettingsApp:
         canvas.configure(yscrollcommand=scrollbar.set)
         canvas.bind('<Configure>', lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
 
-        self.frame = tk.Frame(canvas)
+        self.frame = tk.Frame(canvas, bg="#E9E9E9")  # Set background color
         canvas.create_window((0, 0), window=self.frame, anchor="nw")
 
         self.entries = {}
@@ -46,72 +49,93 @@ class SettingsApp:
             "SHIFTZ_MIN", "SHIFTZ_MAX", "GIVE_MIN", "GIVE_MAX",
             "RJTO_MIN", "RJTO_MAX", "SCALE_MIN", "SCALE_MAX",
             "MINUSCELL_AMT", "PLUSCELL_AMT", "MINUSORBS_AMT", "PLUSORBS_AMT",
-            "SUCK_MIN", "SUCK_MAX", "BLIND_MIN", "BLIND_MAX"
+            "SUCK_MIN", "SUCK_MAX", "BLIND_MIN", "BLIND_MAX", "MAXFISH_MIN", "MAXFISH_MAX"
         ], True)
 
         self.add_checkboxes_section("Misc Settings", [
-            "TOPOINT_PAST_CRATER"
+            "DISABLED_MSG", "TARGET_ID_MODE", "TOPOINT_PAST_CRATER", "COOLDOWN_MSG", "ACTIVATION_MSG", "DEACTIVATION_MSG", "COST_MODE"
         ], True)
 
-        self.add_checkboxes_section("Command Enable/Disable", ["DISABLED_MSG", "TARGET_ID_MODE",
-            "protect", "rjto", "superjump", "superboosted", "noboosteds",
-            "nojumps", "noledge", "fastjak", "slowjak", "slippery", "gravity", "pinball",
-            "pacifist", "nuka", "invuln", "trip", "shortfall", "ghostjak",
-            "getoff", "unzoom", "flutspeed", "freecam", "enemyspeed",
-            "minuscell", "pluscell", "minusorbs", "plusorbs", "give",
-            "collected", "eco", "rapidfire", "sucksuck", "noeco", "die",
-            "topoint", "randompoint", "tp", "shift",
-            "rocketman", "sfx", "movetojak", "ouch", "burn", "hp", "melt",
-            "endlessfall", "drown", "iframes", "invertcam", "cam",
-            "stickycam", "deload", "quickcam", "dark", "blind",
-            "nodax", "smallnet", "widefish", "lowpoly", "color", "scale",
-            "widejak", "flatjak", "smalljak", "bigjak", "moveplantboss",
-            "moveplantboss2", "basincell", "resetactors", "noactors", "bighead",
-            "smallhead", "bigfist", "bigheadnpc", "hugehead", "mirror",
-            "notex", "spiderman", "press", "lang", "timeofday", "turn-left", "turn-right",
-            "turn-180", "cam-left", "cam-right", "cam-in", "cam-out",
-            "repl", "debug", "save", "actorson", "actorsoff",
-            "fixoldsave", "finalboss"
+        self.add_checkboxes_section("Command Enable/Disable", [
+            "actors-off", "actors-on", "basincell", "bigfist", "bighead", 
+            "bigheadnpc", "bigjak", "blind", "burn", "cam", 
+            "cam-in", "cam-left", "cam-out", "cam-right", "collected", 
+            "color", "customfish", "dark", "debug", "deload", 
+            "die", "drown", "eco", "earthquake", "endlessfall", 
+            "enemyspeed", "fastjak", "fixoldsave", "flutspeed", "freecam", 
+            "getoff", "ghostjak", "give", "gravity", "hardfish", 
+            "hp", "hugehead", "iframes", "invuln", "invertcam", 
+            "lang", "lowpoly", "maxfish", "melt", "mirror", 
+            "minuscell", "minusorbs", "moveplantboss", "moveplantboss2", "movetojak", 
+            "noboosteds", "nodax", "noduck", "noeco", "noactors", 
+            "nojumps", "noledge", "notex", "nuka", "ouch", 
+            "pacifist", "pinball", "pluscell", "plusorbs", "press", 
+            "protect", "quickcam", "randompoint", "rapidfire", "repl", 
+            "resetactors", "rjto", "rocketman", "save", "scale", 
+            "shift", "shortfall", "slippery", "smallhead", "smalljak", 
+            "smallnet", "spiderman", "stickycam", "superboosted", "superjump", 
+            "sucksuck", "sfx", "timeofday", "topoint", "tp", 
+            "trip", "turn-180", "turn-left", "turn-right", "unzoom", 
+            "widefish", "widejak"
         ], False)
 
-        self.add_checkboxes_section("Command Cooldowns", [
-            "COOLDOWN_MSG"
-        ], True)
-
-        self.add_section("", [
-            "protect_cd", "rjto_cd", "superjump_cd", "superboosted_cd",
-            "noboosteds_cd", "nojumps_cd", "noledge_cd", "fastjak_cd", "slowjak_cd", "slippery_cd",
-            "gravity_cd", "pinball_cd", "pacifist_cd", "nuka_cd", "invuln_cd", "trip_cd",
-            "shortfall_cd", "getoff_cd", "unzoom_cd", "flutspeed_cd", "freecam_cd",
-            "enemyspeed_cd", "give_cd", "minuscell_cd", "pluscell_cd", "minusorbs_cd",
-            "plusorbs_cd", "eco_cd", "rapidfire_cd", "sucksuck_cd", "noeco_cd",
-            "die_cd", "topoint_cd", "tp_cd", "rocketman_cd", "sfx_cd",
-            "movetojak_cd", "ouch_cd", "hp_cd", "iframes_cd", "invertcam_cd",
-            "cam_cd", "stickycam_cd", "deload_cd", "quickcam_cd",
-            "dark_cd", "nodax_cd", "smallnet_cd", "widefish_cd", "lowpoly_cd",
-            "color_cd", "scale_cd", "moveplantboss_cd", "moveplantboss2_cd", 
-            "basincell_cd", "bighead_cd", "smallhead_cd", "bigfist_cd", 
-            "bigheadnpc_cd", "hugehead_cd", "mirror_cd", "notex_cd", "spiderman_cd", 
-            "press_cd",
-            "lang_cd", "timeofday_cd", "resetactors_cd", "noactors_cd", "repl_cd", "turn-left_cd", "turn-right_cd",
-            "turn-180_cd", "cam-left_cd", "cam-right_cd", "cam-in_cd", "cam-out_cd"
+        self.add_section("Command Cooldowns", [
+            "basincell_cd", "bigfist_cd", "bighead_cd", "bigheadnpc_cd", "cam_cd", 
+            "cam-in_cd", "cam-left_cd", "cam-out_cd", "cam-right_cd", "color_cd", 
+            "customfish_cd", "dark_cd", "deload_cd", "die_cd", "eco_cd", 
+            "earthquake_cd", "enemyspeed_cd", "fastjak_cd", "flutspeed_cd", 
+            "freecam_cd", "getoff_cd", "give_cd", "gravity_cd", "hardfish_cd", 
+            "hp_cd", "hugehead_cd", "iframes_cd", "invuln_cd", "invertcam_cd", 
+            "lang_cd", "lowpoly_cd", "maxfish_cd", "mirror_cd", "minuscell_cd", 
+            "minusorbs_cd", "moveplantboss_cd", "moveplantboss2_cd", "movetojak_cd", 
+            "noboosteds_cd", "nodax_cd", "noduck_cd", "noeco_cd", "noactors_cd", 
+            "nojumps_cd", "noledge_cd", "notex_cd", "nuka_cd", "ouch_cd", 
+            "pacifist_cd", "pinball_cd", "pluscell_cd", "plusorbs_cd", "press_cd", 
+            "protect_cd", "quickcam_cd", "rapidfire_cd", "repl_cd", "resetactors_cd", 
+            "rjto_cd", "rocketman_cd", "scale_cd", "sfx_cd", "shortfall_cd", 
+            "slippery_cd", "smallhead_cd", "smallnet_cd", "spiderman_cd", 
+            "stickycam_cd", "superboosted_cd", "superjump_cd", "sucksuck_cd", 
+            "timeofday_cd", "topoint_cd", "tp_cd", "trip_cd", "turn-180_cd", 
+            "turn-left_cd", "turn-right_cd", "unzoom_cd", "widefish_cd"
         ], False)
 
-        self.add_checkboxes_section("Command Durations", [
-            "ACTIVATION_MSG", "DEACTIVATION_MSG"
-        ], True)
+        self.add_section("Command Costs", [
+            "basincell_cost", "bigfist_cost", "bighead_cost", "bigheadnpc_cost", 
+            "bigjak_cost", "blind_cost", "burn_cost", "cam_cost", "cam-in_cost", 
+            "cam-left_cost", "cam-out_cost", "cam-right_cost", "collected_cost", 
+            "color_cost", "customfish_cost", "dark_cost", "deload_cost", "die_cost", 
+            "drown_cost", "earthquake_cost", "eco_cost", "endlessfall_cost", 
+            "enemyspeed_cost", "fastjak_cost", "flatjak_cost", "flutspeed_cost", 
+            "freecam_cost", "getoff_cost", "ghostjak_cost", "give_cost", "gravity_cost", 
+            "hardfish_cost", "hp_cost", "hugehead_cost", "iframes_cost", "invuln_cost", 
+            "invertcam_cost", "lang_cost", "lowpoly_cost", "maxfish_cost", "melt_cost", 
+            "mirror_cost", "minuscell_cost", "minusorbs_cost", "moveplantboss_cost", 
+            "moveplantboss2_cost", "movetojak_cost", "noboosteds_cost", "nodax_cost", 
+            "noduck_cost", "noeco_cost", "noactors_cost", "nojumps_cost", "noledge_cost", 
+            "notex_cost", "nuka_cost", "ouch_cost", "pacifist_cost", "pinball_cost", 
+            "pluscell_cost", "plusorbs_cost", "press_cost", "protect_cost", 
+            "quickcam_cost", "randompoint_cost", "rapidfire_cost", "repl_cost", 
+            "resetactors_cost", "rjto_cost", "rocketman_cost", "scale_cost", 
+            "shift_cost", "shortfall_cost", "slippery_cost", "smallhead_cost", 
+            "smalljak_cost", "smallnet_cost", "spiderman_cost", "stickycam_cost", 
+            "superboosted_cost", "superjump_cost", "sucksuck_cost", "sfx_cost", 
+            "timeofday_cost", "topoint_cost", "tp_cost", "trip_cost", "turn-180_cost", 
+            "turn-left_cost", "turn-right_cost", "unzoom_cost", "widefish_cost", 
+            "widejak_cost"
+        ], False)
 
-        self.add_section("", [
-            "protect_dur", "rjto_dur", "superjump_dur",
-            "superboosted_dur", "noboosteds_dur", "nojumps_dur", "noledge_dur", "fastjak_dur", 
-            "slowjak_dur", "slippery_dur", "gravity_dur", "pinball_dur", "pacifist_dur",
-            "shortfall_dur", "ghostjak_dur", "freecam_dur", "sucksuck_dur", 
-            "noeco_dur", "rapidfire_dur", "iframes_dur", "rocketman_dur", 
-            "invertcam_dur", "stickycam_dur", "cam_dur", "dark_dur",
-            "nodax_dur", "spiderman_dur", "smallnet_dur", "widefish_dur", "lowpoly_dur", "color_dur",
-            "scale_dur", "widejak_dur", "flatjak_dur", "smalljak_dur", "bigjak_dur",
-            "bighead_dur", "smallhead_dur", "bigfist_dur", "bigheadnpc_dur", 
-            "hugehead_dur", "mirror_dur", "notex_dur", "noactors_dur"
+        self.add_section("Command Durations", [
+            "bigfist_dur", "bighead_dur", "bigheadnpc_dur", "bigjak_dur",
+            "color_dur", "cam_dur", "dark_dur", "fastjak_dur", "flatjak_dur",
+            "freecam_dur", "ghostjak_dur", "gravity_dur", "hardfish_dur",
+            "hugehead_dur", "iframes_dur", "invertcam_dur", "lowpoly_dur",
+            "mirror_dur", "noactors_dur", "noeco_dur", "nodax_dur", "noduck_dur",
+            "nojump_dur", "noledge_dur", "noboosteds_dur", "notex_dur",
+            "pacifist_dur", "pinball_dur", "protect_dur", "rapidfire_dur",
+            "rjto_dur", "rocketman_dur", "scale_dur", "shortfall_dur", 
+            "slippery_dur", "slowjak_dur", "smallhead_dur", "smalljak_dur",
+            "smallnet_dur", "spiderman_dur", "stickycam_dur", "sucksuck_dur",
+            "superboosted_dur", "superjump_dur", "widefish_dur", "widejak_dur"
         ], False)
 
         # Buttons to save and load settings
@@ -122,66 +146,86 @@ class SettingsApp:
         if format:
             return key.replace('MSG', 'MESSAGE').replace(' MIN', ' MINIMUM').replace(' MAX', ' MAXIMUM').replace(' AMT', ' AMOUNT')
         else:
-            return key.replace('_cd', '').replace('_dur', '')
+            return key.replace('_cd', '').replace('_dur', '').replace('_cost', '')
         # return key
 
     def add_section(self, section_name, keys, format):
-        tk.Label(self.frame, text=section_name, font=("Arial", 12, "bold")).pack(anchor="w", pady=3)
-        container = tk.Frame(self.frame)
-        container.pack(fill="x", padx=5, pady=2)
+        tk.Label(self.frame, text=section_name, font=("Arial", 12, "bold"), bg="#E9E9E9").pack(anchor="w", pady=2)
+        container = tk.Frame(self.frame, bg="#E9E9E9")
+        container.pack(fill="x", padx=2, pady=1)
 
-        left_frame = tk.Frame(container)
-        left_frame.pack(side="left", fill="both", expand=True, padx=3)
+        left_frame = tk.Frame(container, bg="#E9E9E9")
+        left_frame.pack(side="left", fill="both", expand=True, padx=2)
 
-        right_frame = tk.Frame(container)
-        right_frame.pack(side="right", fill="both", expand=True, padx=3)
+        center_frame = tk.Frame(container, bg="#E9E9E9")
+        center_frame.pack(side="left", fill="both", expand=True, padx=2)
 
-        half = len(keys) // 2
-        left_keys = keys[:half]
-        right_keys = keys[half:]
+        right_frame = tk.Frame(container, bg="#E9E9E9")
+        right_frame.pack(side="right", fill="both", expand=True, padx=2)
+
+        third = len(keys) // 3
+        left_keys = keys[:third]
+        center_keys = keys[third:2*third]
+        right_keys = keys[2*third:]
 
         for key in left_keys:
-            frame = tk.Frame(left_frame)
+            frame = tk.Frame(left_frame, bg="#E9E9E9")
             frame.pack(fill="x", pady=1)
-            tk.Label(frame, text=self.format_key(key, format), width=20, anchor="w").pack(side="left")
+            tk.Label(frame, text=self.format_key(key, format), width=17, anchor="w", bg="#E9E9E9").pack(side="left")
+            entry = tk.Entry(frame, width=20)
+            entry.pack(fill="x", expand=True)
+            self.entries[key] = entry
+
+        for key in center_keys:
+            frame = tk.Frame(center_frame, bg="#E9E9E9")
+            frame.pack(fill="x", pady=1)
+            tk.Label(frame, text=self.format_key(key, format), width=17, anchor="w", bg="#E9E9E9").pack(side="left")
             entry = tk.Entry(frame, width=20)
             entry.pack(fill="x", expand=True)
             self.entries[key] = entry
 
         for key in right_keys:
-            frame = tk.Frame(right_frame)
+            frame = tk.Frame(right_frame, bg="#E9E9E9")
             frame.pack(fill="x", pady=1)
-            tk.Label(frame, text=self.format_key(key, format), width=20, anchor="w").pack(side="left")
+            tk.Label(frame, text=self.format_key(key, format), width=17, anchor="w", bg="#E9E9E9").pack(side="left")
             entry = tk.Entry(frame, width=20)
             entry.pack(fill="x", expand=True)
             self.entries[key] = entry
 
+    def add_checkboxes_section(self, section_name, keys, format, bg_color="#E9E9E9"):
+        tk.Label(self.frame, text=section_name, font=("Arial", 12, "bold"), bg=bg_color).pack(anchor="w", pady=1, fill="x")
+        container = tk.Frame(self.frame, bg=bg_color)
+        container.pack(fill="x", padx=1)
 
+        left_frame = tk.Frame(container, bg=bg_color)
+        left_frame.pack(side="left", fill="both", expand=True, padx=1)
 
-    def add_checkboxes_section(self, section_name, keys, format):
-        tk.Label(self.frame, text=section_name, font=("Arial", 12, "bold")).pack(anchor="w", pady=3)
-        container = tk.Frame(self.frame)
-        container.pack(fill="x", padx=5)
+        center_frame = tk.Frame(container, bg=bg_color)
+        center_frame.pack(side="left", fill="both", expand=True, padx=1)
 
-        left_frame = tk.Frame(container)
-        left_frame.pack(side="left", fill="both", expand=True, padx=3)
+        right_frame = tk.Frame(container, bg=bg_color)
+        right_frame.pack(side="right", fill="both", expand=True, padx=1)
 
-        right_frame = tk.Frame(container)
-        right_frame.pack(side="right", fill="both", expand=True, padx=3)
-
-        half = len(keys) // 2
-        left_keys = keys[:half]
-        right_keys = keys[half:]
+        third = len(keys) // 3
+        left_keys = keys[:third]
+        center_keys = keys[third:2*third]
+        right_keys = keys[2*third:]
 
         for key in left_keys:
             self.check_vars[key] = tk.BooleanVar()
-            check = tk.Checkbutton(left_frame, text=self.format_key(key, format), variable=self.check_vars[key])
+            check = tk.Checkbutton(left_frame, text=self.format_key(key, format), variable=self.check_vars[key], bg=bg_color)
+            check.pack(anchor="w")
+
+        for key in center_keys:
+            self.check_vars[key] = tk.BooleanVar()
+            check = tk.Checkbutton(center_frame, text=self.format_key(key, format), variable=self.check_vars[key], bg=bg_color)
             check.pack(anchor="w")
 
         for key in right_keys:
             self.check_vars[key] = tk.BooleanVar()
-            check = tk.Checkbutton(right_frame, text=self.format_key(key, format), variable=self.check_vars[key])
+            check = tk.Checkbutton(right_frame, text=self.format_key(key, format), variable=self.check_vars[key], bg=bg_color)
             check.pack(anchor="w")
+
 
     def load_settings(self):
         # Load settings from .env file
@@ -253,9 +297,18 @@ moveplantboss_dur=0
 moveplantboss2_dur=0
 basincell_dur=0
 resetactors_dur=0
+earthquake_dur=0
 repl_dur=0
 debug_dur=0
 debug_cd=0
+save_cd=0
+save_dur=0
+fixoldsave_cd=0
+fixoldsave_dur=0
+actors-on_dur=0
+actors-off_dur=0
+actors-on_cd=0
+actors-off_cd=0
 melt_cd=0
 endlessfall_cd=0
 burn_cd=0
@@ -268,43 +321,20 @@ pluscell_dur=0
 minusorbs_dur=0
 plusorbs_dur=0
 ghostjak_cd=0
-save_cd=0
-save_dur=0
-resetcooldowns_cd=0
-resetcooldowns_dur=0
-cd_dur=0
-cd_cd=0
-dur_dur=0
-dur_cd=0
-enable_cd=0
-disable_cd=0
-disable_dur=0
-enable_dur=0
 flatjak_cd=0
 smalljak_cd=0
 bigjak_cd=0
 widejak_cd=0
 nuka_dur=0
 invuln_dur=0
-actors-on_cd=0
-actors-on_dur=0
-actors-off_cd=0
-actors-off_dur=0
 unzoom_dur=0
 drown_cd=0
 drown_dur=0
 press_dur=0
-fixoldsave_dur=0
-fixoldsave_cd=0
-finalboss_dur=0
-finalboss_cd=0
 lang_dur=0
+maxfish_dur=0
+customfish_dur=0
 timeofday_dur=0
-resetcooldowns=t
-cd=t
-dur=t
-enable=t
-disable=t
 turn-left_dur=0
 turn-right_dur=0
 turn-180_dur=0
@@ -312,6 +342,11 @@ cam-left_dur=0
 cam-right_dur=0
 cam-in_dur=0
 cam-out_dur=0
+save_cost=0
+fixoldsave_cost=0
+actors-on_cost=0
+actors-off_cost=0
+debug_cost=0
 """
         with open(self.settings_file, 'a') as f:
             f.write(fixed_settings.strip())
@@ -319,6 +354,8 @@ cam-out_dur=0
 
 if __name__ == "__main__":
     root = tk.Tk()
-    root.geometry("600x600")  # Set the window size
+    root.geometry("800x600")  # Set the window size
+    root.configure(bg="#E9E9E9")  # Change background color of the main window
     app = SettingsApp(root)
     root.mainloop()
+
