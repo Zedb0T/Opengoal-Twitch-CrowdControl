@@ -978,8 +978,7 @@ def gamecontrol():
                 
                 elif command in {"pinball"} and enabled_check("pinball") and cd_check("pinball"):
                     active_check("pinball", 
-                    "(set! (-> *stone-surface* fric) -153600.0)",
-                    "(set! (-> *stone-surface* fric) 153600.0)")
+                    "(set! (-> *stone-surface* fric) -153600.0)")
     
                 #elif command in {"heatmax"} and len(args) >= 2:
                 #    sendForm("(set! (-> *RACER-bank* heat-max) " + str(args[1]) + ")")
@@ -1000,8 +999,7 @@ def gamecontrol():
                     deactivate("bighead")
                     deactivate("hugehead")
                     active_check("smallhead",
-                    "(begin (logior! (-> *pc-settings* cheats) (pc-cheats small-head)) (logclear! (-> *pc-settings* cheats-known) (pc-cheats small-head)))",
-                    "(logclear! (-> *pc-settings* cheats) (pc-cheats small-head))")
+                    "(begin (logior! (-> *pc-settings* cheats) (pc-cheats small-head)) (logclear! (-> *pc-settings* cheats-known) (pc-cheats small-head)))")
 
                 elif command in {"bigfist"} and enabled_check("bigfist") and cd_check("bigfist"):
                     active_check("bigfist",
