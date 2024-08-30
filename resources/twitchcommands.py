@@ -544,546 +544,547 @@ def gamecontrol():
         args = message.split(" ")
         command = str(args[0])[1:].lower()
 
-        if command in {"start"} and user in COMMAND_MODS and str(args[0]).lower().startswith(PREFIX):          
-            if game:
-                sendMessage(irc, f"/me ~ Game has already started! Use {PREFIX}stop to stop.")
-            else:
-                game = True 
-                sendMessage(irc, f"/me ~ Game has started! Use {PREFIX}stop to stop.")
+        if target_check(args) and str(args[0]).lower().startswith(PREFIX):
 
-        elif command in {"stop"} and user in COMMAND_MODS and str(args[0]).lower().startswith(PREFIX):          
-            if game:
-                game = False
-                sendMessage(irc, f"/me ~ Game stopped! Use {PREFIX}start to start.")
-            else:
-                sendMessage(irc, f"/me ~ Game has not started! Use {PREFIX}start to start.")
+            if command in {"start"} and user in COMMAND_MODS and str(args[0]).lower().startswith(PREFIX):          
+                if game:
+                    sendMessage(irc, f"/me ~ Game has already started! Use {PREFIX}stop to stop.")
+                else:
+                    game = True 
+                    sendMessage(irc, f"/me ~ Game has started! Use {PREFIX}stop to stop.")
+
+            elif command in {"stop"} and user in COMMAND_MODS and str(args[0]).lower().startswith(PREFIX):          
+                if game:
+                    game = False
+                    sendMessage(irc, f"/me ~ Game stopped! Use {PREFIX}start to start.")
+                else:
+                    sendMessage(irc, f"/me ~ Game has not started! Use {PREFIX}start to start.")
                 
-        
-        if game and target_check(args) and str(args[0]).lower().startswith(PREFIX):
+            if game:
 
-            if user not in user_list:
-                user_list.append(user)
-                credit_list.append(INIT_BALANCE)
+                if user not in user_list:
+                    user_list.append(user)
+                    credit_list.append(INIT_BALANCE)
 
-            if command in {"balance"} and COST_MODE != "f":
-                sendMessage(irc, f"/me @{user} Balance: {credit_list[user_list.index(user)]}") 
+                if command in {"balance"} and COST_MODE != "f":
+                    sendMessage(irc, f"/me @{user} Balance: {credit_list[user_list.index(user)]}") 
 
-            elif command in {"protect"} and enabled_check("protect") and cd_check("protect"):
-                deactivate("protect")
-                activate("protect")
-                # if PROTECT_SACRIFICE:
-                    # sendMessage(irc, "/timeout " + user + " " + str(SACRIFICE_DURATION))
-                    # sendMessage(irc, "/me " + user + " sacrificed themselves to protect "+ TARGET_ID + " for " + str(int(durations[command_names.index("protect")])) +"s!")
+                elif command in {"protect"} and enabled_check("protect") and cd_check("protect"):
+                    deactivate("protect")
+                    activate("protect")
+                    # if PROTECT_SACRIFICE:
+                        # sendMessage(irc, "/timeout " + user + " " + str(SACRIFICE_DURATION))
+                        # sendMessage(irc, "/me " + user + " sacrificed themselves to protect "+ TARGET_ID + " for " + str(int(durations[command_names.index("protect")])) +"s!")
 
-            elif command in {"rjto", "rj"} and len(args) >= 2 and enabled_check("rjto") and range_check(args[1], RJTO_MIN, RJTO_MAX) and cd_check("rjto"):
-                deactivate("rjto")
-                activate("rjto")
-                sendForm(f"(set! (-> *TARGET-bank* wheel-flip-dist) (meters {args[1]}))(set! (-> *TARGET-bank* wheel-flip-height) (meters {min(max(abs(float(args[1]) / 4.91), 3.52), 7)}))")
+                elif command in {"rjto", "rj"} and len(args) >= 2 and enabled_check("rjto") and range_check(args[1], RJTO_MIN, RJTO_MAX) and cd_check("rjto"):
+                    deactivate("rjto")
+                    activate("rjto")
+                    sendForm(f"(set! (-> *TARGET-bank* wheel-flip-dist) (meters {args[1]}))(set! (-> *TARGET-bank* wheel-flip-height) (meters {min(max(abs(float(args[1]) / 4.91), 3.52), 7)}))")
 
-            elif command in {"superjump"} and enabled_check("superjump") and cd_check("superjump"):
-                active_check("superjump", 
-                "(set! (-> *TARGET-bank* jump-height-max)(meters 15.0))(set! (-> *TARGET-bank* jump-height-min)(meters 5.0))(set! (-> *TARGET-bank* double-jump-height-max)(meters 15.0))(set! (-> *TARGET-bank* double-jump-height-min)(meters 5.0))")
+                elif command in {"superjump"} and enabled_check("superjump") and cd_check("superjump"):
+                    active_check("superjump", 
+                    "(set! (-> *TARGET-bank* jump-height-max)(meters 15.0))(set! (-> *TARGET-bank* jump-height-min)(meters 5.0))(set! (-> *TARGET-bank* double-jump-height-max)(meters 15.0))(set! (-> *TARGET-bank* double-jump-height-min)(meters 5.0))")
 
-            elif command in {"superboosted", "superboosteds"} and enabled_check("superboosted") and cd_check("superboosted"):
-                deactivate("noboosteds")
-                active_check("superboosted", 
-                "(set! (-> *edge-surface* fric) 1.0)")
+                elif command in {"superboosted", "superboosteds"} and enabled_check("superboosted") and cd_check("superboosted"):
+                    deactivate("noboosteds")
+                    active_check("superboosted", 
+                    "(set! (-> *edge-surface* fric) 1.0)")
 
-            elif command in {"noboosteds", "noboosted"} and enabled_check("noboosteds") and cd_check("noboosteds"):
-                deactivate("superboosted")
-                active_check("noboosteds", 
-                "(set! (-> *edge-surface* fric) 1530000.0)")
+                elif command in {"noboosteds", "noboosted"} and enabled_check("noboosteds") and cd_check("noboosteds"):
+                    deactivate("superboosted")
+                    active_check("noboosteds", 
+                    "(set! (-> *edge-surface* fric) 1530000.0)")
 
-            elif command in {"nojumps", "nojump"} and enabled_check("nojumps") and cd_check("nojumps"):
-                active_check("nojumps", 
-                "(logior! (-> *target* state-flags) (state-flags prevent-jump))")
+                elif command in {"nojumps", "nojump"} and enabled_check("nojumps") and cd_check("nojumps"):
+                    active_check("nojumps", 
+                    "(logior! (-> *target* state-flags) (state-flags prevent-jump))")
 
-            elif command in {"noduck", "norj"} and enabled_check("noduck") and cd_check("noduck"):
-                active_check("nojumps", 
-                "(logior! (-> *target* state-flags) (state-flags prevent-duck))")
+                elif command in {"noduck", "norj"} and enabled_check("noduck") and cd_check("noduck"):
+                    active_check("nojumps", 
+                    "(logior! (-> *target* state-flags) (state-flags prevent-duck))")
 
-            elif command in {"noledge", "noledgegrab"} and enabled_check("noledge") and cd_check("noledge"):
-                active_check("noledge", 
-                "(set! (-> *collide-edge-work* max-dir-cosa-delta) 999.0)")
+                elif command in {"noledge", "noledgegrab"} and enabled_check("noledge") and cd_check("noledge"):
+                    active_check("noledge", 
+                    "(set! (-> *collide-edge-work* max-dir-cosa-delta) 999.0)")
 
-            elif command in {"fastjak"} and enabled_check("fastjak") and cd_check("fastjak"):
-                deactivate("slowjak")
-                if not active[command_names.index("smalljak")]:
-                    sendForm("(set! (-> *TARGET-bank* wheel-flip-dist) (meters 17.3))")
-                active_check("fastjak", 
-                "(set! (-> *walk-mods* target-speed) 77777.0)(set! (-> *double-jump-mods* target-speed) 77777.0)(set! (-> *jump-mods* target-speed) 77777.0)(set! (-> *jump-attack-mods* target-speed) 77777.0)(set! (-> *attack-mods* target-speed) 77777.0)(set! (-> *forward-high-jump-mods* target-speed) 77777.0)(set! (-> *jump-attack-mods* target-speed) 77777.0)(set! (-> *stone-surface* target-speed) 1.25)")
+                elif command in {"fastjak"} and enabled_check("fastjak") and cd_check("fastjak"):
+                    deactivate("slowjak")
+                    if not active[command_names.index("smalljak")]:
+                        sendForm("(set! (-> *TARGET-bank* wheel-flip-dist) (meters 17.3))")
+                    active_check("fastjak", 
+                    "(set! (-> *walk-mods* target-speed) 77777.0)(set! (-> *double-jump-mods* target-speed) 77777.0)(set! (-> *jump-mods* target-speed) 77777.0)(set! (-> *jump-attack-mods* target-speed) 77777.0)(set! (-> *attack-mods* target-speed) 77777.0)(set! (-> *forward-high-jump-mods* target-speed) 77777.0)(set! (-> *jump-attack-mods* target-speed) 77777.0)(set! (-> *stone-surface* target-speed) 1.25)")
 
-            elif command in {"slowjak"} and enabled_check("slowjak") and cd_check("slowjak"):
-                deactivate("fastjak")
-                active_check("slowjak",
-                "(send-event *target* 'reset-pickup 'eco)(set! (-> *walk-mods* target-speed) 22000.0)(set! (-> *double-jump-mods* target-speed) 20000.0)(set! (-> *jump-mods* target-speed) 22000.0)(set! (-> *jump-attack-mods* target-speed) 20000.0)(set! (-> *attack-mods* target-speed) 22000.0)(set! (-> *stone-surface* target-speed) 1.0)(set! (-> *TARGET-bank* wheel-flip-dist) (meters 7))(set! (-> *TARGET-bank* wheel-flip-height) (meters 3.52))")
+                elif command in {"slowjak"} and enabled_check("slowjak") and cd_check("slowjak"):
+                    deactivate("fastjak")
+                    active_check("slowjak",
+                    "(send-event *target* 'reset-pickup 'eco)(set! (-> *walk-mods* target-speed) 22000.0)(set! (-> *double-jump-mods* target-speed) 20000.0)(set! (-> *jump-mods* target-speed) 22000.0)(set! (-> *jump-attack-mods* target-speed) 20000.0)(set! (-> *attack-mods* target-speed) 22000.0)(set! (-> *stone-surface* target-speed) 1.0)(set! (-> *TARGET-bank* wheel-flip-dist) (meters 7))(set! (-> *TARGET-bank* wheel-flip-height) (meters 3.52))")
 
-            elif command in {"pacifist"} and enabled_check("pacifist") and cd_check("pacifist"):
-                #deactivate("bigspin")
-                active_check("pacifist", 
-                "(set! (-> *TARGET-bank* punch-radius) (meters -1.0))(set! (-> *TARGET-bank* spin-radius) (meters -1.0))(set! (-> *TARGET-bank* flop-radius) (meters -1.0))(set! (-> *TARGET-bank* uppercut-radius) (meters -1.0))")
+                elif command in {"pacifist"} and enabled_check("pacifist") and cd_check("pacifist"):
+                    #deactivate("bigspin")
+                    active_check("pacifist", 
+                    "(set! (-> *TARGET-bank* punch-radius) (meters -1.0))(set! (-> *TARGET-bank* spin-radius) (meters -1.0))(set! (-> *TARGET-bank* flop-radius) (meters -1.0))(set! (-> *TARGET-bank* uppercut-radius) (meters -1.0))")
 
-            #elif command in {"bigspin"} and enabled_check("bigspin") and cd_check("bigspin"):
-            #    deactivate("pacifist")
-            #    active_check("bigspin", 
-            #    "(set! (-> *TARGET-bank* punch-radius) (meters 1.3))(set! (-> *TARGET-bank* spin-radius) (meters 25))(set! (-> *TARGET-bank* flop-radius) (meters 1.4))(set! (-> *TARGET-bank* uppercut-radius) (meters 1))(set! (-> *TARGET-bank* spin-offset y) 655.6)")
-                
-            elif command in {"nuka"} and enabled_check("nuka") and cd_check("nuka"):
-                sendForm("(logior! (-> *target* state-flags) (state-flags dying))")
+                #elif command in {"bigspin"} and enabled_check("bigspin") and cd_check("bigspin"):
+                #    deactivate("pacifist")
+                #    active_check("bigspin", 
+                #    "(set! (-> *TARGET-bank* punch-radius) (meters 1.3))(set! (-> *TARGET-bank* spin-radius) (meters 25))(set! (-> *TARGET-bank* flop-radius) (meters 1.4))(set! (-> *TARGET-bank* uppercut-radius) (meters 1))(set! (-> *TARGET-bank* spin-offset y) 655.6)")
+                    
+                elif command in {"nuka"} and enabled_check("nuka") and cd_check("nuka"):
+                    sendForm("(logior! (-> *target* state-flags) (state-flags dying))")
 
-            elif command in {"invuln", "invul"} and enabled_check("invuln") and cd_check("invuln"):
-                sendForm("(logior! (-> *target* state-flags) (state-flags invulnerable))")
+                elif command in {"invuln", "invul"} and enabled_check("invuln") and cd_check("invuln"):
+                    sendForm("(logior! (-> *target* state-flags) (state-flags invulnerable))")
 
-            elif command in {"earthquake", "shake"} and enabled_check("earthquake") and cd_check("earthquake"):
-                sendForm("(activate! *camera-smush-control* 1500.6 12 350 1.0 0.9)")
+                elif command in {"earthquake", "shake"} and enabled_check("earthquake") and cd_check("earthquake"):
+                    sendForm("(activate! *camera-smush-control* 1500.6 12 350 1.0 0.9)")
 
-            elif command in {"trip"} and enabled_check("trip") and cd_check("trip"):
-                sendForm("(send-event *target* 'loading)")
+                elif command in {"trip"} and enabled_check("trip") and cd_check("trip"):
+                    sendForm("(send-event *target* 'loading)")
 
-            #elif command in {"bonk"} and enabled_check("bonk") and cd_check("bonk"):
-            #    sendForm("(dummy-10 (-> *target* skel effect) 'group-smack-surface (the-as float 0.0) 5)(send-event *target* 'shove)(sound-play \"smack-surface\")")
-            #    
-            elif command in {"shortfall"} and enabled_check("shortfall") and cd_check("shortfall"):
-                active_check("shortfall", 
-                "(set! (-> *TARGET-bank* fall-far) (meters 2.5))(set! (-> *TARGET-bank* fall-far-inc) (meters 3.5))")
+                #elif command in {"bonk"} and enabled_check("bonk") and cd_check("bonk"):
+                #    sendForm("(dummy-10 (-> *target* skel effect) 'group-smack-surface (the-as float 0.0) 5)(send-event *target* 'shove)(sound-play \"smack-surface\")")
+                #    
+                elif command in {"shortfall"} and enabled_check("shortfall") and cd_check("shortfall"):
+                    active_check("shortfall", 
+                    "(set! (-> *TARGET-bank* fall-far) (meters 2.5))(set! (-> *TARGET-bank* fall-far-inc) (meters 3.5))")
 
-            elif command in {"ghostjak","ghost"} and enabled_check("ghostjak") and cd_check("deload"):
-                active_check("ghostjak", 
-                "(set! (-> *TARGET-bank* body-radius) (meters -1.0))")              
+                elif command in {"ghostjak","ghost"} and enabled_check("ghostjak") and cd_check("deload"):
+                    active_check("ghostjak", 
+                    "(set! (-> *TARGET-bank* body-radius) (meters -1.0))")              
 
-            elif command in {"getoff"} and enabled_check("getoff") and cd_check("getoff"):
-                sendForm("(when (not (movie?))(send-event *target* 'end-mode))")
+                elif command in {"getoff"} and enabled_check("getoff") and cd_check("getoff"):
+                    sendForm("(when (not (movie?))(send-event *target* 'end-mode))")
 
-            elif command in {"unzoom"} and enabled_check("unzoom") and cd_check("unzoom"):
-                sendForm("(send-event *target* 'no-look-around (seconds 0.1))")
+                elif command in {"unzoom"} and enabled_check("unzoom") and cd_check("unzoom"):
+                    sendForm("(send-event *target* 'no-look-around (seconds 0.1))")
 
-            elif command in {"flutspeed", "setflutflut"} and len(args) >= 2 and enabled_check("flutspeed") and range_check(args[1], -200, 200) and cd_check("flutspeed"):
-                sendForm(f"(set! (-> *flut-walk-mods* target-speed)(meters {args[1]}))")
+                elif command in {"flutspeed", "setflutflut"} and len(args) >= 2 and enabled_check("flutspeed") and range_check(args[1], -200, 200) and cd_check("flutspeed"):
+                    sendForm(f"(set! (-> *flut-walk-mods* target-speed)(meters {args[1]}))")
 
-            elif command in {"freecam"} and enabled_check("freecam") and cd_check("freecam"):
-                active_check("freecam", 
-                "(stop 'debug)")
+                elif command in {"freecam"} and enabled_check("freecam") and cd_check("freecam"):
+                    active_check("freecam", 
+                    "(stop 'debug)")
 
-            elif command in {"enemyspeed"} and len(args) >= 3 and enabled_check("enemyspeed") and range_check(args[2], -200, 200) and cd_check("enemyspeed"):
-                sendForm(f"(set! (-> *{args[1]}-nav-enemy-info* run-travel-speed) (meters {args[2]}))")
+                elif command in {"enemyspeed"} and len(args) >= 3 and enabled_check("enemyspeed") and range_check(args[2], -200, 200) and cd_check("enemyspeed"):
+                    sendForm(f"(set! (-> *{args[1]}-nav-enemy-info* run-travel-speed) (meters {args[2]}))")
 
-            elif command in {"give"} and len(args) >= 3 and enabled_check("give") and range_check(args[2], GIVE_MIN, GIVE_MAX) and cd_check("give"):
-                item = args[1].lower()
-                if item == "cell" or item == "cells":
-                    item = "fuel"
-                elif item == "orb" or item == "orbs":
-                    item = "money"
-                sendForm("(set! (-> *game-info* " + item + ") (+ (-> *game-info* " + item + ") " + str(args[2]) + "))")
+                elif command in {"give"} and len(args) >= 3 and enabled_check("give") and range_check(args[2], GIVE_MIN, GIVE_MAX) and cd_check("give"):
+                    item = args[1].lower()
+                    if item == "cell" or item == "cells":
+                        item = "fuel"
+                    elif item == "orb" or item == "orbs":
+                        item = "money"
+                    sendForm("(set! (-> *game-info* " + item + ") (+ (-> *game-info* " + item + ") " + str(args[2]) + "))")
 
-            elif command in {"minuscell", "minuscells"} and enabled_check("minuscell") and cd_check("minuscell"):
-                sendForm("(set! (-> *game-info* fuel)(max 0.0 (- (-> *game-info* fuel) " + MINUSCELL_AMT + ")))")                
+                elif command in {"minuscell", "minuscells"} and enabled_check("minuscell") and cd_check("minuscell"):
+                    sendForm("(set! (-> *game-info* fuel)(max 0.0 (- (-> *game-info* fuel) " + MINUSCELL_AMT + ")))")                
 
-            elif command in {"pluscell", "pluscells"} and enabled_check("pluscell") and cd_check("pluscell"):
-                sendForm("(set! (-> *game-info* fuel)(max 0.0 (+ (-> *game-info* fuel) " + PLUSCELL_AMT + ")))")
+                elif command in {"pluscell", "pluscells"} and enabled_check("pluscell") and cd_check("pluscell"):
+                    sendForm("(set! (-> *game-info* fuel)(max 0.0 (+ (-> *game-info* fuel) " + PLUSCELL_AMT + ")))")
 
-            elif command in {"minusorbs", "minusorb"} and enabled_check("minusorbs") and cd_check("minusorbs"):
-                sendForm("(set! (-> *game-info* money)(max 0.0 (- (-> *game-info* money) " + MINUSORBS_AMT + ")))")
+                elif command in {"minusorbs", "minusorb"} and enabled_check("minusorbs") and cd_check("minusorbs"):
+                    sendForm("(set! (-> *game-info* money)(max 0.0 (- (-> *game-info* money) " + MINUSORBS_AMT + ")))")
 
-            elif command in {"plusorbs", "plusorb"} and enabled_check("plusorbs") and cd_check("plusorbs"):
-                sendForm("(set! (-> *game-info* money)(max 0.0 (+ (-> *game-info* money) " + PLUSORBS_AMT + ")))")
+                elif command in {"plusorbs", "plusorb"} and enabled_check("plusorbs") and cd_check("plusorbs"):
+                    sendForm("(set! (-> *game-info* money)(max 0.0 (+ (-> *game-info* money) " + PLUSORBS_AMT + ")))")
 
-            elif command in {"collected", "setcollected"} and len(args) >= 3 and enabled_check("collected") and cd_check("give"):
-                item = args[1].lower()
-                if item == "cell":
-                    item = "fuel"
-                elif item == "orb":
-                    item = "money"
-                sendForm(f"(set! (-> *game-info* {args[1]}) (+ 0.0 {args[2]}))")
+                elif command in {"collected", "setcollected"} and len(args) >= 3 and enabled_check("collected") and cd_check("give"):
+                    item = args[1].lower()
+                    if item == "cell":
+                        item = "fuel"
+                    elif item == "orb":
+                        item = "money"
+                    sendForm(f"(set! (-> *game-info* {args[1]}) (+ 0.0 {args[2]}))")
 
-            elif command in {"eco"} and len(args) >= 2 and enabled_check("eco") and cd_check("eco"):
-                sendForm(f"(send-event *target* 'get-pickup (pickup-type eco-{args[1]}) 5.0)")
+                elif command in {"eco"} and len(args) >= 2 and enabled_check("eco") and cd_check("eco"):
+                    sendForm(f"(send-event *target* 'get-pickup (pickup-type eco-{args[1]}) 5.0)")
 
-            elif command in {"rapidfire"} and enabled_check("rapidfire") and cd_check("rapidfire"):
-                active_check("rapidfire", 
-                "(set! (-> *TARGET-bank* yellow-projectile-speed) (meters 100))(set! (-> *TARGET-bank* yellow-attack-timeout) (seconds 0))")
+                elif command in {"rapidfire"} and enabled_check("rapidfire") and cd_check("rapidfire"):
+                    active_check("rapidfire", 
+                    "(set! (-> *TARGET-bank* yellow-projectile-speed) (meters 100))(set! (-> *TARGET-bank* yellow-attack-timeout) (seconds 0))")
 
-            elif command in {"sucksuck", "setsucksuck", "suck"} and len(args) >= 2 and enabled_check("sucksuck") and range_check(args[1], SUCK_MIN, SUCK_MAX) and cd_check("sucksuck"):
-                active_check("sucksuck",
-                f"(set! (-> *FACT-bank* suck-suck-dist) (meters {args[1]}))(set! (-> *FACT-bank* suck-bounce-dist) (meters {args[1]}))")
+                elif command in {"sucksuck", "setsucksuck", "suck"} and len(args) >= 2 and enabled_check("sucksuck") and range_check(args[1], SUCK_MIN, SUCK_MAX) and cd_check("sucksuck"):
+                    active_check("sucksuck",
+                    f"(set! (-> *FACT-bank* suck-suck-dist) (meters {args[1]}))(set! (-> *FACT-bank* suck-bounce-dist) (meters {args[1]}))")
 
-            elif command in {"noeco"} and enabled_check("noeco") and cd_check("noeco"):
-                active_check("noeco", 
-                "(send-event *target* 'reset-pickup 'eco)(set! (-> *FACT-bank* eco-full-timeout) (seconds 0.0))")
+                elif command in {"noeco"} and enabled_check("noeco") and cd_check("noeco"):
+                    active_check("noeco", 
+                    "(send-event *target* 'reset-pickup 'eco)(set! (-> *FACT-bank* eco-full-timeout) (seconds 0.0))")
 
-            elif command in {"die"} and enabled_check("die") and cd_check("die"):
-                sendForm("(when (not (movie?))(initialize! *game-info* 'die (the-as game-save #f) (the-as string #f)))")
+                elif command in {"die"} and enabled_check("die") and cd_check("die"):
+                    sendForm("(when (not (movie?))(initialize! *game-info* 'die (the-as game-save #f) (the-as string #f)))")
 
-            elif command in {"topoint", "tolevel"} and len(args) >= 2 and (point_list.count(str(args[1]).lower()) >= 1 or str(args[1]).lower() in point_nicknames) and enabled_check("topoint") and cd_check("topoint"):
-                arg1_lower = str(args[1]).lower()
-                point = None
-                if arg1_lower in point_nicknames:
-                    point = get_random_point(arg1_lower)
-                elif point_list.count(arg1_lower) == 1:
-                    point = arg1_lower
+                elif command in {"topoint", "tolevel"} and len(args) >= 2 and (point_list.count(str(args[1]).lower()) >= 1 or str(args[1]).lower() in point_nicknames) and enabled_check("topoint") and cd_check("topoint"):
+                    arg1_lower = str(args[1]).lower()
+                    point = None
+                    if arg1_lower in point_nicknames:
+                        point = get_random_point(arg1_lower)
+                    elif point_list.count(arg1_lower) == 1:
+                        point = arg1_lower
 
-                if point:
-                    if TOPOINT_PAST_CRATER == "f" and (point.startswith("lavatube") or point.startswith("citadel") or point.startswith("finalboss") or point.startswith("lt")):
-                        sendMessage(irc, "/me @"+user+" Cannot go past Volcanic Crater.")
-                        last_used[command_names.index("topoint")] = 0
-                        
-                        pass
+                    if point:
+                        if TOPOINT_PAST_CRATER == "f" and (point.startswith("lavatube") or point.startswith("citadel") or point.startswith("finalboss") or point.startswith("lt")):
+                            sendMessage(irc, "/me @"+user+" Cannot go past Volcanic Crater.")
+                            last_used[command_names.index("topoint")] = 0
+                            
+                            pass
+                        else:
+                            sendForm(f"(start 'play (get-continue-by-name *game-info* \"{point}\"))(auto-save-command 'auto-save 0 0 *default-pool*)")
+
+                elif command in {"randompoint", "randomcheckpoint"} and enabled_check("randompoint") and cd_check("topoint"):
+                    sendForm(f"(start 'play (get-continue-by-name *game-info* \"{point_list[random.choice(range(0,52))]}\"))(auto-save-command 'auto-save 0 0 *default-pool*)")
+
+                elif command in {"sfx", "sound"} and len(args) >= 2 and str(args[1]).lower() in sfx_names and enabled_check("sfx") and cd_check("sfx"):
+                    sfx = sfx_names[str(args[1])]
+                    sendForm(f"(sound-play \"{sfx}\")")
+
+                #elif command in {"crazyplats"} and enabled_check("crazyplats") and cd_check("crazyplats"):
+                #    active_check("crazyplats", 
+                #    "(set! (-> *pontoonten-constants* player-weight) (meters -150))(set! (-> *pontoonfive-constants* player-weight) (meters -150))(set! (-> *tra-pontoon-constants* player-weight) (meters -150))(set! (-> *citb-chain-plat-constants* player-weight) (meters -150))(set! (-> *bone-platform-constants* player-weight) (meters -150))(set! (-> *ogre-step-constants* player-weight) (meters -150))(set! (-> *ogre-isle-constants* player-weight) (meters -150))(set! (-> *qbert-plat-constants* player-weight) (meters -150))(set! (-> *tar-plat-constants* player-weight) (meters -150))")
+                #    
+                #elif command in {"setpoint", "setcheckpoint"} and enabled_check("setpoint") and cd_check("setpoint"):
+                #    sendForm("(vector-copy! (-> (-> *game-info* current-continue) trans) (new 'static 'vector :x (-> (target-pos 0) x) :y (-> (target-pos 0) y) :z (-> (target-pos 0) z) :w 1.0))")
+                #    
+                elif command in {"tp"} and len(args) >= 4 and enabled_check("tp") and cd_check("tp"):
+                    sendForm(f"(when (not (movie?))(set! (-> (target-pos 0) x) (meters {args[1]}))  (set! (-> (target-pos 0) y) (meters {args[2]})) (set! (-> (target-pos 0) z) (meters {args[3]})))")
+
+                elif command in {"shift"} and len(args) >= 4 and enabled_check("shift") and range_check(args[1], SHIFTX_MIN, SHIFTX_MAX) and range_check(args[2], SHIFTY_MIN, SHIFTY_MAX) and range_check(args[3], SHIFTZ_MIN, SHIFTZ_MAX) and cd_check("tp"):
+                    sendForm(f"(when (not (movie?))(set! (-> (target-pos 0) x) (+ (-> (target-pos 0) x)(meters {args[1]})))  (set! (-> (target-pos 0) y) (+ (-> (target-pos 0) y)(meters {args[2]}))) (set! (-> (target-pos 0) z) (+ (-> (target-pos 0) z)(meters {args[3]}))))")
+
+                elif command in {"rocketman"} and enabled_check("rocketman") and cd_check("rocketman"):
+                    active_check("rocketman", 
+                    "(set! (-> *standard-dynamics* gravity-normal y) -0.5)")
+
+                elif command in {"movetojak"} and len(args) >= 2 and enabled_check("movetojak") and cd_check("movetojak"):
+                    sendForm(f"(when (process-by-ename \"{args[1]}\")(set-vector!  (-> (-> (the process-drawable (process-by-ename \"{args[1]}\"))root)trans) (-> (target-pos 0) x) (-> (target-pos 0) y) (-> (target-pos 0) z) 1.0))")
+
+                elif command in {"ouch"} and enabled_check("ouch") and cd_check("ouch"):
+                    sendForm("(if (not (= *target* #f))(send-event *target* 'attack #t (new 'static 'attack-info)))")
+
+                elif command in {"burn"} and enabled_check("burn") and cd_check("ouch"):
+                    sendForm("(if (not (= *target* #f))(target-attack-up *target* 'attack 'burnup))")
+
+                elif command in {"hp"} and len(args) >= 2 and enabled_check("hp") and cd_check("hp"):
+                    sendForm(f"(set! (-> (the-as fact-info-target (-> *target* fact))health) (+ 0.0 {args[1]}))")
+
+                elif command in {"melt"} and enabled_check("melt") and cd_check("die"):
+                    sendForm("(when (not (movie?))(target-attack-up *target* 'attack 'melt))")
+
+                elif command in {"endlessfall"} and enabled_check("endlessfall") and cd_check("die"):
+                    sendForm("(when (not (movie?))(target-attack-up *target* 'attack 'endlessfall))")
+
+                elif command in {"drown"} and enabled_check("drown") and cd_check("die"):
+                    sendForm("(when (not (movie?))(target-attack-up *target* 'attack 'drown-death))")
+
+                elif command in {"iframes"} and len(args) >= 2 and enabled_check("iframes") and cd_check("iframes"):
+                    deactivate("iframes")
+                    activate("iframes")
+                    sendForm("(set! (-> *TARGET-bank* hit-invulnerable-timeout) (seconds " + str(args[1]) + "))")
+
+                elif command in {"invertcam"} and len(args) >= 3 and enabled_check("invertcam") and cd_check("invertcam"):
+                    if (args[1] == "third" or args[1] == "first") and (args[2] == "h" or args[2] == "v"):
+                        deactivate("invertcam")
+                        activate("invertcam")
+                        sendForm(f"(set! (-> *pc-settings* {args[1]}-camera-{args[2]}-inverted?) (not (-> *pc-settings* {args[1]}-camera-{args[2]}-inverted?)))")
+
+                elif command in {"cam"} and len(args) >= 2 and str(args[1]).lower() in cam_list and enabled_check("cam") and cd_check("cam"):
+                    deactivate("stickycam")
+                    activate("cam")
+                    sendForm(f"(send-event *camera* 'change-state cam-{args[1]} 0)(send-event *target* 'no-look-around (seconds {durations[command_names.index("cam")]}))")
+
+                #elif command in {"tiktok"} and enabled_check("tiktok") and cd_check("tiktok"):
+                #    active_check("tiktok",
+                #    f"(set-aspect! *pc-settings* 9 16)")
+
+                elif command in {"stickycam"} and enabled_check("stickycam") and cd_check("stickycam"):
+                    deactivate("cam")
+                    active_check("stickycam",
+                    f"(send-event *target* 'no-look-around (seconds {durations[command_names.index("stickycam")]}))(send-event *camera* 'change-state cam-circular 0)",
+                    "(send-event *target* 'no-look-around (seconds 0))(send-event *camera* 'change-state cam-string 0)")
+
+                #elif command in {"askew"} and enabled_check("askew") and cd_check("askew"):
+                #    active_check("askew", 
+                #    "(set! (-> *standard-dynamics* gravity x) 0.25)")
+                #    
+                elif command in {"deload"} and enabled_check("deload") and cd_check("deload"):
+                    sendForm("(when (not (movie?))(set! (-> *load-state* want 0 display?) #f))")
+
+                elif command in {"quickcam", "frickstorage"} and enabled_check("quickcam") and cd_check("quickcam"):
+                    sendForm("(stop 'debug)(start 'play (get-or-create-continue! *game-info*))")
+                    time.sleep(0.1)
+                    sendForm("(set! (-> *game-info* current-continue) (get-continue-by-name *game-info* \"training-start\"))")
+
+                elif command in {"dark"} and enabled_check("dark") and cd_check("dark"):
+                    active_check("dark", 
+                    "(set! (-> (level-get-target-inside *level*) mood-func)update-mood-finalboss)")
+
+                elif command in {"blind"} and len(args) >= 2 and enabled_check("blind") and cd_check("dark") and range_check(args[1], BLIND_MIN, BLIND_MAX):
+                    sendForm(f"(set-blackout-frames (seconds {args[1]}))")
+
+                elif command in {"nodax", "nodaxter"} and enabled_check("nodax") and cd_check("nodax"):
+                    active_check("nodax", 
+                    "(send-event *target* 'sidekick #f)")
+
+                elif command in {"smallnet"} and enabled_check("smallnet") and cd_check("smallnet"):
+                    active_check("smallnet", 
+                    "(when (process-by-ename \"fisher-1\")(set!(-> *FISHER-bank* net-radius)(meters 0.0)))")
+
+                elif command in {"widefish"} and enabled_check("widefish") and cd_check("widefish"):
+                    active_check("widefish", 
+                    "(when (process-by-ename \"fisher-1\")(set! (-> *FISHER-bank* width)(meters 10.0)))")
+
+                elif command in {"maxfish"} and len(args) >= 2 and enabled_check("maxfish") and cd_check("maxfish") and range_check(args[1], MAXFISH_MIN, MAXFISH_MAX):
+                    sendForm(f"(when (process-by-ename \"fisher-1\")(set! (-> *FISHER-bank* max-caught) {args[1]}))")
+
+                elif command in {"hardfish"} and enabled_check("hardfish") and cd_check("hardfish"):
+                    active_check("hardfish", 
+                    "(when (process-by-ename \"fisher-1\")(set! (-> (the fisher (process-by-ename \"fisher-1\")) difficulty) 5)(set! (-> *FISHER-bank* max-caught) 400))")   
+                    
+                elif command in {"customfish"} and len(args) >= 5 and enabled_check("customfish") and cd_check("customfish") and args[3] in fish_list and range_check(args[1], 0, 5) and range_check(args[2], 1, 7) and range_check(args[4], 0, 100):
+                    phase = (2 * int(args[2])) - 1
+                    difficulty = int(args[1])
+                    if args[3] in {"swing-min", "swing-max", "period", "timeout"}:
+                        value = f"(seconds {args[4]})"
                     else:
-                        sendForm(f"(start 'play (get-continue-by-name *game-info* \"{point}\"))(auto-save-command 'auto-save 0 0 *default-pool*)")
+                        value = float(args[4])
+                    sendForm(f"(when (process-by-ename \"fisher-1\")(set! (-> (-> (-> *fisher-params* {difficulty}) {phase}) {args[3]}) {value}))")
 
-            elif command in {"randompoint", "randomcheckpoint"} and enabled_check("randompoint") and cd_check("topoint"):
-                sendForm(f"(start 'play (get-continue-by-name *game-info* \"{point_list[random.choice(range(0,52))]}\"))(auto-save-command 'auto-save 0 0 *default-pool*)")
+                elif command in {"lowpoly", "lod"} and enabled_check("lowpoly") and cd_check("lowpoly"):
+                    active_check("lowpoly", 
+                    "(set! (-> *pc-settings* lod-force-tfrag) 2)(set! (-> *pc-settings* lod-force-tie) 3)(set! (-> *pc-settings* lod-force-ocean) 2)(set! (-> *pc-settings* lod-force-actor) 3)")
 
-            elif command in {"sfx", "sound"} and len(args) >= 2 and str(args[1]).lower() in sfx_names and enabled_check("sfx") and cd_check("sfx"):
-                sfx = sfx_names[str(args[1])]
-                sendForm(f"(sound-play \"{sfx}\")")
+                elif command in {"moveplantboss"} and enabled_check("moveplantboss") and cd_check("moveplantboss"):
+                    sendForm("(set! (-> *pc-settings* force-actors?) #t)")
+                    time.sleep(0.050)
+                    sendForm("(when (process-by-ename \"plant-boss-3\")(set-vector!  (-> (-> (the process-drawable (process-by-ename \"plant-boss-3\"))root)trans) (meters 436.97) (meters -43.99) (meters -347.09) 1.0))")
+                    sendForm("(set! (-> (the-as fact-info-target (-> *target* fact))health) 1.0)")
+                    time.sleep(2)
+                    sendForm("(set! (-> (target-pos 0) x) (meters 431.47))  (set! (-> (target-pos 0) y) (meters -44.00)) (set! (-> (target-pos 0) z) (meters -334.09))")
 
-            #elif command in {"crazyplats"} and enabled_check("crazyplats") and cd_check("crazyplats"):
-            #    active_check("crazyplats", 
-            #    "(set! (-> *pontoonten-constants* player-weight) (meters -150))(set! (-> *pontoonfive-constants* player-weight) (meters -150))(set! (-> *tra-pontoon-constants* player-weight) (meters -150))(set! (-> *citb-chain-plat-constants* player-weight) (meters -150))(set! (-> *bone-platform-constants* player-weight) (meters -150))(set! (-> *ogre-step-constants* player-weight) (meters -150))(set! (-> *ogre-isle-constants* player-weight) (meters -150))(set! (-> *qbert-plat-constants* player-weight) (meters -150))(set! (-> *tar-plat-constants* player-weight) (meters -150))")
-            #    
-            #elif command in {"setpoint", "setcheckpoint"} and enabled_check("setpoint") and cd_check("setpoint"):
-            #    sendForm("(vector-copy! (-> (-> *game-info* current-continue) trans) (new 'static 'vector :x (-> (target-pos 0) x) :y (-> (target-pos 0) y) :z (-> (target-pos 0) z) :w 1.0))")
-            #    
-            elif command in {"tp"} and len(args) >= 4 and enabled_check("tp") and cd_check("tp"):
-                sendForm(f"(when (not (movie?))(set! (-> (target-pos 0) x) (meters {args[1]}))  (set! (-> (target-pos 0) y) (meters {args[2]})) (set! (-> (target-pos 0) z) (meters {args[3]})))")
+                elif command in {"moveplantboss2"} and enabled_check("moveplantboss2") and cd_check("moveplantboss2"):
+                    sendForm("(set! (-> *pc-settings* force-actors?) #t)")
+                    time.sleep(0.050)
+                    sendForm("(when (process-by-ename \"plant-boss-3\")(set-vector!  (-> (-> (the process-drawable (process-by-ename \"plant-boss-3\"))root)trans) (meters 436.97) (meters -43.99) (meters -347.09) 1.0))")
+                    time.sleep(0.050)
+                    #sendForm("(set! (-> *pc-settings* force-actors?) #f)")
 
-            elif command in {"shift"} and len(args) >= 4 and enabled_check("shift") and range_check(args[1], SHIFTX_MIN, SHIFTX_MAX) and range_check(args[2], SHIFTY_MIN, SHIFTY_MAX) and range_check(args[3], SHIFTZ_MIN, SHIFTZ_MAX) and cd_check("tp"):
-                sendForm(f"(when (not (movie?))(set! (-> (target-pos 0) x) (+ (-> (target-pos 0) x)(meters {args[1]})))  (set! (-> (target-pos 0) y) (+ (-> (target-pos 0) y)(meters {args[2]}))) (set! (-> (target-pos 0) z) (+ (-> (target-pos 0) z)(meters {args[3]}))))")
+                elif command in {"basincell"} and enabled_check("basincell") and cd_check("basincell"):
+                    sendForm("(if (when (process-by-ename \"fuel-cell-45\") (= (-> (->(the process-drawable (process-by-ename \"fuel-cell-45\"))root)trans x)  (meters -266.54)))(when (process-by-ename \"fuel-cell-45\")(set-vector!  (-> (-> (the process-drawable (process-by-ename \"fuel-cell-45\"))root)trans) (meters -248.92) (meters 52.11) (meters -1515.66) 1.0))(when (process-by-ename \"fuel-cell-45\")(set-vector!  (-> (-> (the process-drawable (process-by-ename \"fuel-cell-45\"))root)trans) (meters -266.54) (meters 52.11) (meters -1508.48) 1.0)))")
 
-            elif command in {"rocketman"} and enabled_check("rocketman") and cd_check("rocketman"):
-                active_check("rocketman", 
-                "(set! (-> *standard-dynamics* gravity-normal y) -0.5)")
+                elif command in {"resetactors"} and enabled_check("resetactors") and cd_check("resetactors"):
+                    sendForm("(reset-actors 'debug)")
 
-            elif command in {"movetojak"} and len(args) >= 2 and enabled_check("movetojak") and cd_check("movetojak"):
-                sendForm(f"(when (process-by-ename \"{args[1]}\")(set-vector!  (-> (-> (the process-drawable (process-by-ename \"{args[1]}\"))root)trans) (-> (target-pos 0) x) (-> (target-pos 0) y) (-> (target-pos 0) z) 1.0))")
+                elif command in {"noactors"} and enabled_check("noactors") and cd_check("resetactors"):
+                    active_check("noactors",
+                    "(set! *spawn-actors* #f) (reset-actors 'debug)")
 
-            elif command in {"ouch"} and enabled_check("ouch") and cd_check("ouch"):
-                sendForm("(if (not (= *target* #f))(send-event *target* 'attack #t (new 'static 'attack-info)))")
+                elif command in {"actors-on"} and enabled_check("actors-on")and user in COMMAND_MODS:
+                    sendForm("(set! (-> *pc-settings* force-actors?) #t)")
 
-            elif command in {"burn"} and enabled_check("burn") and cd_check("ouch"):
-                sendForm("(if (not (= *target* #f))(target-attack-up *target* 'attack 'burnup))")
+                elif command in {"actors-off"} and enabled_check("actors-off") and user in COMMAND_MODS:
+                    sendForm("(set! (-> *pc-settings* force-actors?) #f)")
 
-            elif command in {"hp"} and len(args) >= 2 and enabled_check("hp") and cd_check("hp"):
-                sendForm(f"(set! (-> (the-as fact-info-target (-> *target* fact))health) (+ 0.0 {args[1]}))")
+                elif command in {"debug"} and enabled_check("debug") and user in COMMAND_MODS:
+                    sendForm("(set! *debug-segment* (not *debug-segment*))(set! *cheat-mode* (not *cheat-mode*))")
 
-            elif command in {"melt"} and enabled_check("melt") and cd_check("die"):
-                sendForm("(when (not (movie?))(target-attack-up *target* 'attack 'melt))")
+                elif command in {"fixoldsave"} and enabled_check("fixoldsave") and user in COMMAND_MODS:
+                    sendForm("(set! (-> *game-info* current-continue) (get-continue-by-name *game-info* \"training-start\"))(auto-save-command 'auto-save 0 0 *default-pool*)")
 
-            elif command in {"endlessfall"} and enabled_check("endlessfall") and cd_check("die"):
-                sendForm("(when (not (movie?))(target-attack-up *target* 'attack 'endlessfall))")
+                elif command in {"save"} and enabled_check("save") and user in COMMAND_MODS:            
+                    sendForm("(auto-save-command 'auto-save 0 0 *default-pool*)")
 
-            elif command in {"drown"} and enabled_check("drown") and cd_check("die"):
-                sendForm("(when (not (movie?))(target-attack-up *target* 'attack 'drown-death))")
+                elif command in {"resetcooldowns", "resetcds"} and user in COMMAND_MODS:           
+                    for x in range(len(command_names)):
+                        last_used[x]=0.0
+                    sendMessage(irc, "/me ~ All cooldowns reset.")
 
-            elif command in {"iframes"} and len(args) >= 2 and enabled_check("iframes") and cd_check("iframes"):
-                deactivate("iframes")
-                activate("iframes")
-                sendForm("(set! (-> *TARGET-bank* hit-invulnerable-timeout) (seconds " + str(args[1]) + "))")
+                elif command in {"active"} and user in COMMAND_MODS:           
+                    sendMessage(irc, f"/me ~ {", ".join(active_list)}")
 
-            elif command in {"invertcam"} and len(args) >= 3 and enabled_check("invertcam") and cd_check("invertcam"):
-                if (args[1] == "third" or args[1] == "first") and (args[2] == "h" or args[2] == "v"):
-                    deactivate("invertcam")
-                    activate("invertcam")
-                    sendForm(f"(set! (-> *pc-settings* {args[1]}-camera-{args[2]}-inverted?) (not (-> *pc-settings* {args[1]}-camera-{args[2]}-inverted?)))")
+                elif command in {"cd", "cooldown"} and len(args) >= 3 and user in COMMAND_MODS:          
+                    cooldowns[command_names.index(str(args[1]))]=float(args[2])
+                    sendMessage(irc, f"/me ~ '{args[1]}' cooldown set to {args[2]}s.")
 
-            elif command in {"cam"} and len(args) >= 2 and str(args[1]).lower() in cam_list and enabled_check("cam") and cd_check("cam"):
-                deactivate("stickycam")
-                activate("cam")
-                sendForm(f"(send-event *camera* 'change-state cam-{args[1]} 0)(send-event *target* 'no-look-around (seconds {durations[command_names.index("cam")]}))")
+                elif command in {"dur", "duration"} and len(args) >= 3 and user in COMMAND_MODS:         
+                    durations[command_names.index(str(args[1]))]=float(args[2])
+                    sendMessage(irc, f"/me ~ '{args[1]}' duration set to {args[2]}s.")
 
-            #elif command in {"tiktok"} and enabled_check("tiktok") and cd_check("tiktok"):
-            #    active_check("tiktok",
-            #    f"(set-aspect! *pc-settings* 9 16)")
+                elif command in {"enable"} and len(args) >= 2 and user in COMMAND_MODS:          
+                    enabled[command_names.index(str(args[1]))] = "t"
+                    sendMessage(irc, f"/me ~ '{args[1]}' enabled.")
 
-            elif command in {"stickycam"} and enabled_check("stickycam") and cd_check("stickycam"):
-                deactivate("cam")
-                active_check("stickycam",
-                f"(send-event *target* 'no-look-around (seconds {durations[command_names.index("stickycam")]}))(send-event *camera* 'change-state cam-circular 0)",
-                "(send-event *target* 'no-look-around (seconds 0))(send-event *camera* 'change-state cam-string 0)")
+                elif command in {"disable"} and len(args) >= 2 and user in COMMAND_MODS:          
+                    enabled[command_names.index(str(args[1]))] = "f"
+                    sendMessage(irc, f"/me ~ '{args[1]}' disabled.")
 
-            #elif command in {"askew"} and enabled_check("askew") and cd_check("askew"):
-            #    active_check("askew", 
-            #    "(set! (-> *standard-dynamics* gravity x) 0.25)")
-            #    
-            elif command in {"deload"} and enabled_check("deload") and cd_check("deload"):
-                sendForm("(when (not (movie?))(set! (-> *load-state* want 0 display?) #f))")
+                elif command in {"widejak"} and enabled_check("widejak") and cd_check("scale"):
+                    deactivate("bigjak")
+                    deactivate("smalljak")
+                    deactivate("scale")
+                    deactivate("flatjak")
+                    active_check("widejak", 
+                    "(set! (-> (-> (the-as target *target* )root)scale x) 4.0)(set! (-> (-> (the-as target *target* )root)scale y) 1.0)(set! (-> (-> (the-as target *target* )root)scale z) 1.0)")
 
-            elif command in {"quickcam", "frickstorage"} and enabled_check("quickcam") and cd_check("quickcam"):
-                sendForm("(stop 'debug)(start 'play (get-or-create-continue! *game-info*))")
-                time.sleep(0.1)
-                sendForm("(set! (-> *game-info* current-continue) (get-continue-by-name *game-info* \"training-start\"))")
+                elif command in {"flatjak"} and enabled_check("flatjak") and cd_check("scale"):
+                    deactivate("bigjak")
+                    deactivate("smalljak")
+                    deactivate("widejak")
+                    deactivate("scale")
+                    active_check("flatjak", 
+                    "(set! (-> (-> (the-as target *target* )root)scale x) 1.3)(set! (-> (-> (the-as target *target* )root)scale y) 0.2)(set! (-> (-> (the-as target *target* )root)scale z) 1.3)")
 
-            elif command in {"dark"} and enabled_check("dark") and cd_check("dark"):
-                active_check("dark", 
-                "(set! (-> (level-get-target-inside *level*) mood-func)update-mood-finalboss)")
+                elif command in {"smalljak"} and enabled_check("smalljak") and cd_check("scale"):
+                    deactivate("bigjak")
+                    deactivate("scale")
+                    deactivate("widejak")
+                    deactivate("flatjak")
+                    active_check("smalljak", 
+                    "(set! (-> (-> (the-as target *target* )root)scale x) 0.4)(set! (-> (-> (the-as target *target* )root)scale y) 0.4)(set! (-> (-> (the-as target *target* )root)scale z) 0.4)(set! (-> *TARGET-bank* wheel-flip-dist) (meters 43.25))")
 
-            elif command in {"blind"} and len(args) >= 2 and enabled_check("blind") and cd_check("dark") and range_check(args[1], BLIND_MIN, BLIND_MAX):
-                sendForm(f"(set-blackout-frames (seconds {args[1]}))")
+                elif command in {"bigjak"} and enabled_check("bigjak") and cd_check("scale"):
+                    deactivate("scale")
+                    deactivate("smalljak")
+                    deactivate("widejak")
+                    deactivate("flatjak")
+                    active_check("bigjak", 
+                    "(set! (-> (-> (the-as target *target* )root)scale x) 2.7)(set! (-> (-> (the-as target *target* )root)scale y) 2.7)(set! (-> (-> (the-as target *target* )root)scale z) 2.7)")
 
-            elif command in {"nodax", "nodaxter"} and enabled_check("nodax") and cd_check("nodax"):
-                active_check("nodax", 
-                "(send-event *target* 'sidekick #f)")
+                elif command in {"color", "colour"} and len(args) >= 4 and enabled_check("color") and cd_check("color"):
+                    deactivate("color")
+                    activate("color")
+                    sendForm(f"(set! (-> *target* draw color-mult x) (+ 0.0 {args[1]}))(set! (-> *target* draw color-mult y) (+ 0.0 {args[2]}))(set! (-> *target* draw color-mult z) (+ 0.0 {args[3]}))")
 
-            elif command in {"smallnet"} and enabled_check("smallnet") and cd_check("smallnet"):
-                active_check("smallnet", 
-                "(when (process-by-ename \"fisher-1\")(set!(-> *FISHER-bank* net-radius)(meters 0.0)))")
+                elif command in {"scale"} and len(args) >= 4 and enabled_check("scale") and range_check(str(args[1]), SCALE_MIN, SCALE_MAX) and range_check(str(args[2]), SCALE_MIN, SCALE_MAX) and range_check(str(args[3]), SCALE_MIN, SCALE_MAX) and cd_check("scale"):
+                    deactivate("bigjak")
+                    deactivate("smalljak")
+                    deactivate("widejak")
+                    deactivate("flatjak")
+                    deactivate("scale")
+                    activate("scale")
+                    sendForm(f"(set! (-> (-> (the-as target *target* )root)scale x) (+ 0.0 {args[1]}))(set! (-> (-> (the-as target *target* )root)scale y) (+ 0.0 {args[2]}))(set! (-> (-> (the-as target *target* )root)scale z) (+ 0.0 {args[3]}))")
 
-            elif command in {"widefish"} and enabled_check("widefish") and cd_check("widefish"):
-                active_check("widefish", 
-                "(when (process-by-ename \"fisher-1\")(set! (-> *FISHER-bank* width)(meters 10.0)))")
+                elif command in {"slippery"} and enabled_check("slippery") and cd_check("slippery"):
+                    active_check("slippery", 
+                    "(set! (-> *stone-surface* slope-slip-angle) 16384.0)(set! (-> *stone-surface* slip-factor) 0.7)(set! (-> *stone-surface* transv-max) 1.5)(set! (-> *stone-surface* turnv) 0.5)(set! (-> *stone-surface* nonlin-fric-dist) 4091904.0)(set! (-> *stone-surface* fric) 23756.8)(set! (-> *grass-surface* slope-slip-angle) 16384.0)(set! (-> *grass-surface* slip-factor) 0.7)(set! (-> *grass-surface* transv-max) 1.5)(set! (-> *grass-surface* turnv) 0.5)(set! (-> *grass-surface* nonlin-fric-dist) 4091904.0)(set! (-> *grass-surface* fric) 23756.8)(set! (-> *ice-surface* slip-factor) 0.3)(set! (-> *ice-surface* nonlin-fric-dist) 8183808.0)(set! (-> *ice-surface* fric) 11878.4)")
 
-            elif command in {"maxfish"} and len(args) >= 2 and enabled_check("maxfish") and cd_check("maxfish") and range_check(args[1], MAXFISH_MIN, MAXFISH_MAX):
-                sendForm(f"(when (process-by-ename \"fisher-1\")(set! (-> *FISHER-bank* max-caught) {args[1]}))")
-
-            elif command in {"hardfish"} and enabled_check("hardfish") and cd_check("hardfish"):
-                active_check("hardfish", 
-                "(when (process-by-ename \"fisher-1\")(set! (-> (the fisher (process-by-ename \"fisher-1\")) difficulty) 5)(set! (-> *FISHER-bank* max-caught) 400))")   
+                elif command in {"gravity", "grav"} and len(args) >= 2 and enabled_check("gravity") and args[1] in {"high", "low"} and cd_check("gravity"):
+                    match args[1]:
+                        case "high":
+                            line = "(set! (-> *standard-dynamics* gravity-length) (* GRAVITY_AMOUNT 5))"
+                        case "low":
+                            line = "(set! (-> *standard-dynamics* gravity-length) (/ GRAVITY_AMOUNT 5))"    
+                    active_check("gravity", 
+                    line)
                 
-            elif command in {"customfish"} and len(args) >= 5 and enabled_check("customfish") and cd_check("customfish") and args[3] in fish_list and range_check(args[1], 0, 5) and range_check(args[2], 1, 7) and range_check(args[4], 0, 100):
-                phase = (2 * int(args[2])) - 1
-                difficulty = int(args[1])
-                if args[3] in {"swing-min", "swing-max", "period", "timeout"}:
-                    value = f"(seconds {args[4]})"
-                else:
-                    value = float(args[4])
-                sendForm(f"(when (process-by-ename \"fisher-1\")(set! (-> (-> (-> *fisher-params* {difficulty}) {phase}) {args[3]}) {value}))")
+                elif command in {"pinball"} and enabled_check("pinball") and cd_check("pinball"):
+                    active_check("pinball", 
+                    "(set! (-> *stone-surface* fric) -153600.0)",
+                    "(set! (-> *stone-surface* fric) 153600.0)")
+    
+                #elif command in {"heatmax"} and len(args) >= 2:
+                #    sendForm("(set! (-> *RACER-bank* heat-max) " + str(args[1]) + ")")
+                #                   
+                #elif command in {"loadlevel"} and len(args) >= 2:
+                #    sendForm("(set! (-> *load-state* want 1 name) '" + str(args[1]) + ")(set! (-> *load-state* want 1 display?) 'display)")
+                #                   
+                #elif command in {"setecotime", "ecotime"} and len(args) >= 2:
+                #    sendForm("(set! (-> *FACT-bank* eco-full-timeout) (seconds " + str(args[1]) + "))")
+                #    
+                elif command in {"bighead"} and enabled_check("bighead") and cd_check("bighead"):
+                    deactivate("smallhead")
+                    deactivate("hugehead")
+                    active_check("bighead",
+                    "(begin (logior! (-> *pc-settings* cheats) (pc-cheats big-head)) (logclear! (-> *pc-settings* cheats-known) (pc-cheats big-head)))")
 
-            elif command in {"lowpoly", "lod"} and enabled_check("lowpoly") and cd_check("lowpoly"):
-                active_check("lowpoly", 
-                "(set! (-> *pc-settings* lod-force-tfrag) 2)(set! (-> *pc-settings* lod-force-tie) 3)(set! (-> *pc-settings* lod-force-ocean) 2)(set! (-> *pc-settings* lod-force-actor) 3)")
+                elif command in {"smallhead"} and enabled_check("smallhead") and cd_check("smallhead"):
+                    deactivate("bighead")
+                    deactivate("hugehead")
+                    active_check("smallhead",
+                    "(begin (logior! (-> *pc-settings* cheats) (pc-cheats small-head)) (logclear! (-> *pc-settings* cheats-known) (pc-cheats small-head)))",
+                    "(logclear! (-> *pc-settings* cheats) (pc-cheats small-head))")
 
-            elif command in {"moveplantboss"} and enabled_check("moveplantboss") and cd_check("moveplantboss"):
-                sendForm("(set! (-> *pc-settings* force-actors?) #t)")
-                time.sleep(0.050)
-                sendForm("(when (process-by-ename \"plant-boss-3\")(set-vector!  (-> (-> (the process-drawable (process-by-ename \"plant-boss-3\"))root)trans) (meters 436.97) (meters -43.99) (meters -347.09) 1.0))")
-                sendForm("(set! (-> (the-as fact-info-target (-> *target* fact))health) 1.0)")
-                time.sleep(2)
-                sendForm("(set! (-> (target-pos 0) x) (meters 431.47))  (set! (-> (target-pos 0) y) (meters -44.00)) (set! (-> (target-pos 0) z) (meters -334.09))")
+                elif command in {"bigfist"} and enabled_check("bigfist") and cd_check("bigfist"):
+                    active_check("bigfist",
+                    "(begin (logior! (-> *pc-settings* cheats) (pc-cheats big-fist)) (logclear! (-> *pc-settings* cheats-known) (pc-cheats big-fist)))")
 
-            elif command in {"moveplantboss2"} and enabled_check("moveplantboss2") and cd_check("moveplantboss2"):
-                sendForm("(set! (-> *pc-settings* force-actors?) #t)")
-                time.sleep(0.050)
-                sendForm("(when (process-by-ename \"plant-boss-3\")(set-vector!  (-> (-> (the process-drawable (process-by-ename \"plant-boss-3\"))root)trans) (meters 436.97) (meters -43.99) (meters -347.09) 1.0))")
-                time.sleep(0.050)
-                #sendForm("(set! (-> *pc-settings* force-actors?) #f)")
+                elif command in {"bigheadnpc"} and enabled_check("bigheadnpc") and cd_check("bigheadnpc"):
+                    active_check("bigheadnpc",
+                    "(begin (logior! (-> *pc-settings* cheats) (pc-cheats big-head-npc)) (logclear! (-> *pc-settings* cheats-known) (pc-cheats big-head-npc)))")
 
-            elif command in {"basincell"} and enabled_check("basincell") and cd_check("basincell"):
-                sendForm("(if (when (process-by-ename \"fuel-cell-45\") (= (-> (->(the process-drawable (process-by-ename \"fuel-cell-45\"))root)trans x)  (meters -266.54)))(when (process-by-ename \"fuel-cell-45\")(set-vector!  (-> (-> (the process-drawable (process-by-ename \"fuel-cell-45\"))root)trans) (meters -248.92) (meters 52.11) (meters -1515.66) 1.0))(when (process-by-ename \"fuel-cell-45\")(set-vector!  (-> (-> (the process-drawable (process-by-ename \"fuel-cell-45\"))root)trans) (meters -266.54) (meters 52.11) (meters -1508.48) 1.0)))")
+                elif command in {"hugehead"} and enabled_check("hugehead") and cd_check("hugehead"):
+                    deactivate("bighead")
+                    deactivate("smallhead")
+                    active_check("hugehead",
+                    "(begin (logior! (-> *pc-settings* cheats) (pc-cheats huge-head)) (logclear! (-> *pc-settings* cheats-known) (pc-cheats huge-head)))")
 
-            elif command in {"resetactors"} and enabled_check("resetactors") and cd_check("resetactors"):
-                sendForm("(reset-actors 'debug)")
+                elif command in {"mirror"} and enabled_check("mirror") and cd_check("mirror"):
+                    active_check("mirror",
+                    "(begin (logior! (-> *pc-settings* cheats) (pc-cheats mirror)) (logclear! (-> *pc-settings* cheats-known) (pc-cheats mirror)))")
 
-            elif command in {"noactors"} and enabled_check("noactors") and cd_check("resetactors"):
-                active_check("noactors",
-                "(set! *spawn-actors* #f) (reset-actors 'debug)")
+                elif command in {"notex", "notextures"} and enabled_check("notex") and cd_check("notex"):
+                    active_check("notex",
+                    "(begin (logior! (-> *pc-settings* cheats) (pc-cheats no-tex)) (logclear! (-> *pc-settings* cheats-known) (pc-cheats no-tex)))")
 
-            elif command in {"actors-on"} and enabled_check("actors-on")and user in COMMAND_MODS:
-                sendForm("(set! (-> *pc-settings* force-actors?) #t)")
+                elif command in {"spiderman"} and enabled_check("spiderman") and cd_check("spiderman"):
+                    active_check("spiderman",
+                    "(set! (-> *pat-mode-info* 1 wall-angle) 0.0) (set! (-> *pat-mode-info* 2 wall-angle) 0.0)")
 
-            elif command in {"actors-off"} and enabled_check("actors-off") and user in COMMAND_MODS:
-                sendForm("(set! (-> *pc-settings* force-actors?) #f)")
+                elif command in {"press"} and len(args) >= 2 and str(args[1]).lower() in input_list and enabled_check("press") and cd_check("press"):
+                    sendForm(f"(logior! (cpad-pressed 0) (pad-buttons {args[1]}))")
 
-            elif command in {"debug"} and enabled_check("debug") and user in COMMAND_MODS:
-                sendForm("(set! *debug-segment* (not *debug-segment*))(set! *cheat-mode* (not *cheat-mode*))")
+                elif command in {"lang", "language"} and len(args) >= 2 and str(args[1]).lower() in lang_list and enabled_check("lang") and cd_check("lang"):
+                    sendForm(f"(set! (-> *setting-control* default language) (language-enum {str(args[1]).lower()}))")
 
-            elif command in {"fixoldsave"} and enabled_check("fixoldsave") and user in COMMAND_MODS:
-                sendForm("(set! (-> *game-info* current-continue) (get-continue-by-name *game-info* \"training-start\"))(auto-save-command 'auto-save 0 0 *default-pool*)")
+                elif command in {"timeofday", "time"} and len(args) >= 2 and enabled_check("timeofday") and range_check(args[1], 0, 24) and cd_check("timeofday"):
+                    sendForm(f"(set-time-of-day {float(args[1])})")
 
-            elif command in {"save"} and enabled_check("save") and user in COMMAND_MODS:            
-                sendForm("(auto-save-command 'auto-save 0 0 *default-pool*)")
+                elif command in {"turn-left"} and enabled_check("turn-left") and cd_check("turn-left"):
+                    sendForm("(quaternion-rotate-local-y! (-> *target* root dir-targ) (-> *target* root dir-targ) (/ DEGREES_PER_ROT 8.0))")
 
-            elif command in {"resetcooldowns", "resetcds"} and user in COMMAND_MODS:           
-                for x in range(len(command_names)):
-                    last_used[x]=0.0
-                sendMessage(irc, "/me ~ All cooldowns reset.")
+                elif command in {"turn-right"} and enabled_check("turn-right") and cd_check("turn-right"):
+                    sendForm("(quaternion-rotate-local-y! (-> *target* root dir-targ) (-> *target* root dir-targ) (/ DEGREES_PER_ROT -8.0))")
 
-            elif command in {"active"} and user in COMMAND_MODS:           
-                sendMessage(irc, f"/me ~ {", ".join(active_list)}")
+                elif command in {"turn-180"} and enabled_check("turn-180") and cd_check("turn-180"):
+                    sendForm("(quaternion-rotate-local-y! (-> *target* root dir-targ) (-> *target* root dir-targ) (/ DEGREES_PER_ROT 2.0))")
 
-            elif command in {"cd", "cooldown"} and len(args) >= 3 and user in COMMAND_MODS:          
-                cooldowns[command_names.index(str(args[1]))]=float(args[2])
-                sendMessage(irc, f"/me ~ '{args[1]}' cooldown set to {args[2]}s.")
+                elif command in {"cam-right"} and enabled_check("cam-right") and cd_check("cam-right"):
+                    sendForm("(set! (-> *cpad-list* cpads 0 rightx) (the-as uint 0))")
 
-            elif command in {"dur", "duration"} and len(args) >= 3 and user in COMMAND_MODS:         
-                durations[command_names.index(str(args[1]))]=float(args[2])
-                sendMessage(irc, f"/me ~ '{args[1]}' duration set to {args[2]}s.")
+                elif command in {"cam-left"} and enabled_check("cam-left") and cd_check("cam-left"):
+                    sendForm("(set! (-> *cpad-list* cpads 0 rightx) (the-as uint 255))")
 
-            elif command in {"enable"} and len(args) >= 2 and user in COMMAND_MODS:          
-                enabled[command_names.index(str(args[1]))] = "t"
-                sendMessage(irc, f"/me ~ '{args[1]}' enabled.")
+                elif command in {"cam-in"} and enabled_check("collected") and cd_check("cam-in"):
+                    sendForm("(set! (-> *cpad-list* cpads 0 righty) (the-as uint 0))")
 
-            elif command in {"disable"} and len(args) >= 2 and user in COMMAND_MODS:          
-                enabled[command_names.index(str(args[1]))] = "f"
-                sendMessage(irc, f"/me ~ '{args[1]}' disabled.")
+                elif command in {"cam-out"} and enabled_check("cam-out") and cd_check("cam-out"):
+                    sendForm("(set! (-> *cpad-list* cpads 0 righty) (the-as uint 255))")
 
-            elif command in {"widejak"} and enabled_check("widejak") and cd_check("scale"):
-                deactivate("bigjak")
-                deactivate("smalljak")
-                deactivate("scale")
-                deactivate("flatjak")
-                active_check("widejak", 
-                "(set! (-> (-> (the-as target *target* )root)scale x) 4.0)(set! (-> (-> (the-as target *target* )root)scale y) 1.0)(set! (-> (-> (the-as target *target* )root)scale z) 1.0)")
-
-            elif command in {"flatjak"} and enabled_check("flatjak") and cd_check("scale"):
-                deactivate("bigjak")
-                deactivate("smalljak")
-                deactivate("widejak")
-                deactivate("scale")
-                active_check("flatjak", 
-                "(set! (-> (-> (the-as target *target* )root)scale x) 1.3)(set! (-> (-> (the-as target *target* )root)scale y) 0.2)(set! (-> (-> (the-as target *target* )root)scale z) 1.3)")
-
-            elif command in {"smalljak"} and enabled_check("smalljak") and cd_check("scale"):
-                deactivate("bigjak")
-                deactivate("scale")
-                deactivate("widejak")
-                deactivate("flatjak")
-                active_check("smalljak", 
-                "(set! (-> (-> (the-as target *target* )root)scale x) 0.4)(set! (-> (-> (the-as target *target* )root)scale y) 0.4)(set! (-> (-> (the-as target *target* )root)scale z) 0.4)(set! (-> *TARGET-bank* wheel-flip-dist) (meters 43.25))")
-
-            elif command in {"bigjak"} and enabled_check("bigjak") and cd_check("scale"):
-                deactivate("scale")
-                deactivate("smalljak")
-                deactivate("widejak")
-                deactivate("flatjak")
-                active_check("bigjak", 
-                "(set! (-> (-> (the-as target *target* )root)scale x) 2.7)(set! (-> (-> (the-as target *target* )root)scale y) 2.7)(set! (-> (-> (the-as target *target* )root)scale z) 2.7)")
-
-            elif command in {"color", "colour"} and len(args) >= 4 and enabled_check("color") and cd_check("color"):
-                deactivate("color")
-                activate("color")
-                sendForm(f"(set! (-> *target* draw color-mult x) (+ 0.0 {args[1]}))(set! (-> *target* draw color-mult y) (+ 0.0 {args[2]}))(set! (-> *target* draw color-mult z) (+ 0.0 {args[3]}))")
-
-            elif command in {"scale"} and len(args) >= 4 and enabled_check("scale") and range_check(str(args[1]), SCALE_MIN, SCALE_MAX) and range_check(str(args[2]), SCALE_MIN, SCALE_MAX) and range_check(str(args[3]), SCALE_MIN, SCALE_MAX) and cd_check("scale"):
-                deactivate("bigjak")
-                deactivate("smalljak")
-                deactivate("widejak")
-                deactivate("flatjak")
-                deactivate("scale")
-                activate("scale")
-                sendForm(f"(set! (-> (-> (the-as target *target* )root)scale x) (+ 0.0 {args[1]}))(set! (-> (-> (the-as target *target* )root)scale y) (+ 0.0 {args[2]}))(set! (-> (-> (the-as target *target* )root)scale z) (+ 0.0 {args[3]}))")
-
-            elif command in {"slippery"} and enabled_check("slippery") and cd_check("slippery"):
-                active_check("slippery", 
-                "(set! (-> *stone-surface* slope-slip-angle) 16384.0)(set! (-> *stone-surface* slip-factor) 0.7)(set! (-> *stone-surface* transv-max) 1.5)(set! (-> *stone-surface* turnv) 0.5)(set! (-> *stone-surface* nonlin-fric-dist) 4091904.0)(set! (-> *stone-surface* fric) 23756.8)(set! (-> *grass-surface* slope-slip-angle) 16384.0)(set! (-> *grass-surface* slip-factor) 0.7)(set! (-> *grass-surface* transv-max) 1.5)(set! (-> *grass-surface* turnv) 0.5)(set! (-> *grass-surface* nonlin-fric-dist) 4091904.0)(set! (-> *grass-surface* fric) 23756.8)(set! (-> *ice-surface* slip-factor) 0.3)(set! (-> *ice-surface* nonlin-fric-dist) 8183808.0)(set! (-> *ice-surface* fric) 11878.4)")
-
-            elif command in {"gravity", "grav"} and len(args) >= 2 and enabled_check("gravity") and args[1] in {"high", "low"} and cd_check("gravity"):
-               match args[1]:
-                   case "high":
-                       line = "(set! (-> *standard-dynamics* gravity-length) (* GRAVITY_AMOUNT 5))"
-                   case "low":
-                       line = "(set! (-> *standard-dynamics* gravity-length) (/ GRAVITY_AMOUNT 5))"    
-               active_check("gravity", 
-               line)
-               
-            elif command in {"pinball"} and enabled_check("pinball") and cd_check("pinball"):
-                active_check("pinball", 
-                "(set! (-> *stone-surface* fric) -153600.0)",
-                "(set! (-> *stone-surface* fric) 153600.0)")
- 
-            #elif command in {"heatmax"} and len(args) >= 2:
-            #    sendForm("(set! (-> *RACER-bank* heat-max) " + str(args[1]) + ")")
-            #                   
-            #elif command in {"loadlevel"} and len(args) >= 2:
-            #    sendForm("(set! (-> *load-state* want 1 name) '" + str(args[1]) + ")(set! (-> *load-state* want 1 display?) 'display)")
-            #                   
-            #elif command in {"setecotime", "ecotime"} and len(args) >= 2:
-            #    sendForm("(set! (-> *FACT-bank* eco-full-timeout) (seconds " + str(args[1]) + "))")
-            #    
-            elif command in {"bighead"} and enabled_check("bighead") and cd_check("bighead"):
-                deactivate("smallhead")
-                deactivate("hugehead")
-                active_check("bighead",
-                "(begin (logior! (-> *pc-settings* cheats) (pc-cheats big-head)) (logclear! (-> *pc-settings* cheats-known) (pc-cheats big-head)))")
-
-            elif command in {"smallhead"} and enabled_check("smallhead") and cd_check("smallhead"):
-                deactivate("bighead")
-                deactivate("hugehead")
-                active_check("smallhead",
-                "(begin (logior! (-> *pc-settings* cheats) (pc-cheats small-head)) (logclear! (-> *pc-settings* cheats-known) (pc-cheats small-head)))",
-                "(logclear! (-> *pc-settings* cheats) (pc-cheats small-head))")
-
-            elif command in {"bigfist"} and enabled_check("bigfist") and cd_check("bigfist"):
-                active_check("bigfist",
-                "(begin (logior! (-> *pc-settings* cheats) (pc-cheats big-fist)) (logclear! (-> *pc-settings* cheats-known) (pc-cheats big-fist)))")
-
-            elif command in {"bigheadnpc"} and enabled_check("bigheadnpc") and cd_check("bigheadnpc"):
-                active_check("bigheadnpc",
-                "(begin (logior! (-> *pc-settings* cheats) (pc-cheats big-head-npc)) (logclear! (-> *pc-settings* cheats-known) (pc-cheats big-head-npc)))")
-
-            elif command in {"hugehead"} and enabled_check("hugehead") and cd_check("hugehead"):
-                deactivate("bighead")
-                deactivate("smallhead")
-                active_check("hugehead",
-                "(begin (logior! (-> *pc-settings* cheats) (pc-cheats huge-head)) (logclear! (-> *pc-settings* cheats-known) (pc-cheats huge-head)))")
-
-            elif command in {"mirror"} and enabled_check("mirror") and cd_check("mirror"):
-                active_check("mirror",
-                "(begin (logior! (-> *pc-settings* cheats) (pc-cheats mirror)) (logclear! (-> *pc-settings* cheats-known) (pc-cheats mirror)))")
-
-            elif command in {"notex", "notextures"} and enabled_check("notex") and cd_check("notex"):
-                active_check("notex",
-                "(begin (logior! (-> *pc-settings* cheats) (pc-cheats no-tex)) (logclear! (-> *pc-settings* cheats-known) (pc-cheats no-tex)))")
-
-            elif command in {"spiderman"} and enabled_check("spiderman") and cd_check("spiderman"):
-                active_check("spiderman",
-                "(set! (-> *pat-mode-info* 1 wall-angle) 0.0) (set! (-> *pat-mode-info* 2 wall-angle) 0.0)")
-
-            elif command in {"press"} and len(args) >= 2 and str(args[1]).lower() in input_list and enabled_check("press") and cd_check("press"):
-                sendForm(f"(logior! (cpad-pressed 0) (pad-buttons {args[1]}))")
-
-            elif command in {"lang", "language"} and len(args) >= 2 and str(args[1]).lower() in lang_list and enabled_check("lang") and cd_check("lang"):
-                sendForm(f"(set! (-> *setting-control* default language) (language-enum {str(args[1]).lower()}))")
-
-            elif command in {"timeofday", "time"} and len(args) >= 2 and enabled_check("timeofday") and range_check(args[1], 0, 24) and cd_check("timeofday"):
-                sendForm(f"(set-time-of-day {float(args[1])})")
-
-            elif command in {"turn-left"} and enabled_check("turn-left") and cd_check("turn-left"):
-                sendForm("(quaternion-rotate-local-y! (-> *target* root dir-targ) (-> *target* root dir-targ) (/ DEGREES_PER_ROT 8.0))")
-
-            elif command in {"turn-right"} and enabled_check("turn-right") and cd_check("turn-right"):
-                sendForm("(quaternion-rotate-local-y! (-> *target* root dir-targ) (-> *target* root dir-targ) (/ DEGREES_PER_ROT -8.0))")
-
-            elif command in {"turn-180"} and enabled_check("turn-180") and cd_check("turn-180"):
-                sendForm("(quaternion-rotate-local-y! (-> *target* root dir-targ) (-> *target* root dir-targ) (/ DEGREES_PER_ROT 2.0))")
-
-            elif command in {"cam-right"} and enabled_check("cam-right") and cd_check("cam-right"):
-                sendForm("(set! (-> *cpad-list* cpads 0 rightx) (the-as uint 0))")
-
-            elif command in {"cam-left"} and enabled_check("cam-left") and cd_check("cam-left"):
-                sendForm("(set! (-> *cpad-list* cpads 0 rightx) (the-as uint 255))")
-
-            elif command in {"cam-in"} and enabled_check("collected") and cd_check("cam-in"):
-                sendForm("(set! (-> *cpad-list* cpads 0 righty) (the-as uint 0))")
-
-            elif command in {"cam-out"} and enabled_check("cam-out") and cd_check("cam-out"):
-                sendForm("(set! (-> *cpad-list* cpads 0 righty) (the-as uint 255))")
-
-            elif command in {"finalboss"} and COMMAND_MODS.count(user) > 0 and enabled_check("finalboss") :
-                global finalboss_mode
-                finalboss_toggle_commands = [
-                "die", "drown", "melt", "endlessfall", "resetactors", "deload", 
-                "ghostjak", "shift", "tp", "topoint", "randompoint", "noactors"]
-                finalboss_cooldown_commands = [
-                "scale", "hp", "iframes", "ouch", "movetojak", "rocketman",
-                "noeco", "eco", "shortfall", "nuka", "pinball", "slippery", "nojumps",
-                "gravity"]
-                if not finalboss_mode:
-                    toggle_finalboss_commands(finalboss_toggle_commands, "f")
-                    adjust_finalboss_cooldowns(finalboss_cooldown_commands, FINALBOSS_MUL)
-                    finalboss_mode = True
-                    sendMessage(irc, "/me ~ Final Boss Mode activated! Cooldowns are longer and some commands are disabled.")
-                else:
-                    toggle_finalboss_commands(finalboss_toggle_commands, lambda cmd: os.getenv(cmd))
-                    adjust_finalboss_cooldowns(finalboss_cooldown_commands, FINALBOSS_MUL, divide=True)
-                    finalboss_mode = False
-                    sendMessage(irc, "/me ~ Final Boss Mode deactivated.")
-                
-            elif command in {"repl"} and len(args) >= 2 and enabled_check("repl") and cd_check("repl"):
-                if COMMAND_MODS.count(user) > 0:
-                    args = message.split(" ", 1)
-                    sendForm(str(args[1]))
-                else:
-                    sendMessage(irc, f"/me @{user} Sorry, 'repl' is currently only accessable to the devs.")
+                elif command in {"finalboss"} and COMMAND_MODS.count(user) > 0 and enabled_check("finalboss") :
+                    global finalboss_mode
+                    finalboss_toggle_commands = [
+                    "die", "drown", "melt", "endlessfall", "resetactors", "deload", 
+                    "ghostjak", "shift", "tp", "topoint", "randompoint", "noactors"]
+                    finalboss_cooldown_commands = [
+                    "scale", "hp", "iframes", "ouch", "movetojak", "rocketman",
+                    "noeco", "eco", "shortfall", "nuka", "pinball", "slippery", "nojumps",
+                    "gravity"]
+                    if not finalboss_mode:
+                        toggle_finalboss_commands(finalboss_toggle_commands, "f")
+                        adjust_finalboss_cooldowns(finalboss_cooldown_commands, FINALBOSS_MUL)
+                        finalboss_mode = True
+                        sendMessage(irc, "/me ~ Final Boss Mode activated! Cooldowns are longer and some commands are disabled.")
+                    else:
+                        toggle_finalboss_commands(finalboss_toggle_commands, lambda cmd: os.getenv(cmd))
+                        adjust_finalboss_cooldowns(finalboss_cooldown_commands, FINALBOSS_MUL, divide=True)
+                        finalboss_mode = False
+                        sendMessage(irc, "/me ~ Final Boss Mode deactivated.")
+                    
+                elif command in {"repl"} and len(args) >= 2 and enabled_check("repl") and cd_check("repl"):
+                    if COMMAND_MODS.count(user) > 0:
+                        args = message.split(" ", 1)
+                        sendForm(str(args[1]))
+                    else:
+                        sendMessage(irc, f"/me @{user} Sorry, 'repl' is currently only accessable to the devs.")
 
         message = ""
 
