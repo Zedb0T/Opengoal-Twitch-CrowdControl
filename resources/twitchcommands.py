@@ -218,6 +218,7 @@ def active_check(cmd, line1):
 command_deactivation = {
     "rjto": "(set! (-> *TARGET-bank* wheel-flip-dist) (meters 17.3))(set! (-> *TARGET-bank* wheel-flip-height) (meters 3.52))",
     "superjump": "(set! (-> *TARGET-bank* jump-height-max)(meters 3.5))(set! (-> *TARGET-bank* jump-height-min)(meters 1.01))(set! (-> *TARGET-bank* double-jump-height-max)(meters 2.5))(set! (-> *TARGET-bank* double-jump-height-min)(meters 1))",
+    "leapfrog": "(set! (-> *TARGET-bank* duck-jump-height-max)(meters 7))(set! (-> *TARGET-bank* duck-jump-height-min)(meters 5))",
     "superboosted": "(set! (-> *edge-surface* fric) 30720.0)",
     "noboosteds": "(set! (-> *edge-surface* fric) 30720.0)",
     "nojumps": "(logclear! (-> *target* state-flags) (state-flags prevent-jump))",
@@ -233,7 +234,7 @@ command_deactivation = {
     "sucksuck": "(set! (-> *FACT-bank* suck-suck-dist) (meters 12))(set! (-> *FACT-bank* suck-bounce-dist) (meters 12))",
     "noeco": "(set! (-> *FACT-bank* eco-full-timeout) (seconds 20.0))",
     "rapidfire": "(set! (-> *TARGET-bank* yellow-projectile-speed) (meters 60))(set! (-> *TARGET-bank* yellow-attack-timeout) (seconds 0.2))",
-    "invertcam": "(set! (-> *pc-settings* third-camera-h-inverted?) #t)(set! (-> *pc-settings* third-camera-v-inverted?) #t)(set! (-> *pc-settings* first-camera-v-inverted?) #t)(set! (-> *pc-settings* first-camera-h-inverted?) #t)",
+    "invertcam": f"(set! (-> *pc-settings* third-camera-h-inverted?) #{THIRD_CAMERA_H_INVERTED})(set! (-> *pc-settings* third-camera-v-inverted?) #{THIRD_CAMERA_V_INVERTED})(set! (-> *pc-settings* first-camera-v-inverted?) #{FIRST_CAMERA_V_INVERTED})(set! (-> *pc-settings* first-camera-h-inverted?) #{FIRST_CAMERA_H_INVERTED})",
     "stickycam": "(send-event *target* 'no-look-around (seconds 0))(send-event *camera* 'change-state cam-string 0)",
     "cam": "(send-event *camera* 'change-state cam-string 0)",
     #"tiktok": "(let ((win-aspect (/ (the float (-> *pc-settings* framebuffer-width)) (the float (-> *pc-settings* framebuffer-height))))) (set-aspect-ratio! *pc-settings* win-aspect) (set! (-> *pc-settings* framebuffer-scissor-width) (-> *pc-settings* framebuffer-width)) (set! (-> *pc-settings* framebuffer-scissor-height) (-> *pc-settings* framebuffer-height)))",
@@ -367,7 +368,7 @@ sendForm("(set! *debug-segment* #f)")  #COMMENT OUT FOR TEAMRUNS
 #End Int block
 
 #add all commands into an array so we can reference via index
-command_names = ["protect","rjto","superjump","superboosted","noboosteds","nojumps","noduck","noledge","fastjak","slowjak","pacifist","nuka","invuln","trip",
+command_names = ["protect","rjto","superjump","leapfrog","superboosted","noboosteds","nojumps","noduck","noledge","fastjak","slowjak","pacifist","nuka","invuln","trip",
                  "shortfall","ghostjak","getoff","flutspeed","freecam","enemyspeed","give","minuscell","pluscell","minusorbs","plusorbs","collected",
                  "eco","rapidfire","sucksuck","noeco","die","topoint","randompoint","tp","shift","movetojak","ouch",
                  "burn","hp","melt","drown","endlessfall","iframes","invertcam","cam","stickycam","deload","earthquake",
@@ -478,7 +479,7 @@ sfx_names = {
 }
 
 lang_list = ["english","french","german","spanish","italian","japanese","uk-english"]
-input_list = ["square","circle","x","triangle","up","down","left","right"]
+pad_list = ["square","circle","x","triangle","up","down","left","right","l1","r1"]
 cam_list = ["endlessfall","eye","standoff","bike","stick"]
 fish_list = ["timeout","vel","swing-min","swing-max","period","fish-vel","bad-percent","powerup-percent"]
 
@@ -584,6 +585,10 @@ def gamecontrol():
                 elif command in {"superjump"} and enabled_check("superjump") and cd_check("superjump"):
                     active_check("superjump", 
                     "(set! (-> *TARGET-bank* jump-height-max)(meters 15.0))(set! (-> *TARGET-bank* jump-height-min)(meters 5.0))(set! (-> *TARGET-bank* double-jump-height-max)(meters 15.0))(set! (-> *TARGET-bank* double-jump-height-min)(meters 5.0))")
+
+                elif command in {"leapfrog"} and enabled_check("leapfrog") and cd_check("leapfrog"):
+                    active_check("leapfrog", 
+                    "(set! (-> *TARGET-bank* duck-jump-height-max)(meters 70))(set! (-> *TARGET-bank* duck-jump-height-min)(meters 50))")
 
                 elif command in {"superboosted", "superboosteds"} and enabled_check("superboosted") and cd_check("superboosted"):
                     deactivate("noboosteds")
@@ -878,7 +883,7 @@ def gamecontrol():
                     active_check("noactors",
                     "(set! *spawn-actors* #f) (reset-actors 'debug)")
 
-                elif command in {"actors-on"} and enabled_check("actors-on")and user in COMMAND_MODS:
+                elif command in {"actors-on"} and enabled_check("actors-on") and user in COMMAND_MODS:
                     sendForm("(set! (-> *pc-settings* force-actors?) #t)")
 
                 elif command in {"actors-off"} and enabled_check("actors-off") and user in COMMAND_MODS:
@@ -1027,7 +1032,7 @@ def gamecontrol():
                     active_check("spiderman",
                     "(set! (-> *pat-mode-info* 1 wall-angle) 0.0) (set! (-> *pat-mode-info* 2 wall-angle) 0.0)")
 
-                elif command in {"press"} and len(args) >= 2 and str(args[1]).lower() in input_list and enabled_check("press") and cd_check("press"):
+                elif command in {"press"} and len(args) >= 2 and str(args[1]).lower() in pad_list and enabled_check("press") and cd_check("press"):
                     sendForm(f"(logior! (cpad-pressed 0) (pad-buttons {args[1]}))")
 
                 elif command in {"lang", "language"} and len(args) >= 2 and str(args[1]).lower() in lang_list and enabled_check("lang") and cd_check("lang"):
