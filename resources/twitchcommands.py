@@ -496,7 +496,6 @@ credit_list = []
 
 #pull cooldowns and costs set in env file and add to array
 for x in range(len(command_names)):
-    #print(f"looking for cd {command_names[x]}")
     print(f"looking for cd {command_names[x]}")
     cooldowns[x] = float(os.getenv(command_names[x]+"_cd"))
     enabled[x] = os.getenv(command_names[x])
