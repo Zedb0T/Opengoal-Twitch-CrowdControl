@@ -53,7 +53,7 @@ class SettingsApp:
         ], True)
 
         self.add_checkboxes_section("Misc Settings", [
-            "DISABLED_MSG", "TARGET_ID_MODE", "TOPOINT_PAST_CRATER", "COOLDOWN_MSG", "ACTIVATION_MSG", "DEACTIVATION_MSG", "COST_MODE"
+            "DISABLED_MSG", "TARGET_ID_MODE", "TOPOINT_PAST_CRATER", "COOLDOWN_MSG", "ACTIVATION_MSG", "DEACTIVATION_MSG", "COST_MODE", "LOAD_STARTED"
         ], True)
 
         self.add_checkboxes_section("Command Enable/Disable", [
