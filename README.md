@@ -103,30 +103,30 @@ Right now there is NO way to directly move Jak (e.g. as if using the left stick)
 ## World
 - `#deload`	Deloads the current level.
 - `#mirror`	Mirrors the world. (Cheat)
-- `#notex	`	Removes all textures. (Cheat)
+- `#notex`	Removes all textures. (Cheat)
 - `#lowpoly`	Sets the level of detail to low.
 - `#dark`	Sets the current level’s mood to very dark.
-- `#grav	mode`	Sets the gravity to low or high.
-- `#timeofday	time`	Sets the time of day, based on a 24-hour cycle.
+- `#grav mode`	Sets the gravity to low or high.
+- `#timeofday time`	Sets the time of day, based on a 24-hour cycle.
   - Examples `#timeofday 12` `#timeofday 4` `#timeofday 23`
 - `#noactors`		Removes all actors (enemies, crates, and other interactable aspects).
 - `#resetactors`	Resets all actors to their default states.
 
 ### Misc
 - `#protect`	Protects the player by disabling all commands for a certain amount of time.
-- `#cam	mode`	Changes the camera to a specified mode. Available modes are: endlessfall, eye, standoff, bike, and stick.
-- `#invertcam	pov	axis`	Inverts the current camera setting of a specified point of view and axis. pov = first (goggles and freecam) or third, and axis = h or v, refering to horizontal and vertical.
+- `#cam mode`	Changes the camera to a specified mode. Available modes are: endlessfall, eye, standoff, bike, and stick.
+- `#invertcam pov axis`	Inverts the current camera setting of a specified point of view and axis. pov = first (goggles and freecam) or third, and axis = h or v, refering to horizontal and vertical.
   - Examples `#invertcam third h` `#invertcam first v` `#invertcam first h`
 - `#stickycam`	Freezes the camera in place and disables zooming for a few seconds.
 - `#quickcam`	Puts the player into freecam and immediately back out (stores levels).
-- `#blind	seconds`	Blackens the screen for a specified amount of time.
-- `#sfx	name`	Plays a sound effect.
+- `#blind seconds`	Blackens the screen for a specified amount of time.
+- `#sfx name`	Plays a sound effect.
   - Examples `#sfx shark` `#sfx explode` `#sfx fall`
-- `#press	button`	Inputs a button press. Currently, available buttons are: square, circle, x, triangle, up, down, left, and right.
-- `#lang	language`	Changes the voice lines to a specified language. Available languages are: english, french, german, italian, spanish, japanese, and uk-english.
+- `#press button`	Inputs a button press. Currently, available buttons are: square, circle, x, triangle, up, down, left, and right.
+- `#lang language`	Changes the voice lines to a specified language. Available languages are: english, french, german, italian, spanish, japanese, and uk-english.
 - `#smallnet`	Makes the fishing net width very small.
 - `#widefish`	Makes the fishing river width unfairly large.
-- `#maxfish	amount`	Sets the amount of pounds of fish needed to win the minigame.
+- `#maxfish amount`	Sets the amount of pounds of fish needed to win the minigame.
   Examples `#maxfish 50` `#maxfish 150` `#maxfish 1`
 - `#hardfish`	Sets the fish difficulty to the hidden hard mode.
 - `#customfish	difficulty	phase	field	value`	Allows for a custom change to the fish minigame.
