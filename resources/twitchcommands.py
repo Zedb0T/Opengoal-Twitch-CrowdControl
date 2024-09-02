@@ -33,52 +33,52 @@ if(exists("env")):
 
 #env values
 load_dotenv()
-OAUTH = str(os.getenv("OAUTH"))
-CONNECT_MSG = str(os.getenv("CONNECT_MSG"))
-COOLDOWN_MSG = str(os.getenv("COOLDOWN_MSG"))
-DISABLED_MSG = str(os.getenv("DISABLED_MSG"))
-ACTIVATION_MSG = str(os.getenv("ACTIVATION_MSG"))
-DEACTIVATION_MSG = str(os.getenv("DEACTIVATION_MSG"))
+OAUTH = os.getenv("OAUTH")
+CONNECT_MSG = os.getenv("CONNECT_MSG")
+COOLDOWN_MSG = os.getenv("COOLDOWN_MSG")
+DISABLED_MSG = os.getenv("DISABLED_MSG")
+ACTIVATION_MSG = os.getenv("ACTIVATION_MSG")
+DEACTIVATION_MSG = os.getenv("DEACTIVATION_MSG")
 PROTECT_SACRIFICE = "f"
-SACRIFICE_DURATION = str(os.getenv("SACRIFICE_DURATION"))
-PREFIX = str(os.getenv("PREFIX"))
-TARGET_ID = str(os.getenv("TARGET_ID")).lower()
+SACRIFICE_DURATION = os.getenv("SACRIFICE_DURATION")
+PREFIX = os.getenv("PREFIX")
+TARGET_ID = os.getenv("TARGET_ID")
 
-FIRST_CAMERA_V_INVERTED = str(os.getenv("first-camera-vertical-inverted"))
-FIRST_CAMERA_H_INVERTED = str(os.getenv("first-camera-horizontal-inverted"))
-THIRD_CAMERA_V_INVERTED = str(os.getenv("third-camera-vertical-inverted"))
-THIRD_CAMERA_H_INVERTED = str(os.getenv("third-camera-horizontal-inverted"))
+FIRST_CAMERA_V_INVERTED = os.getenv("first-camera-vertical-inverted")
+FIRST_CAMERA_H_INVERTED = os.getenv("first-camera-horizontal-inverted")
+THIRD_CAMERA_V_INVERTED = os.getenv("third-camera-vertical-inverted")
+THIRD_CAMERA_H_INVERTED = os.getenv("third-camera-horizontal-inverted")
 
-TOPOINT_PAST_CRATER = str(os.getenv("TOPOINT_PAST_CRATER"))
-COST_MODE = str(os.getenv("COST_MODE"))
+TOPOINT_PAST_CRATER = os.getenv("TOPOINT_PAST_CRATER")
+COST_MODE = os.getenv("COST_MODE")
 
-SHIFTX_MIN = str(os.getenv("SHIFTX_MIN"))
-SHIFTX_MAX = str(os.getenv("SHIFTX_MAX"))
-SHIFTY_MIN = str(os.getenv("SHIFTY_MIN"))
-SHIFTY_MAX = str(os.getenv("SHIFTY_MAX"))
-SHIFTZ_MIN = str(os.getenv("SHIFTZ_MIN"))
-SHIFTZ_MAX = str(os.getenv("SHIFTZ_MAX"))
-GIVE_MIN = str(os.getenv("GIVE_MIN"))
-GIVE_MAX = str(os.getenv("GIVE_MAX"))
-RJTO_MIN = str(os.getenv("RJTO_MIN"))
-RJTO_MAX = str(os.getenv("RJTO_MAX"))
-SCALE_MIN = str(os.getenv("SCALE_MIN"))
-SCALE_MAX = str(os.getenv("SCALE_MAX"))
-MINUSCELL_AMT = str(os.getenv("MINUSCELL_AMT"))
-PLUSCELL_AMT = str(os.getenv("PLUSCELL_AMT"))
-MINUSORBS_AMT = str(os.getenv("MINUSORBS_AMT"))
-PLUSORBS_AMT = str(os.getenv("PLUSORBS_AMT"))
-SUCK_MIN = str(os.getenv("SUCK_MIN"))
-SUCK_MAX = str(os.getenv("SUCK_MAX"))
-BLIND_MIN = str(os.getenv("BLIND_MIN"))
-BLIND_MAX = str(os.getenv("BLIND_MAX"))
-MAXFISH_MIN = str(os.getenv("MAXFISH_MIN"))
-MAXFISH_MAX = str(os.getenv("MAXFISH_MAX"))
+SHIFTX_MIN = os.getenv("SHIFTX_MIN")
+SHIFTX_MAX = os.getenv("SHIFTX_MAX")
+SHIFTY_MIN = os.getenv("SHIFTY_MIN")
+SHIFTY_MAX = os.getenv("SHIFTY_MAX")
+SHIFTZ_MIN = os.getenv("SHIFTZ_MIN")
+SHIFTZ_MAX = os.getenv("SHIFTZ_MAX")
+GIVE_MIN = os.getenv("GIVE_MIN")
+GIVE_MAX = os.getenv("GIVE_MAX")
+RJTO_MIN = os.getenv("RJTO_MIN")
+RJTO_MAX = os.getenv("RJTO_MAX")
+SCALE_MIN = os.getenv("SCALE_MIN")
+SCALE_MAX = os.getenv("SCALE_MAX")
+MINUSCELL_AMT = os.getenv("MINUSCELL_AMT")
+PLUSCELL_AMT = os.getenv("PLUSCELL_AMT")
+MINUSORBS_AMT = os.getenv("MINUSORBS_AMT")
+PLUSORBS_AMT = os.getenv("PLUSORBS_AMT")
+SUCK_MIN = os.getenv("SUCK_MIN")
+SUCK_MAX = os.getenv("SUCK_MAX")
+BLIND_MIN = os.getenv("BLIND_MIN")
+BLIND_MAX = os.getenv("BLIND_MAX")
+MAXFISH_MIN = os.getenv("MAXFISH_MIN")
+MAXFISH_MAX = os.getenv("MAXFISH_MAX")
 
-game = False
+game = os.getenv("LOAD_STARTED") != "f"
 FINALBOSS_MUL = 2
 finalboss_mode = False
-TARGET_ID_MODE = str(os.getenv("TARGET_ID_MODE"))
+TARGET_ID_MODE = os.getenv("TARGET_ID_MODE")
 INIT_BALANCE = 1000
 
 
@@ -172,7 +172,7 @@ main_thread.join()
 
 def target_check(line):
     if TARGET_ID_MODE != "f":
-        if line[len(line) - 1].lower() == TARGET_ID or line[len(line) - 1].lower() == "all":
+        if line[len(line) - 1].lower() == TARGET_ID.lower() or line[len(line) - 1].lower() == "all":
             return True
         else:
             return False
@@ -200,7 +200,7 @@ def enabled_check(cmd):
     if enabled[command_names.index(cmd)] != "f" and not active[command_names.index("protect")]:
         return cost_check(cmd, user) 
     elif DISABLED_MSG != "f":
-        sendMessage(irc, f"/me @{user} Command '{command_names[command_names.index(cmd)]}' is disabled.")
+        sendMessage(irc, f"/me @{user} Command '{command_names[command_names.index(cmd)]}' is disabled ({TARGET_ID}).")
         #message = ""
         return False
     else:
@@ -277,7 +277,7 @@ def active_sweep():
 
 def activate(cmd):
     if ACTIVATION_MSG != "f":
-        sendMessage(irc, f"/me > '{command_names[command_names.index(cmd)]}' activated!")
+        sendMessage(irc, f"/me {TARGET_ID} > '{command_names[command_names.index(cmd)]}' activated!")
     activated[command_names.index(cmd)] = time.time()
     active[command_names.index(cmd)] = True
     active_list.append(cmd)
@@ -286,7 +286,7 @@ def activate(cmd):
 def deactivate(cmd):
     if active[command_names.index(cmd)]:
          if DEACTIVATION_MSG != "f":
-            sendMessage(irc, f"/me > '{command_names[command_names.index(cmd)]}' deactivated!")
+            sendMessage(irc, f"/me {TARGET_ID} > '{command_names[command_names.index(cmd)]}' deactivated!")
          active[command_names.index(cmd)] = False
          del active_list_times[active_list.index(cmd)]
          active_list.remove(cmd)
@@ -497,12 +497,13 @@ credit_list = []
 #pull cooldowns and costs set in env file and add to array
 for x in range(len(command_names)):
     #print(f"looking for cd {command_names[x]}")
+    print(f"looking for cd {command_names[x]}")
     cooldowns[x] = float(os.getenv(command_names[x]+"_cd"))
-    enabled[x] = (os.getenv(command_names[x]))
+    enabled[x] = os.getenv(command_names[x])
     costs[x] = float(os.getenv(command_names[x]+"_cost"))
 #pull durations set in env file and add to array
 for x in range(len(command_names)):
-    #print(f"looking for dur {command_names[x]}")
+    print(f"looking for dur {command_names[x]}")
     durations[x] = float(os.getenv(command_names[x]+"_dur"))
     
 #twitch irc stuff
@@ -514,7 +515,7 @@ PORT = 6667
 #What you'd like to name your bot
 BOT = "jakopengoalbot"
 #The channel you want to monitor
-CHANNEL = str(os.getenv("TARGET_CHANNEL")).lower()
+CHANNEL = os.getenv("TARGET_CHANNEL").lower()
 
 #COMMAND_MODS, these users can use the REPL command to create custom commands!
 COMMAND_MODS = ["zed_b0t", "mikegamepro", "water112", "barg034", CHANNEL]
@@ -549,17 +550,17 @@ def gamecontrol():
 
             if command in {"start"} and user in COMMAND_MODS and str(args[0]).lower().startswith(PREFIX):          
                 if game:
-                    sendMessage(irc, f"/me ~ Game has already started! Use {PREFIX}stop to stop.")
+                    sendMessage(irc, f"/me {TARGET_ID} ~ Game has already started! Use {PREFIX}stop to stop.")
                 else:
                     game = True 
-                    sendMessage(irc, f"/me ~ Game has started! Use {PREFIX}stop to stop.")
+                    sendMessage(irc, f"/me {TARGET_ID} ~ Game has started! Use {PREFIX}stop to stop.")
 
             elif command in {"stop"} and user in COMMAND_MODS and str(args[0]).lower().startswith(PREFIX):          
                 if game:
                     game = False
-                    sendMessage(irc, f"/me ~ Game stopped! Use {PREFIX}start to start.")
+                    sendMessage(irc, f"/me {TARGET_ID} ~ Game stopped! Use {PREFIX}start to start.")
                 else:
-                    sendMessage(irc, f"/me ~ Game has not started! Use {PREFIX}start to start.")
+                    sendMessage(irc, f"/me {TARGET_ID} ~ Game has not started! Use {PREFIX}start to start.")
                 
             if game:
 
@@ -605,7 +606,7 @@ def gamecontrol():
                     "(logior! (-> *target* state-flags) (state-flags prevent-jump))")
 
                 elif command in {"noduck", "norj"} and enabled_check("noduck") and cd_check("noduck"):
-                    active_check("nojumps", 
+                    active_check("noduck",
                     "(logior! (-> *target* state-flags) (state-flags prevent-duck))")
 
                 elif command in {"noledge", "noledgegrab"} and enabled_check("noledge") and cd_check("noledge"):
@@ -670,8 +671,8 @@ def gamecontrol():
                     active_check("freecam", 
                     "(stop 'debug)")
 
-                elif command in {"enemyspeed"} and len(args) >= 3 and enabled_check("enemyspeed") and range_check(args[2], -200, 200) and cd_check("enemyspeed"):
-                    sendForm(f"(set! (-> *{args[1]}-nav-enemy-info* run-travel-speed) (meters {args[2]}))")
+                #elif command in {"enemyspeed"} and len(args) >= 3 and enabled_check("enemyspeed") and range_check(args[2], -200, 200) and cd_check("enemyspeed"):
+                #    sendForm(f"(set! (-> *{args[1]}-nav-enemy-info* run-travel-speed) (meters {args[2]}))")
 
                 elif command in {"give"} and len(args) >= 3 and enabled_check("give") and range_check(args[2], GIVE_MIN, GIVE_MAX) and cd_check("give"):
                     item = args[1].lower()
@@ -823,7 +824,7 @@ def gamecontrol():
                     active_check("dark", 
                     "(set! (-> (level-get-target-inside *level*) mood-func)update-mood-finalboss)")
 
-                elif command in {"blind"} and len(args) >= 2 and enabled_check("blind") and cd_check("dark") and range_check(args[1], BLIND_MIN, BLIND_MAX):
+                elif command in {"blind"} and len(args) >= 2 and enabled_check("blind") and range_check(args[1], BLIND_MIN, BLIND_MAX) and cd_check("dark"):
                     sendForm(f"(set-blackout-frames (seconds {args[1]}))")
 
                 elif command in {"nodax", "nodaxter"} and enabled_check("nodax") and cd_check("nodax"):
@@ -838,14 +839,14 @@ def gamecontrol():
                     active_check("widefish", 
                     "(when (process-by-ename \"fisher-1\")(set! (-> *FISHER-bank* width)(meters 10.0)))")
 
-                elif command in {"maxfish"} and len(args) >= 2 and enabled_check("maxfish") and cd_check("maxfish") and range_check(args[1], MAXFISH_MIN, MAXFISH_MAX):
+                elif command in {"maxfish"} and len(args) >= 2 and enabled_check("maxfish") and range_check(args[1], MAXFISH_MIN, MAXFISH_MAX) and cd_check("maxfish"):
                     sendForm(f"(when (process-by-ename \"fisher-1\")(set! (-> *FISHER-bank* max-caught) {args[1]}))")
 
                 elif command in {"hardfish"} and enabled_check("hardfish") and cd_check("hardfish"):
                     active_check("hardfish", 
                     "(when (process-by-ename \"fisher-1\")(set! (-> (the fisher (process-by-ename \"fisher-1\")) difficulty) 5)(set! (-> *FISHER-bank* max-caught) 400))")   
                     
-                elif command in {"customfish"} and len(args) >= 5 and enabled_check("customfish") and cd_check("customfish") and args[3] in fish_list and range_check(args[1], 0, 5) and range_check(args[2], 1, 7) and range_check(args[4], 0, 100):
+                elif command in {"customfish"} and len(args) >= 5 and enabled_check("customfish") and args[3] in fish_list and range_check(args[1], 0, 5) and range_check(args[2], 1, 7) and range_check(args[4], 0, 100) and cd_check("customfish"):
                     phase = (2 * int(args[2])) - 1
                     difficulty = int(args[1])
                     if args[3] in {"swing-min", "swing-max", "period", "timeout"}:
@@ -901,26 +902,26 @@ def gamecontrol():
                 elif command in {"resetcooldowns", "resetcds"} and user in COMMAND_MODS:           
                     for x in range(len(command_names)):
                         last_used[x]=0.0
-                    sendMessage(irc, "/me ~ All cooldowns reset.")
+                    sendMessage(irc, f"/me {TARGET_ID} ~ All cooldowns reset.")
 
                 elif command in {"active"} and user in COMMAND_MODS:           
-                    sendMessage(irc, f"/me ~ {", ".join(active_list)}")
+                    sendMessage(irc, f"/me {TARGET_ID} ~ {", ".join(active_list)}")
 
-                elif command in {"cd", "cooldown"} and len(args) >= 3 and user in COMMAND_MODS:          
+                elif command in {"cd", "cooldown"} and len(args) >= 3 and str(args[1]) in command_names and user in COMMAND_MODS:          
                     cooldowns[command_names.index(str(args[1]))]=float(args[2])
-                    sendMessage(irc, f"/me ~ '{args[1]}' cooldown set to {args[2]}s.")
+                    sendMessage(irc, f"/me {TARGET_ID} ~ '{args[1]}' cooldown set to {args[2]}s.")
 
-                elif command in {"dur", "duration"} and len(args) >= 3 and user in COMMAND_MODS:         
+                elif command in {"dur", "duration"} and len(args) >= 3 and str(args[1]) in command_names and user in COMMAND_MODS:         
                     durations[command_names.index(str(args[1]))]=float(args[2])
-                    sendMessage(irc, f"/me ~ '{args[1]}' duration set to {args[2]}s.")
+                    sendMessage(irc, f"/me {TARGET_ID} ~ '{args[1]}' duration set to {args[2]}s.")
 
-                elif command in {"enable"} and len(args) >= 2 and user in COMMAND_MODS:          
+                elif command in {"enable"} and len(args) >= 2 and str(args[1]) in command_names and user in COMMAND_MODS:          
                     enabled[command_names.index(str(args[1]))] = "t"
-                    sendMessage(irc, f"/me ~ '{args[1]}' enabled.")
+                    sendMessage(irc, f"/me {TARGET_ID} ~ '{args[1]}' enabled.")
 
-                elif command in {"disable"} and len(args) >= 2 and user in COMMAND_MODS:          
+                elif command in {"disable"} and len(args) >= 2 and str(args[1]) in command_names and user in COMMAND_MODS:          
                     enabled[command_names.index(str(args[1]))] = "f"
-                    sendMessage(irc, f"/me ~ '{args[1]}' disabled.")
+                    sendMessage(irc, f"/me {TARGET_ID} ~ '{args[1]}' disabled.")
 
                 elif command in {"widejak"} and enabled_check("widejak") and cd_check("scale"):
                     deactivate("bigjak")
@@ -1062,7 +1063,7 @@ def gamecontrol():
                 elif command in {"cam-out"} and enabled_check("cam-out") and cd_check("cam-out"):
                     sendForm("(set! (-> *cpad-list* cpads 0 righty) (the-as uint 255))")
 
-                elif command in {"finalboss"} and COMMAND_MODS.count(user) > 0 and enabled_check("finalboss") :
+                elif command in {"finalboss"} and COMMAND_MODS.count(user) > 0:
                     global finalboss_mode
                     finalboss_toggle_commands = [
                     "die", "drown", "melt", "endlessfall", "resetactors", "deload", 
@@ -1075,12 +1076,12 @@ def gamecontrol():
                         toggle_finalboss_commands(finalboss_toggle_commands, "f")
                         adjust_finalboss_cooldowns(finalboss_cooldown_commands, FINALBOSS_MUL)
                         finalboss_mode = True
-                        sendMessage(irc, "/me ~ Final Boss Mode activated! Cooldowns are longer and some commands are disabled.")
+                        sendMessage(irc, f"/me {TARGET_ID} ~ Final Boss Mode activated! Cooldowns are longer and some commands are disabled.")
                     else:
                         toggle_finalboss_commands(finalboss_toggle_commands, lambda cmd: os.getenv(cmd))
                         adjust_finalboss_cooldowns(finalboss_cooldown_commands, FINALBOSS_MUL, divide=True)
                         finalboss_mode = False
-                        sendMessage(irc, "/me ~ Final Boss Mode deactivated.")
+                        sendMessage(irc, f"/me {TARGET_ID} ~ Final Boss Mode deactivated.")
                     
                 elif command in {"repl"} and len(args) >= 2 and enabled_check("repl") and cd_check("repl"):
                     if COMMAND_MODS.count(user) > 0:
