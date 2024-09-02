@@ -53,7 +53,7 @@ Right now there is NO way to directly move Jak (e.g. as if using the left stick)
 - `#bigfist`	Makes Jak’s fists big. (Cheat)
 - `#hugehead`	Makes Jak’s head huge. (Cheat)
 - `#bigheadnpc`	Makes all NPCs’ heads big. (Cheat)
-- `#scale	x	y	z`	Changes the scale of Jak based on axes. Goes away after a respawn.
+- `#scale x y z`	Changes the scale of Jak based on axes. Goes away after a respawn.
 - `#color	r	g	b`	Changes Jak’s color based on RGB values. Goes away after a respawn.
 
 ### Collectables & Powerups
