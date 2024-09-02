@@ -69,7 +69,6 @@ Right now there is NO way to directly move Jak (e.g. as if using the left stick)
   - `type` should be the eco color: `red` `blue` `yellow` or `green`
   - Examples `#eco blue` `#eco yellow` `#eco green`
 - `#sucksuck amount` Sets the distance of the blue eco pull power. 
-  - `amount` should be between [-200, 200], default is 12.
   - Examples `#sucksuck 0` `#sucksuck 100` `#sucksuck 12`
 - `#noeco` Removes Jak’s ability to use eco powerups.
 - `#invuln`	Makes Jak invulnerable to most things, until a respawn.
