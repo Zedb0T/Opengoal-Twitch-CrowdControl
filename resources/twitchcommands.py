@@ -22,7 +22,6 @@ if getattr(sys, 'frozen', False):
 elif __file__:
     application_path = os.path.dirname(__file__)
 
-
 if (exists(".env.txt")):
     if(exists(".env")):
         shutil.remove(".env")
@@ -224,7 +223,7 @@ command_deactivation = {
     "nojumps": "(logclear! (-> *target* state-flags) (state-flags prevent-jump))",
     "noduck": "(logclear! (-> *target* state-flags) (state-flags prevent-duck))",
     "noledge": "(set! (-> *collide-edge-work* max-dir-cosa-delta) 0.6)",
-    "fastjak": "(set! (-> *walk-mods* target-speed) 40960.0)(set! (-> *double-jump-mods* target-speed) 32768.0)(set! (-> *jump-mods* target-speed) 40960.0)(set! (-> *jump-attack-mods* target-speed) 24576.0)(set! (-> *attack-mods* target-speed) 40960.0)(set! (-> *forward-high-jump-mods* target-speed) 45056.0)(set! (-> *jump-attack-mods* target-speed) 24576.0)(set! (-> *stone-surface* target-speed) 1.0)",
+    "fastjak": "(set! (-> *walk-mods* target-speed) 40960.0)(set! (-> *double-jump-mods* target-speed) 32768.0)(set! (-> *jump-mods* target-speed) 40960.0)(set! (-> *jump-attack-mods* target-speed) 24576.0)(set! (-> *attack-mods* target-speed) 40960.0)(set! (-> *forward-high-jump-mods* target-speed) 45056.0)(set! (-> *jump-attack-mods* target-speed) 24576.0)(set! (-> *flip-jump-mods* target-speed) 51200.0)(set! (-> *high-jump-mods* target-speed) 26624.0)(set! (-> *smack-jump-mods* target-speed) 40960.0)(set! (-> *duck-attack-mods* target-speed) 16384.0)(set! (-> *flop-mods* target-speed) 40960.0)(set! (-> *stone-surface* target-speed) 1.25)",
     "slowjak": "(set! (-> *walk-mods* target-speed) 40960.0)(set! (-> *double-jump-mods* target-speed) 32768.0)(set! (-> *jump-mods* target-speed) 40960.0)(set! (-> *jump-attack-mods* target-speed) 24576.0)(set! (-> *attack-mods* target-speed) 40960.0)(set! (-> *forward-high-jump-mods* target-speed) 45056.0)(set! (-> *jump-attack-mods* target-speed) 24576.0)(set! (-> *TARGET-bank* wheel-flip-dist) (meters 17.3))(set! (-> *TARGET-bank* wheel-flip-height) (meters 3.52))",
     "pacifist": "(set! (-> *TARGET-bank* punch-radius) (meters 1.3))(set! (-> *TARGET-bank* spin-radius) (meters 2.2))(set! (-> *TARGET-bank* flop-radius) (meters 1.4))(set! (-> *TARGET-bank* uppercut-radius) (meters 1))",
     #"bigspin": "(set! (-> *TARGET-bank* punch-radius) (meters 1.3))(set! (-> *TARGET-bank* spin-radius) (meters 2.2))(set! (-> *TARGET-bank* flop-radius) (meters 1.4))(set! (-> *TARGET-bank* uppercut-radius) (meters 1))(set! (-> *TARGET-bank* spin-offset y) 6553.6)",
@@ -271,13 +270,15 @@ command_deactivation = {
         
 def active_sweep():
     for i, cmd in enumerate(active_list):
-        if (time.time() - activated[command_names.index(cmd)]) >= durations[command_names.index(cmd)]:
-            deactivate(cmd)
-            sendForm(command_deactivation[cmd])
+        try:
+            if (time.time() - activated[command_names.index(cmd)]) >= durations[command_names.index(cmd)]:
+                deactivate(cmd)
+        except ValueError or TypeError:
+            None
 
 def activate(cmd):
     if ACTIVATION_MSG != "f":
-        sendMessage(irc, f"/me {TARGET_ID} > '{command_names[command_names.index(cmd)]}' activated!")
+        sendMessage(irc, f"/me {TARGET_ID} -> '{command_names[command_names.index(cmd)]}' activated!")
     activated[command_names.index(cmd)] = time.time()
     active[command_names.index(cmd)] = True
     active_list.append(cmd)
@@ -286,10 +287,11 @@ def activate(cmd):
 def deactivate(cmd):
     if active[command_names.index(cmd)]:
          if DEACTIVATION_MSG != "f":
-            sendMessage(irc, f"/me {TARGET_ID} > '{command_names[command_names.index(cmd)]}' deactivated!")
+            sendMessage(irc, f"/me {TARGET_ID} -> '{command_names[command_names.index(cmd)]}' deactivated!")
          active[command_names.index(cmd)] = False
          del active_list_times[active_list.index(cmd)]
          active_list.remove(cmd)
+         sendForm(command_deactivation[cmd])
 
 def range_check(val, min, max):
     global message
@@ -496,14 +498,29 @@ credit_list = []
 
 #pull cooldowns and costs set in env file and add to array
 for x in range(len(command_names)):
-    print(f"looking for cd {command_names[x]}")
-    cooldowns[x] = float(os.getenv(command_names[x]+"_cd"))
-    enabled[x] = os.getenv(command_names[x])
-    costs[x] = float(os.getenv(command_names[x]+"_cost"))
+    try:
+        cooldowns[x] = float(os.getenv(command_names[x]+"_cd"))
+        #print(f"{command_names[x]}_cd = {cooldowns[x]}")
+    except TypeError or ValueError:
+        print(f"COULD NOT FIND COOLDOWN FOR {command_names[x]}")
+    try:
+        enabled[x] = os.getenv(command_names[x])
+        #print(f"{command_names[x]} = {enabled[x]}")
+    except TypeError or ValueError:
+        print(f"COULD NOT FIND {command_names[x]}")
+    try:
+        costs[x] = float(os.getenv(command_names[x]+"_cost"))
+        #print(f"{command_names[x]}_cost = {costs[x]}")
+    except TypeError or ValueError:
+        print(f"COULD NOT FIND COST FOR {command_names[x]}")
+
 #pull durations set in env file and add to array
 for x in range(len(command_names)):
-    print(f"looking for dur {command_names[x]}")
-    durations[x] = float(os.getenv(command_names[x]+"_dur"))
+    try:
+        durations[x] = float(os.getenv(command_names[x]+"_dur"))
+        #print(f"{command_names[x]}_dur = {durations[x]}")
+    except TypeError or ValueError:
+        print(f"COULD NOT FIND DURATION FOR {command_names[x]}")
     
 #twitch irc stuff
 SERVER = "irc.twitch.tv"
@@ -549,17 +566,17 @@ def gamecontrol():
 
             if command in {"start"} and user in COMMAND_MODS and str(args[0]).lower().startswith(PREFIX):          
                 if game:
-                    sendMessage(irc, f"/me {TARGET_ID} ~ Game has already started! Use {PREFIX}stop to stop.")
+                    sendMessage(irc, f"/me {TARGET_ID} -> Game has already started! Use {PREFIX}stop to stop.")
                 else:
                     game = True 
-                    sendMessage(irc, f"/me {TARGET_ID} ~ Game has started! Use {PREFIX}stop to stop.")
+                    sendMessage(irc, f"/me {TARGET_ID} -> Game has started! Use {PREFIX}stop to stop.")
 
             elif command in {"stop"} and user in COMMAND_MODS and str(args[0]).lower().startswith(PREFIX):          
                 if game:
                     game = False
-                    sendMessage(irc, f"/me {TARGET_ID} ~ Game stopped! Use {PREFIX}start to start.")
+                    sendMessage(irc, f"/me {TARGET_ID} -> Game stopped! Use {PREFIX}start to start.")
                 else:
-                    sendMessage(irc, f"/me {TARGET_ID} ~ Game has not started! Use {PREFIX}start to start.")
+                    sendMessage(irc, f"/me {TARGET_ID} -> Game has not started! Use {PREFIX}start to start.")
                 
             if game:
 
@@ -617,7 +634,7 @@ def gamecontrol():
                     if not active[command_names.index("smalljak")]:
                         sendForm("(set! (-> *TARGET-bank* wheel-flip-dist) (meters 17.3))")
                     active_check("fastjak", 
-                    "(set! (-> *walk-mods* target-speed) 77777.0)(set! (-> *double-jump-mods* target-speed) 77777.0)(set! (-> *jump-mods* target-speed) 77777.0)(set! (-> *jump-attack-mods* target-speed) 77777.0)(set! (-> *attack-mods* target-speed) 77777.0)(set! (-> *forward-high-jump-mods* target-speed) 77777.0)(set! (-> *jump-attack-mods* target-speed) 77777.0)(set! (-> *stone-surface* target-speed) 1.25)")
+                    "(set! (-> *walk-mods* target-speed) 77777.0)(set! (-> *double-jump-mods* target-speed) 77777.0)(set! (-> *jump-mods* target-speed) 77777.0)(set! (-> *jump-attack-mods* target-speed) 77777.0)(set! (-> *attack-mods* target-speed) 77777.0)(set! (-> *forward-high-jump-mods* target-speed) 77777.0)(set! (-> *jump-attack-mods* target-speed) 77777.0)(set! (-> *flip-jump-mods* target-speed) 77777.0)(set! (-> *high-jump-mods* target-speed) 77777.0)(set! (-> *smack-jump-mods* target-speed) 77777.0)(set! (-> *duck-attack-mods* target-speed) 77777.0)(set! (-> *flop-mods* target-speed) 77777.0)(set! (-> *stone-surface* target-speed) 1.25)")
 
                 elif command in {"slowjak"} and enabled_check("slowjak") and cd_check("slowjak"):
                     deactivate("fastjak")
@@ -901,26 +918,26 @@ def gamecontrol():
                 elif command in {"resetcooldowns", "resetcds"} and user in COMMAND_MODS:           
                     for x in range(len(command_names)):
                         last_used[x]=0.0
-                    sendMessage(irc, f"/me {TARGET_ID} ~ All cooldowns reset.")
+                    sendMessage(irc, f"/me {TARGET_ID} -> All cooldowns reset.")
 
                 elif command in {"active"} and user in COMMAND_MODS:           
-                    sendMessage(irc, f"/me {TARGET_ID} ~ {", ".join(active_list)}")
+                    sendMessage(irc, f"/me {TARGET_ID} -> {", ".join(active_list)}")
 
                 elif command in {"cd", "cooldown"} and len(args) >= 3 and str(args[1]) in command_names and user in COMMAND_MODS:          
                     cooldowns[command_names.index(str(args[1]))]=float(args[2])
-                    sendMessage(irc, f"/me {TARGET_ID} ~ '{args[1]}' cooldown set to {args[2]}s.")
+                    sendMessage(irc, f"/me {TARGET_ID} -> '{args[1]}' cooldown set to {args[2]}s.")
 
                 elif command in {"dur", "duration"} and len(args) >= 3 and str(args[1]) in command_names and user in COMMAND_MODS:         
                     durations[command_names.index(str(args[1]))]=float(args[2])
-                    sendMessage(irc, f"/me {TARGET_ID} ~ '{args[1]}' duration set to {args[2]}s.")
+                    sendMessage(irc, f"/me {TARGET_ID} -> '{args[1]}' duration set to {args[2]}s.")
 
                 elif command in {"enable"} and len(args) >= 2 and str(args[1]) in command_names and user in COMMAND_MODS:          
                     enabled[command_names.index(str(args[1]))] = "t"
-                    sendMessage(irc, f"/me {TARGET_ID} ~ '{args[1]}' enabled.")
+                    sendMessage(irc, f"/me {TARGET_ID} -> '{args[1]}' enabled.")
 
                 elif command in {"disable"} and len(args) >= 2 and str(args[1]) in command_names and user in COMMAND_MODS:          
                     enabled[command_names.index(str(args[1]))] = "f"
-                    sendMessage(irc, f"/me {TARGET_ID} ~ '{args[1]}' disabled.")
+                    sendMessage(irc, f"/me {TARGET_ID} -> '{args[1]}' disabled.")
 
                 elif command in {"widejak"} and enabled_check("widejak") and cd_check("scale"):
                     deactivate("bigjak")
@@ -998,35 +1015,35 @@ def gamecontrol():
                     deactivate("smallhead")
                     deactivate("hugehead")
                     active_check("bighead",
-                    "(begin (logior! (-> *pc-settings* cheats) (pc-cheats big-head)) (logclear! (-> *pc-settings* cheats-known) (pc-cheats big-head)))")
+                    "(set! (-> *pc-settings* speedrunner-mode?) #f)(begin (logior! (-> *pc-settings* cheats) (pc-cheats big-head)) (logclear! (-> *pc-settings* cheats-known) (pc-cheats big-head)))")
 
                 elif command in {"smallhead"} and enabled_check("smallhead") and cd_check("smallhead"):
                     deactivate("bighead")
                     deactivate("hugehead")
                     active_check("smallhead",
-                    "(begin (logior! (-> *pc-settings* cheats) (pc-cheats small-head)) (logclear! (-> *pc-settings* cheats-known) (pc-cheats small-head)))")
+                    "(set! (-> *pc-settings* speedrunner-mode?) #f)(begin (logior! (-> *pc-settings* cheats) (pc-cheats small-head)) (logclear! (-> *pc-settings* cheats-known) (pc-cheats small-head)))")
 
                 elif command in {"bigfist"} and enabled_check("bigfist") and cd_check("bigfist"):
                     active_check("bigfist",
-                    "(begin (logior! (-> *pc-settings* cheats) (pc-cheats big-fist)) (logclear! (-> *pc-settings* cheats-known) (pc-cheats big-fist)))")
+                    "(set! (-> *pc-settings* speedrunner-mode?) #f)(begin (logior! (-> *pc-settings* cheats) (pc-cheats big-fist)) (logclear! (-> *pc-settings* cheats-known) (pc-cheats big-fist)))")
 
                 elif command in {"bigheadnpc"} and enabled_check("bigheadnpc") and cd_check("bigheadnpc"):
                     active_check("bigheadnpc",
-                    "(begin (logior! (-> *pc-settings* cheats) (pc-cheats big-head-npc)) (logclear! (-> *pc-settings* cheats-known) (pc-cheats big-head-npc)))")
+                    "(set! (-> *pc-settings* speedrunner-mode?) #f)(begin (logior! (-> *pc-settings* cheats) (pc-cheats big-head-npc)) (logclear! (-> *pc-settings* cheats-known) (pc-cheats big-head-npc)))")
 
                 elif command in {"hugehead"} and enabled_check("hugehead") and cd_check("hugehead"):
                     deactivate("bighead")
                     deactivate("smallhead")
                     active_check("hugehead",
-                    "(begin (logior! (-> *pc-settings* cheats) (pc-cheats huge-head)) (logclear! (-> *pc-settings* cheats-known) (pc-cheats huge-head)))")
+                    "(set! (-> *pc-settings* speedrunner-mode?) #f)(begin (logior! (-> *pc-settings* cheats) (pc-cheats huge-head)) (logclear! (-> *pc-settings* cheats-known) (pc-cheats huge-head)))")
 
                 elif command in {"mirror"} and enabled_check("mirror") and cd_check("mirror"):
                     active_check("mirror",
-                    "(begin (logior! (-> *pc-settings* cheats) (pc-cheats mirror)) (logclear! (-> *pc-settings* cheats-known) (pc-cheats mirror)))")
+                    "(set! (-> *pc-settings* speedrunner-mode?) #f)(begin (logior! (-> *pc-settings* cheats) (pc-cheats mirror)) (logclear! (-> *pc-settings* cheats-known) (pc-cheats mirror)))")
 
                 elif command in {"notex", "notextures"} and enabled_check("notex") and cd_check("notex"):
                     active_check("notex",
-                    "(begin (logior! (-> *pc-settings* cheats) (pc-cheats no-tex)) (logclear! (-> *pc-settings* cheats-known) (pc-cheats no-tex)))")
+                    "(set! (-> *pc-settings* speedrunner-mode?) #f)(begin (logior! (-> *pc-settings* cheats) (pc-cheats no-tex)) (logclear! (-> *pc-settings* cheats-known) (pc-cheats no-tex)))")
 
                 elif command in {"spiderman"} and enabled_check("spiderman") and cd_check("spiderman"):
                     active_check("spiderman",
@@ -1075,12 +1092,12 @@ def gamecontrol():
                         toggle_finalboss_commands(finalboss_toggle_commands, "f")
                         adjust_finalboss_cooldowns(finalboss_cooldown_commands, FINALBOSS_MUL)
                         finalboss_mode = True
-                        sendMessage(irc, f"/me {TARGET_ID} ~ Final Boss Mode activated! Cooldowns are longer and some commands are disabled.")
+                        sendMessage(irc, f"/me {TARGET_ID} -> Final Boss Mode activated! Cooldowns are longer and some commands are disabled.")
                     else:
                         toggle_finalboss_commands(finalboss_toggle_commands, lambda cmd: os.getenv(cmd))
                         adjust_finalboss_cooldowns(finalboss_cooldown_commands, FINALBOSS_MUL, divide=True)
                         finalboss_mode = False
-                        sendMessage(irc, f"/me {TARGET_ID} ~ Final Boss Mode deactivated.")
+                        sendMessage(irc, f"/me {TARGET_ID} -> Final Boss Mode deactivated.")
                     
                 elif command in {"repl"} and len(args) >= 2 and enabled_check("repl") and cd_check("repl"):
                     if COMMAND_MODS.count(user) > 0:
