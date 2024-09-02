@@ -96,7 +96,7 @@ if ((len(OAUTH) != 36) or (OAUTH[0:6] != "oauth:")):
     
 #paths
 PATHTOGOALC = application_path + "\goalc.exe"
-PATHTOGK = application_path +"\gk.exe -boot -fakeiso -debug -v"
+PATHTOGK = application_path +"\gk.exe -v -- -boot -fakeiso -debug"
 
 #If its the launcher version update the paths!
 if launcher_version:
@@ -105,7 +105,7 @@ if launcher_version:
     time.sleep(1)
     PATHTOGOALC=os.getenv('APPDATA') +"\OpenGOAL-Launcher\\goalc.exe"
     extraGKCommand = "-proj-path "+os.getenv('APPDATA') +"\OpenGOAL-Launcher\\data "
-    PATHTOGK = application_path +"\gk.exe "+extraGKCommand+"-boot -fakeiso -debug -v"
+    PATHTOGK = application_path +"\gk.exe "+extraGKCommand+" -v -- -boot -fakeiso -debug"
 
 #
 #Function definitions
