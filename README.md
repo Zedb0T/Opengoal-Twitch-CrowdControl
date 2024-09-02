@@ -99,7 +99,7 @@ Right now there is NO way to directly move Jak (e.g. as if using the left stick)
 - `#iframes amount` Sets the duration, in seconds, of the invulnerability state after Jak takes damage. Default is 3.
   - Examples `#iframes 0` `#iframes 30` `#iframes 3`
 
-## World
+### World
 - `#deload`	Deloads the current level.
 - `#mirror`	Mirrors the world. (Cheat)
 - `#notex`	Removes all textures. (Cheat)
