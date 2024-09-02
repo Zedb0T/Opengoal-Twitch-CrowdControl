@@ -101,7 +101,7 @@ Right now there is NO way to directly move Jak (e.g. as if using the left stick)
   - Examples `#iframes 0` `#iframes 30` `#iframes 3`
 
 ## World
-- `#deload	`	Deloads the current level.
+- `#deload`	Deloads the current level.
 - `#mirror`	Mirrors the world. (Cheat)
 - `#notex	`	Removes all textures. (Cheat)
 - `#lowpoly`	Sets the level of detail to low.
@@ -138,13 +138,13 @@ Right now there is NO way to directly move Jak (e.g. as if using the left stick)
 - `#basincell`	Swaps the spot of the jump cell in Precursor Basin.
 
 ### Streamer
-- `#enable	command`	Enables a command for use.
+- `#enable command`	Enables a command for use.
   - Example `#enable give`
-- `#disable	command`	Disables a command for use.
+- `#disable command`	Disables a command for use.
   - Example `#disable slowjak`
-- `#cd	command	seconds` Sets the cooldown for a command.
+- `#cd command	seconds` Sets the cooldown for a command.
   - Example `#cd die 600`
-- `#dur	command	seconds`	Sets the duration of a command.
+- `#dur command	seconds`	Sets the duration of a command.
   - Example `#dur dark 20`
 - `#resetcds`	Resets the cooldowns of all commands.
 - `#fixoldsave`	Fixes the “Old Save Game” bug, if it happens.
