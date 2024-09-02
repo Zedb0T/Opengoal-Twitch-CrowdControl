@@ -497,12 +497,13 @@ credit_list = []
 #pull cooldowns and costs set in env file and add to array
 for x in range(len(command_names)):
     #print(f"looking for cd {command_names[x]}")
+    print(f"looking for {command_names[x]} cd")
     cooldowns[x] = float(os.getenv(command_names[x]+"_cd"))
     enabled[x] = (os.getenv(command_names[x]))
     costs[x] = float(os.getenv(command_names[x]+"_cost"))
 #pull durations set in env file and add to array
 for x in range(len(command_names)):
-    #print(f"looking for dur {command_names[x]}")
+    print(f"looking for dur {command_names[x]}")
     durations[x] = float(os.getenv(command_names[x]+"_dur"))
     
 #twitch irc stuff
@@ -605,7 +606,7 @@ def gamecontrol():
                     "(logior! (-> *target* state-flags) (state-flags prevent-jump))")
 
                 elif command in {"noduck", "norj"} and enabled_check("noduck") and cd_check("noduck"):
-                    active_check("nojumps", 
+                    active_check("noduck",
                     "(logior! (-> *target* state-flags) (state-flags prevent-duck))")
 
                 elif command in {"noledge", "noledgegrab"} and enabled_check("noledge") and cd_check("noledge"):
@@ -670,8 +671,8 @@ def gamecontrol():
                     active_check("freecam", 
                     "(stop 'debug)")
 
-                elif command in {"enemyspeed"} and len(args) >= 3 and enabled_check("enemyspeed") and range_check(args[2], -200, 200) and cd_check("enemyspeed"):
-                    sendForm(f"(set! (-> *{args[1]}-nav-enemy-info* run-travel-speed) (meters {args[2]}))")
+                #elif command in {"enemyspeed"} and len(args) >= 3 and enabled_check("enemyspeed") and range_check(args[2], -200, 200) and cd_check("enemyspeed"):
+                #    sendForm(f"(set! (-> *{args[1]}-nav-enemy-info* run-travel-speed) (meters {args[2]}))")
 
                 elif command in {"give"} and len(args) >= 3 and enabled_check("give") and range_check(args[2], GIVE_MIN, GIVE_MAX) and cd_check("give"):
                     item = args[1].lower()
@@ -906,19 +907,19 @@ def gamecontrol():
                 elif command in {"active"} and user in COMMAND_MODS:           
                     sendMessage(irc, f"/me ~ {", ".join(active_list)}")
 
-                elif command in {"cd", "cooldown"} and len(args) >= 3 and user in COMMAND_MODS:          
+                elif command in {"cd", "cooldown"} and len(args) >= 3 and str(args[1]) in command_names and user in COMMAND_MODS:          
                     cooldowns[command_names.index(str(args[1]))]=float(args[2])
                     sendMessage(irc, f"/me ~ '{args[1]}' cooldown set to {args[2]}s.")
 
-                elif command in {"dur", "duration"} and len(args) >= 3 and user in COMMAND_MODS:         
+                elif command in {"dur", "duration"} and len(args) >= 3 and str(args[1]) in command_names and user in COMMAND_MODS:         
                     durations[command_names.index(str(args[1]))]=float(args[2])
                     sendMessage(irc, f"/me ~ '{args[1]}' duration set to {args[2]}s.")
 
-                elif command in {"enable"} and len(args) >= 2 and user in COMMAND_MODS:          
+                elif command in {"enable"} and len(args) >= 2 and str(args[1]) in command_names and user in COMMAND_MODS:          
                     enabled[command_names.index(str(args[1]))] = "t"
                     sendMessage(irc, f"/me ~ '{args[1]}' enabled.")
 
-                elif command in {"disable"} and len(args) >= 2 and user in COMMAND_MODS:          
+                elif command in {"disable"} and len(args) >= 2 and str(args[1]) in command_names and user in COMMAND_MODS:          
                     enabled[command_names.index(str(args[1]))] = "f"
                     sendMessage(irc, f"/me ~ '{args[1]}' disabled.")
 
@@ -1062,7 +1063,7 @@ def gamecontrol():
                 elif command in {"cam-out"} and enabled_check("cam-out") and cd_check("cam-out"):
                     sendForm("(set! (-> *cpad-list* cpads 0 righty) (the-as uint 255))")
 
-                elif command in {"finalboss"} and COMMAND_MODS.count(user) > 0 and enabled_check("finalboss") :
+                elif command in {"finalboss"} and COMMAND_MODS.count(user) > 0:
                     global finalboss_mode
                     finalboss_toggle_commands = [
                     "die", "drown", "melt", "endlessfall", "resetactors", "deload", 
