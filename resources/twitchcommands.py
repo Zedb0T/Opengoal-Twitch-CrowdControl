@@ -85,11 +85,11 @@ INIT_BALANCE = 1000
 launcher_version = exists(application_path+"\OpenGOAL-Launcher.exe")
 
 #checks
-if (not exists(".env")):
+if not exists(".env"):
     print("ERROR: .env file not found -- please check if it is in the same folder as gk.exe and JakCrowdControl.exe")
     time.sleep(936814)
 
-if ((len(OAUTH) != 36) or (OAUTH[0:6] != "oauth:")):
+if (len(OAUTH) != 36) or (OAUTH[0:6] != "oauth:"):
     print("ERROR: Invalid ouath -- please get new oauth from: https://twitchapps.com/tmi/")
     time.sleep(936814)
     
@@ -245,10 +245,10 @@ command_deactivation = {
     "widefish": "(when (process-by-ename \"fisher-1\")(set! (-> *FISHER-bank* width)(meters 3.3)))",
     "hardfish": "(when (process-by-ename \"fisher-1\")(set! (-> (the fisher (process-by-ename \"fisher-1\")) difficulty) 0)(set! (-> *FISHER-bank* max-caught) 200))",
     "lowpoly": "(set! (-> *pc-settings* lod-force-tfrag) 0)(set! (-> *pc-settings* lod-force-tie) 0)(set! (-> *pc-settings* lod-force-ocean) 0)(set! (-> *pc-settings* lod-force-actor) 0)",
-    "widejak": "(set! (-> (-> (the-as target *target* )root)scale x) 1.0)(set! (-> (-> (the-as target *target* )root)scale y) 1.0)(set! (-> (the-as target *target* )root)scale z) 1.0)",
-    "flatjak": "(set! (-> (-> (the-as target *target* )root)scale x) 1.0)(set! (-> (-> (the-as target *target* )root)scale y) 1.0)(set! (-> (the-as target *target* )root)scale z) 1.0)",
-    "smalljak": "(set! (-> (-> (the-as target *target* )root)scale x) 1.0)(set! (-> (the-as target *target* )root)scale y) 1.0)(set! (-> (the-as target *target* )root)scale z) 1.0)(set! (-> *TARGET-bank* wheel-flip-dist) (meters 17.3))",
-    "bigjak": "(set! (-> (-> (the-as target *target* )root)scale x) 1.0)(set! (-> (the-as target *target* )root)scale y) 1.0)(set! (-> (the-as target *target* )root)scale z) 1.0)",
+    "widejak": "(set! (-> (-> (the-as target *target* )root)scale x) 1.0)(set! (-> (-> (the-as target *target* )root)scale y) 1.0)(set! (-> (-> (the-as target *target* )root)scale z) 1.0)",
+    "flatjak": "(set! (-> (-> (the-as target *target* )root)scale x) 1.0)(set! (-> (-> (the-as target *target* )root)scale y) 1.0)(set! (-> (-> (the-as target *target* )root)scale z) 1.0)",
+    "smalljak": "(set! (-> (-> (the-as target *target* )root)scale x) 1.0)(set! (-> (-> (the-as target *target* )root)scale y) 1.0)(set! (-> (-> (the-as target *target* )root)scale z) 1.0)(set! (-> *TARGET-bank* wheel-flip-dist) (meters 17.3))",
+    "bigjak": "(set! (-> (-> (the-as target *target* )root)scale x) 1.0)(set! (-> (-> (the-as target *target* )root)scale y) 1.0)(set! (-> (-> (the-as target *target* )root)scale z) 1.0)",
     "color": "(set! (-> *target* draw color-mult x) 1.0)(set! (-> *target* draw color-mult y) 1.0)(set! (-> *target* draw color-mult z) 1.0)",
     "scale": "(set! (-> (-> (the-as target *target* )root)scale x) 1.0)(set! (-> (-> (the-as target *target* )root)scale y) 1.0)(set! (-> (-> (the-as target *target* )root)scale z) 1.0)",
     "slippery": "(set! (-> *stone-surface* slope-slip-angle) 8192.0)(set! (-> *stone-surface* slip-factor) 1.0)(set! (-> *stone-surface* transv-max) 1.0)(set! (-> *stone-surface* turnv) 1.0)(set! (-> *stone-surface* nonlin-fric-dist) 5120.0)(set! (-> *stone-surface* fric) 153600.0)(set! (-> *grass-surface* slope-slip-angle) 16384.0)(set! (-> *grass-surface* slip-factor) 1.0)(set! (-> *grass-surface* transv-max) 1.0)(set! (-> *grass-surface* turnv) 1.0)(set! (-> *grass-surface* nonlin-fric-dist) 4096.0)(set! (-> *grass-surface* fric) 122880.0)(set! (-> *ice-surface* slip-factor) 0.7)(set! (-> *ice-surface* nonlin-fric-dist) 4091904.0)(set! (-> *ice-surface* fric) 23756.8)",
@@ -821,8 +821,7 @@ def gamecontrol():
                 elif command in {"stickycam"} and enabled_check("stickycam") and cd_check("stickycam"):
                     deactivate("cam")
                     active_check("stickycam",
-                    f"(send-event *target* 'no-look-around (seconds {durations[command_names.index("stickycam")]}))(send-event *camera* 'change-state cam-circular 0)",
-                    "(send-event *target* 'no-look-around (seconds 0))(send-event *camera* 'change-state cam-string 0)")
+                    f"(send-event *target* 'no-look-around (seconds {durations[command_names.index("stickycam")]}))(send-event *camera* 'change-state cam-circular 0)")
 
                 #elif command in {"askew"} and enabled_check("askew") and cd_check("askew"):
                 #    active_check("askew", 
