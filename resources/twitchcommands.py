@@ -8,6 +8,7 @@ import sys
 import random
 from dotenv import load_dotenv
 from os.path import exists
+from tkinter import ttk
 import shutil
 import tkinter as tk
 import math
@@ -122,8 +123,52 @@ def display_text_in_window():
     # Create a new window
     window = tk.Tk()
     window.title("J1T Active Effects")
-    text_widget = tk.Text(window, wrap="word", height=13, width=20)
-    text_widget.pack()
+    window.geometry("300x320")  # Set a window size
+
+    # Position the window on the right side of the screen
+    window.update_idletasks()
+    screen_width = window.winfo_screenwidth()
+    screen_height = window.winfo_screenheight()
+    x = screen_width - 450  # Align to the right side
+    y = (screen_height // 2) - (320 // 2)
+    window.geometry(f'{300}x{320}+{x}+{y}')
+
+    # Create a frame to hold the text widget and scrollbar
+    frame = ttk.Frame(window, padding="10 10 10 10")
+    frame.pack(fill=tk.BOTH, expand=True)
+
+    light_mode = {
+        "bg": "#ffffff",
+        "fg": "#000000",
+        "insertbackground": "#000000",
+        "highlightbackground": "#cccccc",
+    }
+
+    dark_mode = {
+        "bg": "#333333",
+        "fg": "#ffffff",
+        "insertbackground": "#00ff00",
+        "highlightbackground": "#4d4d4d",
+    }
+
+    # Initial mode is dark mode
+    current_mode = dark_mode
+
+    # Create a text widget with a scrollbar
+    text_widget = tk.Text(frame, wrap="word", height=10, width=30, 
+                          bg=current_mode["bg"],  
+                          fg=current_mode["fg"],  
+                          insertbackground=current_mode["insertbackground"],  
+                          highlightbackground=current_mode["highlightbackground"], 
+                          highlightcolor=current_mode["highlightbackground"], 
+                          borderwidth=0, 
+                          relief="flat")
+    text_widget.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+
+    scrollbar = ttk.Scrollbar(frame, command=text_widget.yview)
+    scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+
+    text_widget.config(yscrollcommand=scrollbar.set)
 
     # Configure the font
     font_style = ("Franklin Gothic Medium", 14, "bold")
@@ -147,10 +192,30 @@ def display_text_in_window():
             elapsed_time = time.time() - start_time
             remaining_time = max(0, total_duration - elapsed_time)
             active_list_times[i] = math.floor(remaining_time)
+        
         # Schedule the next update
         if window.winfo_exists():
             window.after(1000, update_text)
+    
     update_text()
+
+    # Function to toggle between light and dark mode
+    def toggle_mode():
+        nonlocal current_mode
+        current_mode = light_mode if current_mode == dark_mode else dark_mode
+        
+        text_widget.configure(
+            bg=current_mode["bg"],
+            fg=current_mode["fg"],
+            insertbackground=current_mode["insertbackground"],
+            highlightbackground=current_mode["highlightbackground"],
+            highlightcolor=current_mode["highlightbackground"]
+        )
+
+    # Add a button to toggle light/dark mode
+    toggle_button = ttk.Button(window, text="Toggle Light/Dark Mode", command=toggle_mode)
+    toggle_button.pack(pady=10)
+
     window.mainloop()
 
 # Main program logic
@@ -159,7 +224,6 @@ def main_program_logic():
         print(f"Main Program: {i}")
 
 main_thread = threading.Thread(target=main_program_logic)
-
 main_thread.start()
 
 # Start the thread for displaying text in the window
@@ -502,17 +566,17 @@ for x in range(len(command_names)):
         cooldowns[x] = float(os.getenv(command_names[x]+"_cd"))
         #print(f"{command_names[x]}_cd = {cooldowns[x]}")
     except TypeError or ValueError:
-        print(f"COULD NOT FIND COOLDOWN FOR {command_names[x]}")
+        print(f"Could not find cooldown for {command_names[x]}")
     try:
         enabled[x] = os.getenv(command_names[x])
         #print(f"{command_names[x]} = {enabled[x]}")
     except TypeError or ValueError:
-        print(f"COULD NOT FIND {command_names[x]}")
+        print(f"Could not find {command_names[x]}")
     try:
         costs[x] = float(os.getenv(command_names[x]+"_cost"))
         #print(f"{command_names[x]}_cost = {costs[x]}")
     except TypeError or ValueError:
-        print(f"COULD NOT FIND COST FOR {command_names[x]}")
+        print(f"Could not find cost for {command_names[x]}")
 
 #pull durations set in env file and add to array
 for x in range(len(command_names)):
@@ -520,7 +584,7 @@ for x in range(len(command_names)):
         durations[x] = float(os.getenv(command_names[x]+"_dur"))
         #print(f"{command_names[x]}_dur = {durations[x]}")
     except TypeError or ValueError:
-        print(f"COULD NOT FIND DURATION FOR {command_names[x]}")
+        print(f"Could not find duration for {command_names[x]}")
     
 #twitch irc stuff
 SERVER = "irc.twitch.tv"
@@ -533,8 +597,9 @@ BOT = "jakopengoalbot"
 #The channel you want to monitor
 CHANNEL = os.getenv("TARGET_CHANNEL").lower()
 
-#COMMAND_MODS, these users can use the REPL command to create custom commands!
-COMMAND_MODS = ["zed_b0t", "mikegamepro", "water112", "barg034", CHANNEL]
+#these users can use the REPL command to create custom commands!
+COMMAND_ADMINS = ["zed_b0t", "mikegamepro", "water112", "barg034", CHANNEL]
+COMMAND_MODS = os.getenv("COMMAND_MODS").lower().split(",")
 
 #initialize empty strings to store user and message
 message = ""
@@ -564,14 +629,14 @@ def gamecontrol():
 
         if target_check(args) and str(args[0]).lower().startswith(PREFIX):
 
-            if command in {"start"} and user in COMMAND_MODS and str(args[0]).lower().startswith(PREFIX):          
+            if command in {"start"} and (user in COMMAND_ADMINS or user in COMMAND_MODS) and str(args[0]).lower().startswith(PREFIX):          
                 if game:
                     sendMessage(irc, f"/me {TARGET_ID} -> Game has already started! Use {PREFIX}stop to stop.")
                 else:
                     game = True 
                     sendMessage(irc, f"/me {TARGET_ID} -> Game has started! Use {PREFIX}stop to stop.")
 
-            elif command in {"stop"} and user in COMMAND_MODS and str(args[0]).lower().startswith(PREFIX):          
+            elif command in {"stop"} and (user in COMMAND_ADMINS or user in COMMAND_MODS) and str(args[0]).lower().startswith(PREFIX):          
                 if game:
                     game = False
                     sendMessage(irc, f"/me {TARGET_ID} -> Game stopped! Use {PREFIX}start to start.")
@@ -899,42 +964,42 @@ def gamecontrol():
                     active_check("noactors",
                     "(set! *spawn-actors* #f) (reset-actors 'debug)")
 
-                elif command in {"actors-on"} and enabled_check("actors-on") and user in COMMAND_MODS:
+                elif command in {"actors-on"} and enabled_check("actors-on") and (user in COMMAND_ADMINS or user in COMMAND_MODS):
                     sendForm("(set! (-> *pc-settings* force-actors?) #t)")
 
-                elif command in {"actors-off"} and enabled_check("actors-off") and user in COMMAND_MODS:
+                elif command in {"actors-off"} and enabled_check("actors-off") and (user in COMMAND_ADMINS or user in COMMAND_MODS):
                     sendForm("(set! (-> *pc-settings* force-actors?) #f)")
 
-                elif command in {"debug"} and enabled_check("debug") and user in COMMAND_MODS:
+                elif command in {"debug"} and enabled_check("debug") and (user in COMMAND_ADMINS or user in COMMAND_MODS):
                     sendForm("(set! *debug-segment* (not *debug-segment*))(set! *cheat-mode* (not *cheat-mode*))")
 
-                elif command in {"fixoldsave"} and enabled_check("fixoldsave") and user in COMMAND_MODS:
+                elif command in {"fixoldsave"} and enabled_check("fixoldsave") and (user in COMMAND_ADMINS or user in COMMAND_MODS):
                     sendForm("(set! (-> *game-info* current-continue) (get-continue-by-name *game-info* \"training-start\"))(auto-save-command 'auto-save 0 0 *default-pool*)")
 
-                elif command in {"save"} and enabled_check("save") and user in COMMAND_MODS:            
+                elif command in {"save"} and enabled_check("save") and (user in COMMAND_ADMINS or user in COMMAND_MODS):            
                     sendForm("(auto-save-command 'auto-save 0 0 *default-pool*)")
 
-                elif command in {"resetcooldowns", "resetcds"} and user in COMMAND_MODS:           
+                elif command in {"resetcooldowns", "resetcds"} and (user in COMMAND_ADMINS or user in COMMAND_MODS):           
                     for x in range(len(command_names)):
                         last_used[x]=0.0
                     sendMessage(irc, f"/me {TARGET_ID} -> All cooldowns reset.")
 
-                elif command in {"active"} and user in COMMAND_MODS:           
+                elif command in {"active"} and (user in COMMAND_ADMINS or user in COMMAND_MODS):           
                     sendMessage(irc, f"/me {TARGET_ID} -> {", ".join(active_list)}")
 
-                elif command in {"cd", "cooldown"} and len(args) >= 3 and str(args[1]) in command_names and user in COMMAND_MODS:          
+                elif command in {"cd", "cooldown"} and len(args) >= 3 and str(args[1]) in command_names and (user in COMMAND_ADMINS or user in COMMAND_MODS):          
                     cooldowns[command_names.index(str(args[1]))]=float(args[2])
                     sendMessage(irc, f"/me {TARGET_ID} -> '{args[1]}' cooldown set to {args[2]}s.")
 
-                elif command in {"dur", "duration"} and len(args) >= 3 and str(args[1]) in command_names and user in COMMAND_MODS:         
+                elif command in {"dur", "duration"} and len(args) >= 3 and str(args[1]) in command_names and (user in COMMAND_ADMINS or user in COMMAND_MODS):         
                     durations[command_names.index(str(args[1]))]=float(args[2])
                     sendMessage(irc, f"/me {TARGET_ID} -> '{args[1]}' duration set to {args[2]}s.")
 
-                elif command in {"enable"} and len(args) >= 2 and str(args[1]) in command_names and user in COMMAND_MODS:          
+                elif command in {"enable"} and len(args) >= 2 and str(args[1]) in command_names and (user in COMMAND_ADMINS or user in COMMAND_MODS):          
                     enabled[command_names.index(str(args[1]))] = "t"
                     sendMessage(irc, f"/me {TARGET_ID} -> '{args[1]}' enabled.")
 
-                elif command in {"disable"} and len(args) >= 2 and str(args[1]) in command_names and user in COMMAND_MODS:          
+                elif command in {"disable"} and len(args) >= 2 and str(args[1]) in command_names and (user in COMMAND_ADMINS or user in COMMAND_MODS):          
                     enabled[command_names.index(str(args[1]))] = "f"
                     sendMessage(irc, f"/me {TARGET_ID} -> '{args[1]}' disabled.")
 
@@ -1078,7 +1143,7 @@ def gamecontrol():
                 elif command in {"cam-out"} and enabled_check("cam-out") and cd_check("cam-out"):
                     sendForm("(set! (-> *cpad-list* cpads 0 righty) (the-as uint 255))")
 
-                elif command in {"finalboss"} and COMMAND_MODS.count(user) > 0:
+                elif command in {"finalboss"} and (user in COMMAND_ADMINS or user in COMMAND_MODS):
                     global finalboss_mode
                     finalboss_toggle_commands = [
                     "die", "drown", "melt", "endlessfall", "resetactors", "deload", 
@@ -1099,7 +1164,7 @@ def gamecontrol():
                         sendMessage(irc, f"/me {TARGET_ID} -> Final Boss Mode deactivated.")
                     
                 elif command in {"repl"} and len(args) >= 2 and enabled_check("repl") and cd_check("repl"):
-                    if COMMAND_MODS.count(user) > 0:
+                    if user in COMMAND_ADMINS:
                         args = message.split(" ", 1)
                         sendForm(str(args[1]))
                     else:
