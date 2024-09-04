@@ -36,7 +36,7 @@ class SettingsApp:
     def create_widgets(self):
         # Sections for different settings
         self.add_section("User Settings", [
-            "OAUTH", "TARGET_CHANNEL", "PREFIX", "CONNECT_MSG", "TARGET_ID"
+            "OAUTH", "TARGET_CHANNEL", "PREFIX", "CONNECT_MSG", "TARGET_ID", "COMMAND_MODS"
         ], True)
 
         self.add_checkboxes_section("Camera Settings", [
