@@ -285,6 +285,7 @@ command_deactivation = {
     "superboosted": "(set! (-> *edge-surface* fric) 30720.0)",
     "noboosteds": "(set! (-> *edge-surface* fric) 30720.0)",
     "nojumps": "(logclear! (-> *target* state-flags) (state-flags prevent-jump))",
+    "nodive": "(set! (-> *TARGET-bank* min-dive-depth) (meters 2))",
     "noduck": "(logclear! (-> *target* state-flags) (state-flags prevent-duck))",
     "noledge": "(set! (-> *collide-edge-work* max-dir-cosa-delta) 0.6)",
     "fastjak": "(set! (-> *walk-mods* target-speed) 40960.0)(set! (-> *double-jump-mods* target-speed) 32768.0)(set! (-> *jump-mods* target-speed) 40960.0)(set! (-> *jump-attack-mods* target-speed) 24576.0)(set! (-> *attack-mods* target-speed) 40960.0)(set! (-> *forward-high-jump-mods* target-speed) 45056.0)(set! (-> *jump-attack-mods* target-speed) 24576.0)(set! (-> *flip-jump-mods* target-speed) 51200.0)(set! (-> *high-jump-mods* target-speed) 26624.0)(set! (-> *smack-jump-mods* target-speed) 40960.0)(set! (-> *duck-attack-mods* target-speed) 16384.0)(set! (-> *flop-mods* target-speed) 40960.0)(set! (-> *stone-surface* target-speed) 1.25)",
@@ -326,6 +327,7 @@ command_deactivation = {
     "bigheadnpc": "(logclear! (-> *pc-settings* cheats) (pc-cheats big-head-npc))",
     "hugehead": "(logclear! (-> *pc-settings* cheats) (pc-cheats huge-head))",
     "mirror": "(logclear! (-> *pc-settings* cheats) (pc-cheats mirror))",
+    "invuln": "(logclear! (-> *pc-settings* cheats) (pc-cheats invinc))(logclear! (-> *target* state-flags) (state-flags invulnerable))",
     "notex": "(logclear! (-> *pc-settings* cheats) (pc-cheats no-tex))",
     "noactors": "(set! *spawn-actors* #t) (reset-actors 'debug)",
     "spiderman": "(set! (-> *pat-mode-info* 1 wall-angle) 2.0) (set! (-> *pat-mode-info* 2 wall-angle) 0.82)"
@@ -434,13 +436,13 @@ sendForm("(set! *debug-segment* #f)")  #COMMENT OUT FOR TEAMRUNS
 #End Int block
 
 #add all commands into an array so we can reference via index
-command_names = ["protect","rjto","superjump","leapfrog","superboosted","noboosteds","nojumps","noduck","noledge","fastjak","slowjak","pacifist","nuka","invuln","trip",
+command_names = ["protect","rjto","superjump","leapfrog","superboosted","noboosteds","nojumps","nodive","noduck","noledge","fastjak","slowjak","pacifist","nuka","invuln","trip",
                  "shortfall","ghostjak","getoff","flutspeed","freecam","enemyspeed","give","minuscell","pluscell","minusorbs","plusorbs","collected",
                  "eco","rapidfire","sucksuck","noeco","die","topoint","randompoint","tp","shift","movetojak","ouch",
                  "burn","hp","melt","drown","endlessfall","iframes","invertcam","cam","stickycam","deload","earthquake",
                  "quickcam","dark","blind","nodax","smallnet","widefish","maxfish","hardfish","customfish","lowpoly","moveplantboss","moveplantboss2",
                  "basincell","resetactors","noactors","repl","debug","fixoldsave","save","actors-on","actors-off",
-                 "widejak","flatjak","smalljak","bigjak","color","scale","slippery","gravity","pinball","rocketman","sfx",
+                 "widejak","flatjak","smalljak","bigjak","color","scale","slippery","gravity","pinball","playhint","rocketman","sfx",
                  "unzoom","bighead","smallhead","bigfist","bigheadnpc","hugehead","mirror","notex","spiderman","press",
                  "lang","timeofday","turn-left","turn-right","turn-180","cam-left","cam-right","cam-in","cam-out"]
 
@@ -690,6 +692,10 @@ def gamecontrol():
                     active_check("noduck",
                     "(logior! (-> *target* state-flags) (state-flags prevent-duck))")
 
+                elif command in {"nodive", "nodives"} and enabled_check("nodive") and cd_check("nodive"):
+                    active_check("nodive",
+                    "(set! (-> *TARGET-bank* min-dive-depth) (meters 999))")
+
                 elif command in {"noledge", "noledgegrab"} and enabled_check("noledge") and cd_check("noledge"):
                     active_check("noledge", 
                     "(set! (-> *collide-edge-work* max-dir-cosa-delta) 999.0)")
@@ -720,7 +726,8 @@ def gamecontrol():
                     sendForm("(logior! (-> *target* state-flags) (state-flags dying))")
 
                 elif command in {"invuln", "invul"} and enabled_check("invuln") and cd_check("invuln"):
-                    sendForm("(logior! (-> *target* state-flags) (state-flags invulnerable))")
+                    active_check("invuln",
+                                 "(set! (-> *pc-settings* speedrunner-mode?) #f)(begin (logior! (-> *pc-settings* cheats) (pc-cheats invinc)) (logclear! (-> *pc-settings* cheats-known) (pc-cheats invinc)))")
 
                 elif command in {"earthquake", "shake"} and enabled_check("earthquake") and cd_check("earthquake"):
                     sendForm("(activate! *camera-smush-control* 1500.6 12 350 1.0 0.9)")
@@ -824,6 +831,10 @@ def gamecontrol():
                 elif command in {"sfx", "sound"} and len(args) >= 2 and str(args[1]).lower() in sfx_names and enabled_check("sfx") and cd_check("sfx"):
                     sfx = sfx_names[str(args[1])]
                     sendForm(f"(sound-play \"{sfx}\")")
+                
+                elif command in {"playhint", "hint"} and len(args) >= 2 and enabled_check("playhint") and cd_check("playhint"):
+                    hint = args[1].replace("\"","")
+                    sendForm(f"(ambient-hint-spawn \"{hint}\" (-> *target* root trans) *entity-pool* 'ambient)")
 
                 #elif command in {"crazyplats"} and enabled_check("crazyplats") and cd_check("crazyplats"):
                 #    active_check("crazyplats", 

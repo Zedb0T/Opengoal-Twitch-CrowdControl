@@ -64,12 +64,12 @@ class SettingsApp:
             "die", "drown", "eco", "earthquake", "endlessfall", 
             "enemyspeed", "fastjak", "fixoldsave", "flutspeed", "freecam", 
             "getoff", "ghostjak", "give", "gravity", "hardfish", 
-            "hp", "hugehead", "iframes", "invuln", "invertcam", 
+            "hp", "hugehead", "iframes", "invertcam", "invuln", 
             "lang", "leapfrog", "lowpoly", "maxfish", "melt", "mirror", 
             "minuscell", "minusorbs", "moveplantboss", "moveplantboss2", "movetojak", 
-            "noboosteds", "nodax", "noduck", "noeco", "noactors", 
+            "noboosteds", "nodax", "nodive", "noduck", "noeco", "noactors", 
             "nojumps", "noledge", "notex", "nuka", "ouch", 
-            "pacifist", "pinball", "pluscell", "plusorbs", "press", 
+            "pacifist", "pinball", "playhint", "pluscell", "plusorbs", "press", 
             "protect", "quickcam", "randompoint", "rapidfire", "repl", 
             "resetactors", "rjto", "rocketman", "save", "scale", 
             "shift", "shortfall", "slippery", "slowjak", "smallhead", "smalljak", 
@@ -85,12 +85,12 @@ class SettingsApp:
             "customfish_cd", "dark_cd", "deload_cd", "die_cd", "eco_cd", 
             "earthquake_cd", "enemyspeed_cd", "fastjak_cd", "flutspeed_cd", 
             "freecam_cd", "getoff_cd", "give_cd", "gravity_cd", "hardfish_cd", 
-            "hp_cd", "hugehead_cd", "iframes_cd", "invuln_cd", "invertcam_cd", 
+            "hp_cd", "hugehead_cd", "iframes_cd", "invertcam_cd", "invuln_cd", 
             "lang_cd", "leapfrog_cd", "lowpoly_cd", "maxfish_cd", "mirror_cd", "minuscell_cd", 
             "minusorbs_cd", "moveplantboss_cd", "moveplantboss2_cd", "movetojak_cd", 
-            "noboosteds_cd", "nodax_cd", "noduck_cd", "noeco_cd", "noactors_cd", 
+            "noboosteds_cd", "nodax_cd", "nodive_cd", "noduck_cd", "noeco_cd", "noactors_cd", 
             "nojumps_cd", "noledge_cd", "notex_cd", "nuka_cd", "ouch_cd", 
-            "pacifist_cd", "pinball_cd", "pluscell_cd", "plusorbs_cd", "press_cd", 
+            "pacifist_cd", "pinball_cd", "playhint_cd", "pluscell_cd", "plusorbs_cd", "press_cd", 
             "protect_cd", "quickcam_cd", "rapidfire_cd", "repl_cd", "resetactors_cd", 
             "rjto_cd", "rocketman_cd", "scale_cd", "sfx_cd", "shortfall_cd", 
             "slippery_cd", "slowjak_cd", "smallhead_cd", "smallnet_cd", "spiderman_cd", 
@@ -107,12 +107,12 @@ class SettingsApp:
             "drown_cost", "earthquake_cost", "eco_cost", "endlessfall_cost", 
             "enemyspeed_cost", "fastjak_cost", "flatjak_cost", "flutspeed_cost", 
             "freecam_cost", "getoff_cost", "ghostjak_cost", "give_cost", "gravity_cost", 
-            "hardfish_cost", "hp_cost", "hugehead_cost", "iframes_cost", "invuln_cost", 
-            "invertcam_cost", "lang_cost", "leapfrog_cost", "lowpoly_cost", "maxfish_cost", "melt_cost", 
+            "hardfish_cost", "hp_cost", "hugehead_cost", "iframes_cost", 
+            "invertcam_cost", "invuln_cost", "lang_cost", "leapfrog_cost", "lowpoly_cost", "maxfish_cost", "melt_cost", 
             "mirror_cost", "minuscell_cost", "minusorbs_cost", "moveplantboss_cost", 
-            "moveplantboss2_cost", "movetojak_cost", "noboosteds_cost", "nodax_cost", 
+            "moveplantboss2_cost", "movetojak_cost", "noboosteds_cost", "nodax_cost", "nodive_cost", 
             "noduck_cost", "noeco_cost", "noactors_cost", "nojumps_cost", "noledge_cost", 
-            "notex_cost", "nuka_cost", "ouch_cost", "pacifist_cost", "pinball_cost", 
+            "notex_cost", "nuka_cost", "ouch_cost", "pacifist_cost", "pinball_cost", "playhint_cost", 
             "pluscell_cost", "plusorbs_cost", "press_cost", "protect_cost", 
             "quickcam_cost", "randompoint_cost", "rapidfire_cost", "repl_cost", 
             "resetactors_cost", "rjto_cost", "rocketman_cost", "scale_cost", 
@@ -128,8 +128,8 @@ class SettingsApp:
             "bigfist_dur", "bighead_dur", "bigheadnpc_dur", "bigjak_dur",
             "color_dur", "cam_dur", "dark_dur", "fastjak_dur", "flatjak_dur",
             "freecam_dur", "ghostjak_dur", "gravity_dur", "hardfish_dur",
-            "hugehead_dur", "iframes_dur", "invertcam_dur", "leapfrog_dur", "lowpoly_dur",
-            "mirror_dur", "noactors_dur", "noeco_dur", "nodax_dur", "noduck_dur",
+            "hugehead_dur", "iframes_dur", "invertcam_dur", "invuln_dur", "leapfrog_dur", "lowpoly_dur",
+            "mirror_dur", "noactors_dur", "noeco_dur", "nodax_dur", "nodive_dur", "noduck_dur",
             "nojump_dur", "noledge_dur", "noboosteds_dur", "nojumps_dur", "notex_dur",
             "pacifist_dur", "pinball_dur", "protect_dur", "rapidfire_dur",
             "rjto_dur", "rocketman_dur", "scale_dur", "shortfall_dur", 
@@ -315,6 +315,7 @@ burn_cd=0
 shift_cd=0
 randompoint_cd=0
 sfx_dur=0
+playhint_dur=0
 collected_cd=0
 minuscell_dur=0
 pluscell_dur=0
@@ -326,7 +327,6 @@ smalljak_cd=0
 bigjak_cd=0
 widejak_cd=0
 nuka_dur=0
-invuln_dur=0
 unzoom_dur=0
 drown_cd=0
 drown_dur=0
