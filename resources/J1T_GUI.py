@@ -62,7 +62,7 @@ class SettingsApp:
             "cam-in", "cam-left", "cam-out", "cam-right", "collected", 
             "color", "customfish", "dark", "debug", "deload", 
             "die", "drown", "eco", "earthquake", "endlessfall", 
-            "enemyspeed", "fastjak", "fixoldsave", "flutspeed", "freecam", 
+            "fastjak", "freecam", 
             "getoff", "ghostjak", "give", "gravity", "hardfish", 
             "hp", "hugehead", "iframes", "invertcam", "invuln", 
             "lang", "leapfrog", "lowpoly", "maxfish", "melt", "mirror", 
@@ -83,7 +83,7 @@ class SettingsApp:
             "basincell_cd", "bigfist_cd", "bighead_cd", "bigheadnpc_cd", "cam_cd", 
             "cam-in_cd", "cam-left_cd", "cam-out_cd", "cam-right_cd", "color_cd", 
             "customfish_cd", "dark_cd", "deload_cd", "die_cd", "eco_cd", 
-            "earthquake_cd", "enemyspeed_cd", "fastjak_cd", "flutspeed_cd", 
+            "earthquake_cd", "fastjak_cd",
             "freecam_cd", "getoff_cd", "give_cd", "gravity_cd", "hardfish_cd", 
             "hp_cd", "hugehead_cd", "iframes_cd", "invertcam_cd", "invuln_cd", 
             "lang_cd", "leapfrog_cd", "lowpoly_cd", "maxfish_cd", "mirror_cd", "minuscell_cd", 
@@ -105,7 +105,7 @@ class SettingsApp:
             "cam-left_cost", "cam-out_cost", "cam-right_cost", "collected_cost", 
             "color_cost", "customfish_cost", "dark_cost", "deload_cost", "die_cost", 
             "drown_cost", "earthquake_cost", "eco_cost", "endlessfall_cost", 
-            "enemyspeed_cost", "fastjak_cost", "flatjak_cost", "flutspeed_cost", 
+            "fastjak_cost", "flatjak_cost", 
             "freecam_cost", "getoff_cost", "ghostjak_cost", "give_cost", "gravity_cost", 
             "hardfish_cost", "hp_cost", "hugehead_cost", "iframes_cost", 
             "invertcam_cost", "invuln_cost", "lang_cost", "leapfrog_cost", "lowpoly_cost", "maxfish_cost", "melt_cost", 
@@ -273,8 +273,6 @@ class SettingsApp:
 PATHTOAHK=C:\\Program Files\\AutoHotkey\\AutoHotkey.exe
 trip_dur=0
 getoff_dur=0
-flutspeed_dur=0
-enemyspeed_dur=0
 give_dur=0
 collected_dur=0
 eco_dur=0
@@ -303,8 +301,6 @@ debug_dur=0
 debug_cd=0
 save_cd=0
 save_dur=0
-fixoldsave_cd=0
-fixoldsave_dur=0
 actors-on_dur=0
 actors-off_dur=0
 actors-on_cd=0
@@ -343,7 +339,6 @@ cam-right_dur=0
 cam-in_dur=0
 cam-out_dur=0
 save_cost=0
-fixoldsave_cost=0
 actors-on_cost=0
 actors-off_cost=0
 debug_cost=0
