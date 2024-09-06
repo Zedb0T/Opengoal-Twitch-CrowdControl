@@ -181,7 +181,8 @@ def display_text_in_window():
             minutes = int(time_remaining) // 60
             seconds = int(time_remaining) % 60
             formatted_time = f"{minutes}:{seconds:02d}"
-            text_content += f"{effect} ~ {formatted_time}\n"
+            if effect != "fakewarp":
+                text_content += f"{effect} ~ {formatted_time}\n"
         
         text_widget.delete(1.0, tk.END)  # Clear existing text
         text_widget.insert(tk.END, text_content)
@@ -331,7 +332,9 @@ command_deactivation = {
     "invuln": "(logclear! (-> *pc-settings* cheats) (pc-cheats invinc))(logclear! (-> *target* state-flags) (state-flags invulnerable))",
     "notex": "(logclear! (-> *pc-settings* cheats) (pc-cheats no-tex))",
     "noactors": "(set! *spawn-actors* #t) (reset-actors 'debug)",
-    "spiderman": "(set! (-> *pat-mode-info* 1 wall-angle) 2.0) (set! (-> *pat-mode-info* 2 wall-angle) 0.82)"
+    "spiderman": "(set! (-> *pat-mode-info* 1 wall-angle) 2.0) (set! (-> *pat-mode-info* 2 wall-angle) 0.82)",
+    "statue": "(logclear! (-> *target* mask) (process-mask sleep))",
+    "fakewarp": "(set! (-> *setting-control* default music-volume) *target-music-volume*)(set! (-> *setting-control* default sfx-volume) *target-sfx-volume*)(set! (-> *setting-control* default ambient-volume) *target-ambient-volume*)(set! (-> *setting-control* default dialog-volume) *target-dialog-volume*)"
     #"crazyplats": "(set! (-> *pontoonten-constants* player-weight) (meters 35))(set! (-> *pontoonfive-constants* player-weight) (meters 35))(set! (-> *tra-pontoon-constants* player-weight) (meters 35))(set! (-> *citb-chain-plat-constants* player-weight) (meters 35))(set! (-> *bone-platform-constants* player-weight) (meters 35))(set! (-> *ogre-step-constants* player-weight) (meters 35))(set! (-> *ogre-isle-constants* player-weight) (meters 35))(set! (-> *qbert-plat-constants* player-weight) (meters 35))(set! (-> *tar-plat-constants* player-weight) (meters 60))"
 }
         
@@ -435,18 +438,19 @@ sendForm("(dotimes (i 1) (sound-play-by-name (static-sound-name \"cell-prize\") 
 sendForm("(set! *cheat-mode* #f)")
 sendForm("(set! *debug-segment* #f)")  #COMMENT OUT FOR TEAMRUNS
 sendForm("(define *dark-level* (level-get-target-inside *level*))")
+sendForm("(define *target-dialog-volume* (-> *setting-control* default dialog-volume))(define *target-sfx-volume* (-> *setting-control* default sfx-volume))(define *target-music-volume* (-> *setting-control* default music-volume))(define *target-ambient-volume* (-> *setting-control* default ambient-volume))")
 #End Int block
 
 #add all commands into an array so we can reference via index
 command_names = ["protect","rjto","superjump","leapfrog","superboosted","noboosteds","nojumps","nodive","noduck","noledge","fastjak","slowjak","pacifist","nuka","invuln","trip",
                  "shortfall","ghostjak","getoff","freecam","give","minuscell","pluscell","minusorbs","plusorbs","collected",
                  "eco","rapidfire","sucksuck","noeco","die","topoint","randompoint","tp","shift","movetojak","ouch",
-                 "burn","hp","melt","drown","endlessfall","iframes","invertcam","cam","stickycam","deload","earthquake",
+                 "burn","hp","melt","drown","endlessfall","iframes","invertcam","cam","stickycam","deload","earthquake","fakewarp",
                  "quickcam","dark","blind","nodax","smallnet","widefish","maxfish","hardfish","customfish","lowpoly","moveplantboss","moveplantboss2",
                  "basincell","resetactors","noactors","repl","debug","save","actors-on","actors-off",
                  "widejak","flatjak","smalljak","bigjak","color","scale","slippery","gravity","pinball","playhint","rocketman","sfx",
                  "unzoom","bighead","smallhead","bigfist","bigheadnpc","hugehead","mirror","notex","spiderman","press",
-                 "lang","timeofday","turn-left","turn-right","turn-180","cam-left","cam-right","cam-in","cam-out"]
+                 "lang","timeofday","statue","turn-left","turn-right","turn-180","cam-left","cam-right","cam-in","cam-out"]
 
 #array of valid checkpoints so user cant send garbage data
 point_list = ["training-start","game-start","village1-hut","village1-warp","beach-start",
@@ -943,7 +947,7 @@ def gamecontrol():
                 elif command in ["customfish"] and len(args) >= 5 and enabled_check("customfish") and args[3] in fish_list and range_check(args[1], 0, 5) and range_check(args[2], 1, 7) and range_check(args[4], 0, 100) and cd_check("customfish"):
                     phase = (2 * int(args[2])) - 1
                     difficulty = int(args[1])
-                    if args[3] in {"swing-min", "swing-max", "period", "timeout"]:
+                    if args[3] in ["swing-min", "swing-max", "period", "timeout"]:
                         value = f"(seconds {args[4]})"
                     else:
                         value = float(args[4])
@@ -1126,6 +1130,14 @@ def gamecontrol():
                 elif command in ["spiderman"] and enabled_check("spiderman") and cd_check("spiderman"):
                     active_check("spiderman",
                     "(set! (-> *pat-mode-info* 1 wall-angle) 0.0) (set! (-> *pat-mode-info* 2 wall-angle) 0.0)")
+
+                elif command in ["statue", "freeze"] and enabled_check("statue") and cd_check("statue"):
+                    active_check("statue",
+                    "(when (not (movie?))(logior! (-> *target* mask) (process-mask sleep)))")
+
+                elif command in ["fakewarp", "fakewarp"] and enabled_check("fakewarp") and cd_check("fakewarp"):
+                    active_check("fakewarp",
+                    f"(set! (-> *setting-control* default music-volume) 0.0)(set! (-> *setting-control* default dialog-volume) 0.0)(set! (-> *setting-control* default sfx-volume) 0.0)(set! (-> *setting-control* default ambient-volume) 0.0)(set-blackout-frames (seconds {durations[command_names.index("fakewarp")]}))")
 
                 elif command in ["press"] and len(args) >= 2 and str(args[1]).lower() in pad_list and enabled_check("press") and cd_check("press"):
                     sendForm(f"(logior! (cpad-pressed 0) (pad-buttons {args[1]}))")
