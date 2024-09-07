@@ -925,7 +925,7 @@ def gamecontrol():
                 elif command in ["blind"] and len(args) >= 2 and enabled_check("blind") and range_check(args[1], BLIND_MIN, BLIND_MAX) and cd_check("dark"):
                     sendForm(f"(set-blackout-frames (seconds {args[1]}))")
 
-                elif command in ["nodax", "nodaxter"] and enabled_check("nodax") and cd_check("nodax"):
+                elif command in ["nodax", "dax"] and enabled_check("nodax") and cd_check("nodax"):
                     active_check("nodax", 
                     "(send-event *target* 'sidekick #f)")
 
