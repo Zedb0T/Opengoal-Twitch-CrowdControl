@@ -304,7 +304,7 @@ command_deactivation = {
     "stickycam": "(send-event *target* 'no-look-around (seconds 0))(send-event *camera* 'change-state cam-string 0)",
     "cam": "(send-event *camera* 'change-state cam-string 0)",
     #"tiktok": "(let ((win-aspect (/ (the float (-> *pc-settings* framebuffer-width)) (the float (-> *pc-settings* framebuffer-height))))) (set-aspect-ratio! *pc-settings* win-aspect) (set! (-> *pc-settings* framebuffer-scissor-width) (-> *pc-settings* framebuffer-width)) (set! (-> *pc-settings* framebuffer-scissor-height) (-> *pc-settings* framebuffer-height)))",
-    #"askew": "(set! (-> *standard-dynamics* gravity x) 0.0)",
+    "askew": "(set! (-> *standard-dynamics* gravity y) GRAVITY_AMOUNT)(set! (-> *standard-dynamics* gravity x) 0.0)",
     "gravity": "(set! (-> *standard-dynamics* gravity-length) GRAVITY_AMOUNT)",
     "dark": "(set! (-> *dark-level* mood-func)update-mood-darkcave)",
     "nodax": "(send-event *target* 'sidekick #t)",
@@ -447,7 +447,7 @@ command_names = ["protect","rjto","superjump","leapfrog","superboosted","noboost
                  "eco","rapidfire","sucksuck","noeco","die","topoint","randompoint","tp","shift","movetojak","ouch",
                  "burn","hp","melt","drown","endlessfall","iframes","invertcam","cam","stickycam","deload","earthquake","fakewarp",
                  "quickcam","dark","blind","nodax","smallnet","widefish","maxfish","hardfish","customfish","lowpoly","moveplantboss","moveplantboss2",
-                 "basincell","resetactors","noactors","repl","debug","save","actors-on","actors-off",
+                 "basincell","resetactors","noactors","repl","debug","save","actors-on","actors-off","askew",
                  "widejak","flatjak","smalljak","bigjak","color","scale","slippery","gravity","pinball","playhint","rocketman","sfx",
                  "unzoom","bighead","smallhead","bigfist","bigheadnpc","hugehead","mirror","notex","spiderman","press",
                  "lang","timeofday","statue","turn-left","turn-right","turn-180","cam-left","cam-right","cam-in","cam-out"]
@@ -906,10 +906,10 @@ def gamecontrol():
                     active_check("stickycam",
                     f"(send-event *target* 'no-look-around (seconds {durations[command_names.index("stickycam")]}))(send-event *camera* 'change-state cam-circular 0)")
 
-                #elif command in ["askew"] and enabled_check("askew") and cd_check("askew"):
-                #    active_check("askew", 
-                #    "(set! (-> *standard-dynamics* gravity x) 0.25)")
-                #    
+                elif command in ["askew", "tilt"] and enabled_check("askew") and cd_check("askew"):
+                    active_check("askew", 
+                    "(set! (-> *standard-dynamics* gravity y) 7.0)(set! (-> *standard-dynamics* gravity x) 0.5)")
+                    
                 elif command in ["deload"] and enabled_check("deload") and cd_check("deload"):
                     sendForm("(when (not (movie?))(set! (-> *load-state* want 0 display?) #f))")
 

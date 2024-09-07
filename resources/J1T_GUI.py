@@ -57,7 +57,7 @@ class SettingsApp:
         ], True)
 
         self.add_checkboxes_section("Command Enable/Disable", [
-            "actors-off", "actors-on", "basincell", "bigfist", "bighead", 
+            "actors-off", "actors-on", "askew", "basincell", "bigfist", "bighead", 
             "bigheadnpc", "bigjak", "blind", "burn", "cam", 
             "cam-in", "cam-left", "cam-out", "cam-right", "collected", 
             "color", "customfish", "dark", "fakewarp", "debug", "deload", 
@@ -80,7 +80,7 @@ class SettingsApp:
         ], False)
 
         self.add_section("Command Cooldowns", [
-            "basincell_cd", "bigfist_cd", "bighead_cd", "bigheadnpc_cd", "cam_cd", 
+            "askew_cd", "basincell_cd", "bigfist_cd", "bighead_cd", "bigheadnpc_cd", "cam_cd", 
             "cam-in_cd", "cam-left_cd", "cam-out_cd", "cam-right_cd", "color_cd", 
             "customfish_cd", "dark_cd", "fakewarp_cd", "deload_cd", "die_cd", "eco_cd", 
             "earthquake_cd", "fastjak_cd",
@@ -100,7 +100,7 @@ class SettingsApp:
         ], False)
 
         self.add_section("Command Costs", [
-            "basincell_cost", "bigfist_cost", "bighead_cost", "bigheadnpc_cost", 
+            "askew_cost", "basincell_cost", "bigfist_cost", "bighead_cost", "bigheadnpc_cost", 
             "bigjak_cost", "blind_cost", "burn_cost", "cam_cost", "cam-in_cost", 
             "cam-left_cost", "cam-out_cost", "cam-right_cost", "collected_cost", 
             "color_cost", "customfish_cost", "dark_cost", "fakewarp_cost", "deload_cost", "die_cost", 
@@ -125,7 +125,7 @@ class SettingsApp:
         ], False)
 
         self.add_section("Command Durations", [
-            "bigfist_dur", "bighead_dur", "bigheadnpc_dur", "bigjak_dur",
+            "askew_dur", "bigfist_dur", "bighead_dur", "bigheadnpc_dur", "bigjak_dur",
             "color_dur", "cam_dur", "dark_dur", "fakewarp_dur", "fastjak_dur", "flatjak_dur",
             "freecam_dur", "ghostjak_dur", "gravity_dur", "hardfish_dur",
             "hugehead_dur", "iframes_dur", "invertcam_dur", "invuln_dur", "leapfrog_dur", "lowpoly_dur",
