@@ -245,18 +245,17 @@ def target_check(line):
 
 def cd_check(cmd):
     global message
-    if (time.time() - last_used[command_names.index(cmd)]) > cooldowns[command_names.index(cmd)]:
-        last_used[command_names.index(cmd)] = time.time()
+    idx = command_names.index(cmd)
+    if (time.time() - last_used[idx]) > cooldowns[idx]:
+        last_used[idx] = time.time()
         return True
     elif COOLDOWN_MSG:
-        remaining_time = int(cooldowns[command_names.index(cmd)] - (time.time() - last_used[command_names.index(cmd)]))
+        remaining_time = int(cooldowns[idx] - (time.time() - last_used[idx]))
         minutes = remaining_time // 60
         seconds = remaining_time % 60
-        sendMessage(irc, f"/me @{user} Command '{command_names[command_names.index(cmd)]}' is on cooldown ({TARGET_ID}: {minutes}m{seconds}s left).")
-        #message = ""
+        sendMessage(irc, f"/me @{user} Command '{command_names[idx]}' is on cooldown ({TARGET_ID}: {minutes}m{seconds}s left).")
         return False
     else:
-        #message = ""
         return False
 
 def enabled_check(cmd):
@@ -347,21 +346,24 @@ def active_sweep():
             None
 
 def activate(cmd):
+    idx = command_names.index(cmd)
     if ACTIVATION_MSG:
-        sendMessage(irc, f"/me {TARGET_ID} -> '{command_names[command_names.index(cmd)]}' activated!")
-    activated[command_names.index(cmd)] = time.time()
-    active[command_names.index(cmd)] = True
+        sendMessage(irc, f"/me {TARGET_ID} -> '{command_names[idx]}' activated!")
+    activated[idx] = time.time()
+    active[idx] = True
     active_list.append(cmd)
-    active_list_times.append(durations[command_names.index(cmd)])
+    active_list_times.append(durations[idx])
 
 def deactivate(cmd):
-    if active[command_names.index(cmd)]:
-         if DEACTIVATION_MSG:
-            sendMessage(irc, f"/me {TARGET_ID} -> '{command_names[command_names.index(cmd)]}' deactivated!")
-         active[command_names.index(cmd)] = False
-         del active_list_times[active_list.index(cmd)]
-         active_list.remove(cmd)
-         sendForm(command_deactivation[cmd])
+    idx = command_names.index(cmd)
+    if active[idx]:
+        if DEACTIVATION_MSG:
+            sendMessage(irc, f"/me {TARGET_ID} -> '{command_names[idx]}' deactivated!")
+        active[idx] = False
+        del active_list_times[active_list.index(cmd)]
+        active_list.remove(cmd)
+        sendForm(command_deactivation[cmd])
+
 
 def range_check(val, min, max):
     global message
@@ -573,17 +575,17 @@ for x in range(len(command_names)):
     try:
         cooldowns[x] = float(os.getenv(command_names[x]+"_cd"))
         #print(f"{command_names[x]}_cd = {cooldowns[x]}")
-    except TypeError or ValueError:
+    except (TypeError, ValueError):
         print(f"Could not find cooldown for {command_names[x]}")
     try:
         enabled[x] = os.getenv(command_names[x]) != "f"
         #print(f"{command_names[x]} = {enabled[x]}")
-    except TypeError or ValueError:
+    except (TypeError, ValueError):
         print(f"Could not find {command_names[x]}")
     try:
         costs[x] = float(os.getenv(command_names[x]+"_cost"))
         #print(f"{command_names[x]}_cost = {costs[x]}")
-    except TypeError or ValueError:
+    except (TypeError, ValueError):
         print(f"Could not find cost for {command_names[x]}")
 
 #pull durations set in env file and add to array
@@ -591,7 +593,7 @@ for x in range(len(command_names)):
     try:
         durations[x] = float(os.getenv(command_names[x]+"_dur"))
         #print(f"{command_names[x]}_dur = {durations[x]}")
-    except TypeError or ValueError:
+    except (TypeError, ValueError):
         print(f"Could not find duration for {command_names[x]}")
     
 #twitch irc stuff
@@ -621,8 +623,9 @@ irc.send((    "PASS " + OAUTH + "\n" +
 
 #sends a message to the irc channel.
 def sendMessage(irc, message):
-    messageTemp = "PRIVMSG #" + CHANNEL + " :" + message
+    messageTemp = f"PRIVMSG #{CHANNEL} :{message}"
     irc.send((messageTemp + "\n").encode())
+
 
 def gamecontrol():
     
@@ -637,14 +640,14 @@ def gamecontrol():
 
         if target_check(args) and str(args[0]).lower().startswith(PREFIX):
 
-            if command in ["start"] and (user in COMMAND_ADMINS or user in COMMAND_MODS) and str(args[0]).lower().startswith(PREFIX):          
+            if command in ["start"] and (user in COMMAND_ADMINS or user in COMMAND_MODS):          
                 if game:
                     sendMessage(irc, f"/me {TARGET_ID} -> Game has already started! Use {PREFIX}stop to stop.")
                 else:
                     game = True 
                     sendMessage(irc, f"/me {TARGET_ID} -> Game has started! Use {PREFIX}stop to stop.")
 
-            elif command in ["stop"] and (user in COMMAND_ADMINS or user in COMMAND_MODS) and str(args[0]).lower().startswith(PREFIX):          
+            elif command in ["stop"] and (user in COMMAND_ADMINS or user in COMMAND_MODS):          
                 if game:
                     game = False
                     sendMessage(irc, f"/me {TARGET_ID} -> Game stopped! Use {PREFIX}start to start.")
@@ -706,14 +709,14 @@ def gamecontrol():
                     active_check("noledge", 
                     "(set! (-> *collide-edge-work* max-dir-cosa-delta) 999.0)")
 
-                elif command in ["fastjak"] and enabled_check("fastjak") and cd_check("fastjak"):
+                elif command in ["fastjak", "fast"] and enabled_check("fastjak") and cd_check("fastjak"):
                     deactivate("slowjak")
                     if not active[command_names.index("smalljak")]:
                         sendForm("(set! (-> *TARGET-bank* wheel-flip-dist) (meters 17.3))")
                     active_check("fastjak", 
                     "(set! (-> *walk-mods* target-speed) 77777.0)(set! (-> *double-jump-mods* target-speed) 77777.0)(set! (-> *jump-mods* target-speed) 77777.0)(set! (-> *jump-attack-mods* target-speed) 77777.0)(set! (-> *attack-mods* target-speed) 77777.0)(set! (-> *forward-high-jump-mods* target-speed) 77777.0)(set! (-> *jump-attack-mods* target-speed) 77777.0)(set! (-> *flip-jump-mods* target-speed) 77777.0)(set! (-> *high-jump-mods* target-speed) 77777.0)(set! (-> *smack-jump-mods* target-speed) 77777.0)(set! (-> *duck-attack-mods* target-speed) 77777.0)(set! (-> *flop-mods* target-speed) 77777.0)(set! (-> *stone-surface* target-speed) 1.25)")
 
-                elif command in ["slowjak"] and enabled_check("slowjak") and cd_check("slowjak"):
+                elif command in ["slowjak", "slow"] and enabled_check("slowjak") and cd_check("slowjak"):
                     deactivate("fastjak")
                     active_check("slowjak",
                     "(send-event *target* 'reset-pickup 'eco)(set! (-> *walk-mods* target-speed) 22000.0)(set! (-> *double-jump-mods* target-speed) 20000.0)(set! (-> *jump-mods* target-speed) 22000.0)(set! (-> *jump-attack-mods* target-speed) 20000.0)(set! (-> *attack-mods* target-speed) 22000.0)(set! (-> *stone-surface* target-speed) 1.0)(set! (-> *TARGET-bank* wheel-flip-dist) (meters 7))(set! (-> *TARGET-bank* wheel-flip-height) (meters 3.52))")
@@ -856,11 +859,11 @@ def gamecontrol():
                 elif command in ["shift"] and len(args) >= 4 and enabled_check("shift") and range_check(args[1], SHIFTX_MIN, SHIFTX_MAX) and range_check(args[2], SHIFTY_MIN, SHIFTY_MAX) and range_check(args[3], SHIFTZ_MIN, SHIFTZ_MAX) and cd_check("tp"):
                     sendForm(f"(when (not (movie?))(set! (-> (target-pos 0) x) (+ (-> (target-pos 0) x)(meters {args[1]})))  (set! (-> (target-pos 0) y) (+ (-> (target-pos 0) y)(meters {args[2]}))) (set! (-> (target-pos 0) z) (+ (-> (target-pos 0) z)(meters {args[3]}))))")
 
-                elif command in ["rocketman"] and enabled_check("rocketman") and cd_check("rocketman"):
+                elif command in ["rocketman", "rocket"] and enabled_check("rocketman") and cd_check("rocketman"):
                     active_check("rocketman", 
                     "(set! (-> *standard-dynamics* gravity-normal y) -0.5)")
 
-                elif command in ["movetojak"] and len(args) >= 2 and enabled_check("movetojak") and cd_check("movetojak"):
+                elif command in ["movetojak", "summon"] and len(args) >= 2 and enabled_check("movetojak") and cd_check("movetojak"):
                     sendForm(f"(when (process-by-ename \"{args[1]}\")(set-vector!  (-> (-> (the process-drawable (process-by-ename \"{args[1]}\"))root)trans) (-> (target-pos 0) x) (-> (target-pos 0) y) (-> (target-pos 0) z) 1.0))")
 
                 elif command in ["ouch"] and enabled_check("ouch") and cd_check("ouch"):
@@ -875,7 +878,7 @@ def gamecontrol():
                 elif command in ["melt"] and enabled_check("melt") and cd_check("die"):
                     sendForm("(when (not (movie?))(target-attack-up *target* 'attack 'melt))")
 
-                elif command in ["endlessfall"] and enabled_check("endlessfall") and cd_check("die"):
+                elif command in ["endlessfall", "fall"] and enabled_check("endlessfall") and cd_check("die"):
                     sendForm("(when (not (movie?))(target-attack-up *target* 'attack 'endlessfall))")
 
                 elif command in ["drown"] and enabled_check("drown") and cd_check("die"):
@@ -982,10 +985,10 @@ def gamecontrol():
                     active_check("noactors",
                     "(set! *spawn-actors* #f) (reset-actors 'debug)")
 
-                elif command in ["actors-on"] and enabled_check("actors-on") and (user in COMMAND_ADMINS or user in COMMAND_MODS):
+                elif command in ["actors-on", "actorson"] and enabled_check("actors-on") and (user in COMMAND_ADMINS or user in COMMAND_MODS):
                     sendForm("(set! (-> *pc-settings* force-actors?) #t)")
 
-                elif command in ["actors-off"] and enabled_check("actors-off") and (user in COMMAND_ADMINS or user in COMMAND_MODS):
+                elif command in ["actors-off", "actorsoff"] and enabled_check("actors-off") and (user in COMMAND_ADMINS or user in COMMAND_MODS):
                     sendForm("(set! (-> *pc-settings* force-actors?) #f)")
 
                 elif command in ["debug"] and enabled_check("debug") and (user in COMMAND_ADMINS or user in COMMAND_MODS):
@@ -1021,7 +1024,7 @@ def gamecontrol():
                     enabled[command_names.index(str(args[1]))] = False
                     sendMessage(irc, f"/me {TARGET_ID} -> '{args[1]}' disabled.")
 
-                elif command in ["widejak"] and enabled_check("widejak") and cd_check("scale"):
+                elif command in ["wide", "wide"] and enabled_check("widejak") and cd_check("scale"):
                     deactivate("bigjak")
                     deactivate("smalljak")
                     deactivate("scale")
@@ -1029,7 +1032,7 @@ def gamecontrol():
                     active_check("widejak", 
                     "(set! (-> (-> (the-as target *target* )root)scale x) 4.0)(set! (-> (-> (the-as target *target* )root)scale y) 1.0)(set! (-> (-> (the-as target *target* )root)scale z) 1.0)")
 
-                elif command in ["flatjak"] and enabled_check("flatjak") and cd_check("scale"):
+                elif command in ["flatjak", "flat"] and enabled_check("flatjak") and cd_check("scale"):
                     deactivate("bigjak")
                     deactivate("smalljak")
                     deactivate("widejak")
@@ -1037,7 +1040,7 @@ def gamecontrol():
                     active_check("flatjak", 
                     "(set! (-> (-> (the-as target *target* )root)scale x) 1.3)(set! (-> (-> (the-as target *target* )root)scale y) 0.2)(set! (-> (-> (the-as target *target* )root)scale z) 1.3)")
 
-                elif command in ["smalljak"] and enabled_check("smalljak") and cd_check("scale"):
+                elif command in ["smalljak", "small"] and enabled_check("smalljak") and cd_check("scale"):
                     deactivate("bigjak")
                     deactivate("scale")
                     deactivate("widejak")
@@ -1045,7 +1048,7 @@ def gamecontrol():
                     active_check("smalljak", 
                     "(set! (-> (-> (the-as target *target* )root)scale x) 0.4)(set! (-> (-> (the-as target *target* )root)scale y) 0.4)(set! (-> (-> (the-as target *target* )root)scale z) 0.4)(set! (-> *TARGET-bank* wheel-flip-dist) (meters 43.25))")
 
-                elif command in ["bigjak"] and enabled_check("bigjak") and cd_check("scale"):
+                elif command in ["bigjak", "big"] and enabled_check("bigjak") and cd_check("scale"):
                     deactivate("scale")
                     deactivate("smalljak")
                     deactivate("widejak")
