@@ -930,6 +930,7 @@ def gamecontrol():
 
                 elif command in ["cam"] and len(args) >= 2 and str(args[1]).lower() in cam_list and enabled_check("cam") and cd_check("cam"):
                     deactivate("stickycam")
+                    deactivate("cam")
                     activate("cam")
                     sendForm(f"(send-event *camera* 'change-state cam-{args[1]} 0)(send-event *target* 'no-look-around (seconds {durations[command_names.index("cam")]}))")
 
@@ -1057,7 +1058,7 @@ def gamecontrol():
                     enabled[command_names.index(str(args[1]))] = False
                     sendMessage(irc, f"/me {TARGET_ID} -> '{args[1]}' disabled.")
 
-                elif command in ["wide", "wide"] and enabled_check("widejak") and cd_check("scale"):
+                elif command in ["widejak", "wide"] and enabled_check("widejak") and cd_check("scale"):
                     deactivate("bigjak")
                     deactivate("smalljak")
                     deactivate("scale")
@@ -1104,6 +1105,7 @@ def gamecontrol():
                     sendForm(f"(set! (-> (-> (the-as target *target* )root)scale x) (+ 0.0 {args[1]}))(set! (-> (-> (the-as target *target* )root)scale y) (+ 0.0 {args[2]}))(set! (-> (-> (the-as target *target* )root)scale z) (+ 0.0 {args[3]}))")
 
                 elif command in ["slippery"] and enabled_check("slippery") and cd_check("slippery"):
+                    deactivate("pinball")
                     active_check("slippery", 
                     "(set! (-> *stone-surface* slope-slip-angle) 16384.0)(set! (-> *stone-surface* slip-factor) 0.7)(set! (-> *stone-surface* transv-max) 1.5)(set! (-> *stone-surface* turnv) 0.5)(set! (-> *stone-surface* nonlin-fric-dist) 4091904.0)(set! (-> *stone-surface* fric) 23756.8)(set! (-> *grass-surface* slope-slip-angle) 16384.0)(set! (-> *grass-surface* slip-factor) 0.7)(set! (-> *grass-surface* transv-max) 1.5)(set! (-> *grass-surface* turnv) 0.5)(set! (-> *grass-surface* nonlin-fric-dist) 4091904.0)(set! (-> *grass-surface* fric) 23756.8)(set! (-> *ice-surface* slip-factor) 0.3)(set! (-> *ice-surface* nonlin-fric-dist) 8183808.0)(set! (-> *ice-surface* fric) 11878.4)")
 
@@ -1117,6 +1119,7 @@ def gamecontrol():
                     line)
                 
                 elif command in ["pinball"] and enabled_check("pinball") and cd_check("pinball"):
+                    deactivate("slippery")
                     active_check("pinball", 
                     "(set! (-> *stone-surface* fric) -153600.0)")
     
