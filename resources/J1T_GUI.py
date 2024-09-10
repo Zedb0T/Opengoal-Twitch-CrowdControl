@@ -6,15 +6,13 @@ class SettingsApp:
     def __init__(self, master):
         self.master = master
         master.title("Properties File Editor")
-
-        # Set background color for the main window
         master.configure(bg="#E9E9E9")
 
         # Set up the main container with a scrollbar
-        main_frame = tk.Frame(master, bg="#E9E9E9")  # Set background color
+        main_frame = tk.Frame(master, bg="#E9E9E9")
         main_frame.pack(fill=tk.BOTH, expand=1)
 
-        canvas = tk.Canvas(main_frame, bg="#E9E9E9")  # Set background color
+        canvas = tk.Canvas(main_frame, bg="#E9E9E9")
         canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=1)
 
         scrollbar = ttk.Scrollbar(main_frame, orient=tk.VERTICAL, command=canvas.yview)
@@ -23,7 +21,7 @@ class SettingsApp:
         canvas.configure(yscrollcommand=scrollbar.set)
         canvas.bind('<Configure>', lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
 
-        self.frame = tk.Frame(canvas, bg="#E9E9E9")  # Set background color
+        self.frame = tk.Frame(canvas, bg="#E9E9E9")
         canvas.create_window((0, 0), window=self.frame, anchor="nw")
 
         self.entries = {}
@@ -32,6 +30,12 @@ class SettingsApp:
 
         self.settings_file = '.env'
         self.load_settings()
+
+        # Mouse wheel scrolling functionality
+        canvas.bind_all("<MouseWheel>", lambda e: self._on_mouse_wheel(e, canvas))
+
+    def _on_mouse_wheel(self, event, canvas):
+        canvas.yview_scroll(int(-1*(event.delta/120)), "units")
 
     def create_widgets(self):
         # Sections for different settings
@@ -141,6 +145,11 @@ class SettingsApp:
         # Buttons to save and load settings
         tk.Button(self.frame, text="Load Settings", command=self.load_settings).pack(pady=10)
         tk.Button(self.frame, text="Save Settings", command=self.save_settings).pack(pady=10)
+        
+                # Add Save and Quit button
+        save_quit_button = tk.Button(self.frame, text="Save and Exit", command=self.save_and_quit, bg="#2C9774", fg="white")
+        save_quit_button.pack(pady=10)
+        
 
     def format_key(self, key, format):
         if format:
@@ -262,11 +271,14 @@ class SettingsApp:
             for key, var in self.check_vars.items():
                 value = "t" if var.get() else "f"
                 f.write(f"{key}={value}\n")
+        #messagebox.showinfo("Save Successful", f"Settings saved to {self.settings_file}")
+    
+    def save_and_quit(self):
+        self.save_settings()
+        self.master.quit()
         
         # Append non-editable settings
         self.append_fixed_settings()
-
-        messagebox.showinfo("Save Successful", f"Settings saved to {self.settings_file}")
 
     def append_fixed_settings(self):
         fixed_settings = """
@@ -353,4 +365,3 @@ if __name__ == "__main__":
     root.configure(bg="#E9E9E9")  # Change background color of the main window
     app = SettingsApp(root)
     root.mainloop()
-
