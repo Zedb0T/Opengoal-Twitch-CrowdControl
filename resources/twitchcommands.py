@@ -87,7 +87,7 @@ launcher_version = exists(application_path+"\OpenGOAL-Launcher.exe")
 
 #checks
 if not exists(".env"):
-    print("ERROR: .env file not found -- please check if it is in the same folder as gk.exe and JakCrowdControl.exe")
+    print("ERROR: .env file not found -- please check if it is in the same folder as gk.exe and Jak1Twitch.exe")
     time.sleep(936814)
 
 if (len(OAUTH) != 36) or (OAUTH[0:6] != "oauth:"):
