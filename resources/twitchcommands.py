@@ -253,21 +253,25 @@ def cd_check(cmd):
         remaining_time = int(cooldowns[idx] - (time.time() - last_used[idx]))
         minutes = remaining_time // 60
         seconds = remaining_time % 60
-        sendMessage(irc, f"/me @{user} Command '{command_names[idx]}' is on cooldown ({TARGET_ID}: {minutes}m{seconds}s left).")
+        sendMessage(irc, f"/me @{user} {TARGET_ID} -> Command '{command_names[idx]}' is on cooldown ({minutes}m{seconds}s left).")
         return False
     else:
         return False
 
 def enabled_check(cmd):
     global message
-    if enabled[command_names.index(cmd)] and not active[command_names.index("protect")]:
-        return cost_check(cmd, user) 
-    elif DISABLED_MSG:
-        sendMessage(irc, f"/me @{user} Command '{command_names[command_names.index(cmd)]}' is disabled ({TARGET_ID}).")
-        #message = ""
-        return False
-    else:
-        #message = ""
+    try:
+        if enabled[command_names.index(cmd)] and not active[command_names.index("protect")]:
+            return cost_check(cmd, user) 
+        elif DISABLED_MSG:
+            sendMessage(irc, f"/me @{user} {TARGET_ID} -> Command '{command_names[command_names.index(cmd)]}' is disabled.")
+            #message = ""
+            return False
+        else:
+            #message = ""
+            return False
+    except (ValueError, TypeError):
+        sendMessage(irc, f"/me @{user} {TARGET_ID} -> Error processing command.")
         return False
 
 def active_check(cmd, line1):
@@ -302,9 +306,9 @@ command_deactivation = {
     "invertcam": f"(set! (-> *pc-settings* third-camera-h-inverted?) #{THIRD_CAMERA_H_INVERTED})(set! (-> *pc-settings* third-camera-v-inverted?) #{THIRD_CAMERA_V_INVERTED})(set! (-> *pc-settings* first-camera-v-inverted?) #{FIRST_CAMERA_V_INVERTED})(set! (-> *pc-settings* first-camera-h-inverted?) #{FIRST_CAMERA_H_INVERTED})",
     "stickycam": "(send-event *target* 'no-look-around (seconds 0))(send-event *camera* 'change-state cam-string 0)",
     "cam": "(send-event *camera* 'change-state cam-string 0)",
-    #"tiktok": "(let ((win-aspect (/ (the float (-> *pc-settings* framebuffer-width)) (the float (-> *pc-settings* framebuffer-height))))) (set-aspect-ratio! *pc-settings* win-aspect) (set! (-> *pc-settings* framebuffer-scissor-width) (-> *pc-settings* framebuffer-width)) (set! (-> *pc-settings* framebuffer-scissor-height) (-> *pc-settings* framebuffer-height)))",
-    "askew": "(set! (-> *standard-dynamics* gravity y) GRAVITY_AMOUNT)(set! (-> *standard-dynamics* gravity x) 0.0)",
-    "gravity": "(set! (-> *standard-dynamics* gravity-length) GRAVITY_AMOUNT)",
+    "tiktok": "(set! (-> *pc-settings* aspect-ratio) *chosen-ratio*)",
+    "askew": "(set! (-> *standard-dynamics* gravity x) 0.0)",
+    "gravity": "(set! (-> *standard-dynamics* gravity-length) GRAVITY_AMOUNT)(set! (-> *standard-dynamics* gravity y) GRAVITY_AMOUNT)",
     "dark": "(set! (-> *dark-level* mood-func)update-mood-darkcave)",
     "nodax": "(send-event *target* 'sidekick #t)",
     "smallnet": "(when (process-by-ename \"fisher-1\")(set! (-> *FISHER-bank* net-radius)(meters 0.7)))",
@@ -342,7 +346,7 @@ def active_sweep():
         try:
             if (time.time() - activated[command_names.index(cmd)]) >= durations[command_names.index(cmd)]:
                 deactivate(cmd)
-        except ValueError or TypeError:
+        except (ValueError, TypeError):
             None
 
 def activate(cmd):
@@ -440,6 +444,7 @@ sendForm("(dotimes (i 1) (sound-play-by-name (static-sound-name \"cell-prize\") 
 sendForm("(set! *cheat-mode* #f)")
 sendForm("(set! *debug-segment* #f)")  #COMMENT OUT FOR TEAMRUNS
 sendForm("(define *dark-level* (level-get-target-inside *level*))")
+sendForm("(define *chosen-ratio* (-> *pc-settings* aspect-ratio))")
 sendForm("(define *target-dialog-volume* (-> *setting-control* default dialog-volume))(define *target-sfx-volume* (-> *setting-control* default sfx-volume))(define *target-music-volume* (-> *setting-control* default music-volume))(define *target-ambient-volume* (-> *setting-control* default ambient-volume))")
 #End Int block
 
@@ -452,7 +457,7 @@ command_names = ["protect","rjto","superjump","leapfrog","superboosted","noboost
                  "basincell","resetactors","noactors","repl","debug","save","actors-on","actors-off","askew",
                  "widejak","flatjak","smalljak","bigjak","color","scale","slippery","gravity","pinball","playhint","rocketman","sfx",
                  "unzoom","bighead","smallhead","bigfist","bigheadnpc","hugehead","mirror","notex","spiderman","press",
-                 "lang","timeofday","statue","turn-left","turn-right","turn-180","cam-left","cam-right","cam-in","cam-out"]
+                 "lang","timeofday","statue","turn-left","turn-right","turn-180","cam-left","cam-right","cam-in","cam-out","tiktok"]
 
 #array of valid checkpoints so user cant send garbage data
 point_list = ["training-start","game-start","village1-hut","village1-warp","beach-start",
@@ -815,7 +820,7 @@ def gamecontrol():
                     active_check("noeco", 
                     "(send-event *target* 'reset-pickup 'eco)(set! (-> *FACT-bank* eco-full-timeout) (seconds 0.0))")
 
-                elif command in ["die"] and enabled_check("die") and cd_check("die"):
+                elif command in ["die", "kill"] and enabled_check("die") and cd_check("die"):
                     sendForm("(when (not (movie?))(initialize! *game-info* 'die (the-as game-save #f) (the-as string #f)))")
 
                 elif command in ["topoint", "tolevel"] and len(args) >= 2 and (point_list.count(str(args[1]).lower()) >= 1 or str(args[1]).lower() in point_nicknames) and enabled_check("topoint") and cd_check("topoint"):
@@ -900,9 +905,9 @@ def gamecontrol():
                     activate("cam")
                     sendForm(f"(send-event *camera* 'change-state cam-{args[1]} 0)(send-event *target* 'no-look-around (seconds {durations[command_names.index("cam")]}))")
 
-                #elif command in ["tiktok"] and enabled_check("tiktok") and cd_check("tiktok"):
-                #    active_check("tiktok",
-                #    f"(set-aspect! *pc-settings* 9 16)")
+                elif command in ["tiktok"] and enabled_check("tiktok") and cd_check("tiktok"):
+                    active_check("tiktok",
+                    f"(set! (-> *pc-settings* aspect-ratio) 0.5625)")
 
                 elif command in ["stickycam"] and enabled_check("stickycam") and cd_check("stickycam"):
                     deactivate("cam")
@@ -911,7 +916,7 @@ def gamecontrol():
 
                 elif command in ["askew", "tilt"] and enabled_check("askew") and cd_check("askew"):
                     active_check("askew", 
-                    "(set! (-> *standard-dynamics* gravity y) 7.0)(set! (-> *standard-dynamics* gravity x) 0.5)")
+                    "(set! (-> *standard-dynamics* gravity x) 25000.0)")
                     
                 elif command in ["deload"] and enabled_check("deload") and cd_check("deload"):
                     sendForm("(when (not (movie?))(set! (-> *load-state* want 0 display?) #f))")
@@ -1077,9 +1082,9 @@ def gamecontrol():
                 elif command in ["gravity", "grav"] and len(args) >= 2 and enabled_check("gravity") and args[1] in ["high", "low"] and cd_check("gravity"):
                     match args[1]:
                         case "high":
-                            line = "(set! (-> *standard-dynamics* gravity-length) (* GRAVITY_AMOUNT 5))"
+                            line = "(set! (-> *standard-dynamics* gravity-length) (* GRAVITY_AMOUNT 4.5))(set! (-> *standard-dynamics* gravity y) (* GRAVITY_AMOUNT 2.5))"
                         case "low":
-                            line = "(set! (-> *standard-dynamics* gravity-length) (/ GRAVITY_AMOUNT 5))"    
+                            line = "(set! (-> *standard-dynamics* gravity-length) (/ GRAVITY_AMOUNT 4.5))(set! (-> *standard-dynamics* gravity y) (/ GRAVITY_AMOUNT 2.5))"    
                     active_check("gravity", 
                     line)
                 

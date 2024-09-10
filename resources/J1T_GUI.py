@@ -60,9 +60,9 @@ class SettingsApp:
             "actors-off", "actors-on", "askew", "basincell", "bigfist", "bighead", 
             "bigheadnpc", "bigjak", "blind", "burn", "cam", 
             "cam-in", "cam-left", "cam-out", "cam-right", "collected", 
-            "color", "customfish", "dark", "fakewarp", "debug", "deload", 
+            "color", "customfish", "dark", "debug", "deload", 
             "die", "drown", "eco", "earthquake", "endlessfall", 
-            "fastjak", "freecam", 
+            "fakewarp", "fastjak", "freecam", 
             "getoff", "ghostjak", "give", "gravity", "hardfish", 
             "hp", "hugehead", "iframes", "invertcam", "invuln", 
             "lang", "leapfrog", "lowpoly", "maxfish", "melt", "mirror", 
@@ -72,9 +72,9 @@ class SettingsApp:
             "pacifist", "pinball", "playhint", "pluscell", "plusorbs", "press", 
             "protect", "quickcam", "randompoint", "rapidfire", "repl", 
             "resetactors", "rjto", "rocketman", "save", "scale", 
-            "shift", "shortfall", "slippery", "slowjak", "smallhead", "smalljak", 
+             "sfx", "shift", "shortfall", "slippery", "slowjak", "smallhead", "smalljak", 
             "smallnet", "spiderman", "statue", "stickycam", "superboosted", "superjump", 
-            "sucksuck", "sfx", "timeofday", "topoint", "tp", 
+            "sucksuck", "tiktok", "timeofday", "topoint", "tp", 
             "trip", "turn-180", "turn-left", "turn-right", "unzoom", 
             "widefish", "widejak"
         ], False)
@@ -82,8 +82,8 @@ class SettingsApp:
         self.add_section("Command Cooldowns", [
             "askew_cd", "basincell_cd", "bigfist_cd", "bighead_cd", "bigheadnpc_cd", "cam_cd", 
             "cam-in_cd", "cam-left_cd", "cam-out_cd", "cam-right_cd", "color_cd", 
-            "customfish_cd", "dark_cd", "fakewarp_cd", "deload_cd", "die_cd", "eco_cd", 
-            "earthquake_cd", "fastjak_cd",
+            "customfish_cd", "dark_cd", "deload_cd", "die_cd", "eco_cd", 
+            "earthquake_cd", "fakewarp_cd", "fastjak_cd",
             "freecam_cd", "getoff_cd", "give_cd", "gravity_cd", "hardfish_cd", 
             "hp_cd", "hugehead_cd", "iframes_cd", "invertcam_cd", "invuln_cd", 
             "lang_cd", "leapfrog_cd", "lowpoly_cd", "maxfish_cd", "mirror_cd", "minuscell_cd", 
@@ -94,7 +94,7 @@ class SettingsApp:
             "protect_cd", "quickcam_cd", "rapidfire_cd", "repl_cd", "resetactors_cd", 
             "rjto_cd", "rocketman_cd", "scale_cd", "sfx_cd", "shortfall_cd", 
             "slippery_cd", "slowjak_cd", "smallhead_cd", "smallnet_cd", "spiderman_cd", "statue_cd",
-            "stickycam_cd", "superboosted_cd", "superjump_cd", "sucksuck_cd", 
+            "stickycam_cd", "superboosted_cd", "superjump_cd", "sucksuck_cd", "tiktok_cd", 
             "timeofday_cd", "topoint_cd", "tp_cd", "trip_cd", "turn-180_cd", 
             "turn-left_cd", "turn-right_cd", "unzoom_cd", "widefish_cd"
         ], False)
@@ -103,9 +103,9 @@ class SettingsApp:
             "askew_cost", "basincell_cost", "bigfist_cost", "bighead_cost", "bigheadnpc_cost", 
             "bigjak_cost", "blind_cost", "burn_cost", "cam_cost", "cam-in_cost", 
             "cam-left_cost", "cam-out_cost", "cam-right_cost", "collected_cost", 
-            "color_cost", "customfish_cost", "dark_cost", "fakewarp_cost", "deload_cost", "die_cost", 
+            "color_cost", "customfish_cost", "dark_cost", "deload_cost", "die_cost", 
             "drown_cost", "earthquake_cost", "eco_cost", "endlessfall_cost", 
-            "fastjak_cost", "flatjak_cost", 
+            "fakewarp_cost", "fastjak_cost", "flatjak_cost", 
             "freecam_cost", "getoff_cost", "ghostjak_cost", "give_cost", "gravity_cost", 
             "hardfish_cost", "hp_cost", "hugehead_cost", "iframes_cost", 
             "invertcam_cost", "invuln_cost", "lang_cost", "leapfrog_cost", "lowpoly_cost", "maxfish_cost", "melt_cost", 
@@ -119,7 +119,7 @@ class SettingsApp:
             "shift_cost", "shortfall_cost", "slippery_cost", "slowjak_cost", "smallhead_cost", 
             "smalljak_cost", "smallnet_cost", "spiderman_cost", "statue_cost", "stickycam_cost", 
             "superboosted_cost", "superjump_cost", "sucksuck_cost", "sfx_cost", 
-            "timeofday_cost", "topoint_cost", "tp_cost", "trip_cost", "turn-180_cost", 
+            "tiktok_cost", "timeofday_cost", "topoint_cost", "tp_cost", "trip_cost", "turn-180_cost", 
             "turn-left_cost", "turn-right_cost", "unzoom_cost", "widefish_cost", 
             "widejak_cost"
         ], False)
@@ -135,7 +135,7 @@ class SettingsApp:
             "rjto_dur", "rocketman_dur", "scale_dur", "shortfall_dur", 
             "slippery_dur", "slowjak_dur", "smallhead_dur", "smalljak_dur",
             "smallnet_dur", "spiderman_dur", "statue_dur", "stickycam_dur", "sucksuck_dur",
-            "superboosted_dur", "superjump_dur", "widefish_dur", "widejak_dur"
+            "superboosted_dur", "superjump_dur", "tiktok_dur", "widefish_dur", "widejak_dur"
         ], False)
 
         # Buttons to save and load settings
