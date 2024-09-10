@@ -6,15 +6,13 @@ class SettingsApp:
     def __init__(self, master):
         self.master = master
         master.title("Properties File Editor")
-
-        # Set background color for the main window
         master.configure(bg="#E9E9E9")
 
         # Set up the main container with a scrollbar
-        main_frame = tk.Frame(master, bg="#E9E9E9")  # Set background color
+        main_frame = tk.Frame(master, bg="#E9E9E9")
         main_frame.pack(fill=tk.BOTH, expand=1)
 
-        canvas = tk.Canvas(main_frame, bg="#E9E9E9")  # Set background color
+        canvas = tk.Canvas(main_frame, bg="#E9E9E9")
         canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=1)
 
         scrollbar = ttk.Scrollbar(main_frame, orient=tk.VERTICAL, command=canvas.yview)
@@ -23,7 +21,7 @@ class SettingsApp:
         canvas.configure(yscrollcommand=scrollbar.set)
         canvas.bind('<Configure>', lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
 
-        self.frame = tk.Frame(canvas, bg="#E9E9E9")  # Set background color
+        self.frame = tk.Frame(canvas, bg="#E9E9E9")
         canvas.create_window((0, 0), window=self.frame, anchor="nw")
 
         self.entries = {}
@@ -32,6 +30,12 @@ class SettingsApp:
 
         self.settings_file = '.env'
         self.load_settings()
+
+        # Mouse wheel scrolling functionality
+        canvas.bind_all("<MouseWheel>", lambda e: self._on_mouse_wheel(e, canvas))
+
+    def _on_mouse_wheel(self, event, canvas):
+        canvas.yview_scroll(int(-1*(event.delta/120)), "units")
 
     def create_widgets(self):
         # Sections for different settings
@@ -53,16 +57,16 @@ class SettingsApp:
         ], True)
 
         self.add_checkboxes_section("Misc Settings", [
-            "DISABLED_MSG", "TARGET_ID_MODE", "TOPOINT_PAST_CRATER", "COOLDOWN_MSG", "ACTIVATION_MSG", "DEACTIVATION_MSG", "COST_MODE", "LOAD_STARTED"
+            "DISABLED_MSG", "TARGET_MODE", "TOPOINT_PAST_CRATER", "COOLDOWN_MSG", "ACTIVATION_MSG", "DEACTIVATION_MSG", "COST_MODE", "LOAD_STARTED"
         ], True)
 
         self.add_checkboxes_section("Command Enable/Disable", [
             "actors-off", "actors-on", "askew", "basincell", "bigfist", "bighead", 
             "bigheadnpc", "bigjak", "blind", "burn", "cam", 
             "cam-in", "cam-left", "cam-out", "cam-right", "collected", 
-            "color", "customfish", "dark", "fakewarp", "debug", "deload", 
+            "color", "customfish", "dark", "debug", "deload", 
             "die", "drown", "eco", "earthquake", "endlessfall", 
-            "fastjak", "freecam", 
+            "fakewarp", "fastjak", "freecam", 
             "getoff", "ghostjak", "give", "gravity", "hardfish", 
             "hp", "hugehead", "iframes", "invertcam", "invuln", 
             "lang", "leapfrog", "lowpoly", "maxfish", "melt", "mirror", 
@@ -72,9 +76,9 @@ class SettingsApp:
             "pacifist", "pinball", "playhint", "pluscell", "plusorbs", "press", 
             "protect", "quickcam", "randompoint", "rapidfire", "repl", 
             "resetactors", "rjto", "rocketman", "save", "scale", 
-            "shift", "shortfall", "slippery", "slowjak", "smallhead", "smalljak", 
+             "sfx", "shift", "shortfall", "slippery", "slowjak", "smallhead", "smalljak", 
             "smallnet", "spiderman", "statue", "stickycam", "superboosted", "superjump", 
-            "sucksuck", "sfx", "timeofday", "topoint", "tp", 
+            "sucksuck", "tiktok", "timeofday", "topoint", "tp", 
             "trip", "turn-180", "turn-left", "turn-right", "unzoom", 
             "widefish", "widejak"
         ], False)
@@ -82,8 +86,8 @@ class SettingsApp:
         self.add_section("Command Cooldowns", [
             "askew_cd", "basincell_cd", "bigfist_cd", "bighead_cd", "bigheadnpc_cd", "cam_cd", 
             "cam-in_cd", "cam-left_cd", "cam-out_cd", "cam-right_cd", "color_cd", 
-            "customfish_cd", "dark_cd", "fakewarp_cd", "deload_cd", "die_cd", "eco_cd", 
-            "earthquake_cd", "fastjak_cd",
+            "customfish_cd", "dark_cd", "deload_cd", "die_cd", "eco_cd", 
+            "earthquake_cd", "fakewarp_cd", "fastjak_cd",
             "freecam_cd", "getoff_cd", "give_cd", "gravity_cd", "hardfish_cd", 
             "hp_cd", "hugehead_cd", "iframes_cd", "invertcam_cd", "invuln_cd", 
             "lang_cd", "leapfrog_cd", "lowpoly_cd", "maxfish_cd", "mirror_cd", "minuscell_cd", 
@@ -94,7 +98,7 @@ class SettingsApp:
             "protect_cd", "quickcam_cd", "rapidfire_cd", "repl_cd", "resetactors_cd", 
             "rjto_cd", "rocketman_cd", "scale_cd", "sfx_cd", "shortfall_cd", 
             "slippery_cd", "slowjak_cd", "smallhead_cd", "smallnet_cd", "spiderman_cd", "statue_cd",
-            "stickycam_cd", "superboosted_cd", "superjump_cd", "sucksuck_cd", 
+            "stickycam_cd", "superboosted_cd", "superjump_cd", "sucksuck_cd", "tiktok_cd", 
             "timeofday_cd", "topoint_cd", "tp_cd", "trip_cd", "turn-180_cd", 
             "turn-left_cd", "turn-right_cd", "unzoom_cd", "widefish_cd"
         ], False)
@@ -103,9 +107,9 @@ class SettingsApp:
             "askew_cost", "basincell_cost", "bigfist_cost", "bighead_cost", "bigheadnpc_cost", 
             "bigjak_cost", "blind_cost", "burn_cost", "cam_cost", "cam-in_cost", 
             "cam-left_cost", "cam-out_cost", "cam-right_cost", "collected_cost", 
-            "color_cost", "customfish_cost", "dark_cost", "fakewarp_cost", "deload_cost", "die_cost", 
+            "color_cost", "customfish_cost", "dark_cost", "deload_cost", "die_cost", 
             "drown_cost", "earthquake_cost", "eco_cost", "endlessfall_cost", 
-            "fastjak_cost", "flatjak_cost", 
+            "fakewarp_cost", "fastjak_cost", "flatjak_cost", 
             "freecam_cost", "getoff_cost", "ghostjak_cost", "give_cost", "gravity_cost", 
             "hardfish_cost", "hp_cost", "hugehead_cost", "iframes_cost", 
             "invertcam_cost", "invuln_cost", "lang_cost", "leapfrog_cost", "lowpoly_cost", "maxfish_cost", "melt_cost", 
@@ -119,7 +123,7 @@ class SettingsApp:
             "shift_cost", "shortfall_cost", "slippery_cost", "slowjak_cost", "smallhead_cost", 
             "smalljak_cost", "smallnet_cost", "spiderman_cost", "statue_cost", "stickycam_cost", 
             "superboosted_cost", "superjump_cost", "sucksuck_cost", "sfx_cost", 
-            "timeofday_cost", "topoint_cost", "tp_cost", "trip_cost", "turn-180_cost", 
+            "tiktok_cost", "timeofday_cost", "topoint_cost", "tp_cost", "trip_cost", "turn-180_cost", 
             "turn-left_cost", "turn-right_cost", "unzoom_cost", "widefish_cost", 
             "widejak_cost"
         ], False)
@@ -135,12 +139,17 @@ class SettingsApp:
             "rjto_dur", "rocketman_dur", "scale_dur", "shortfall_dur", 
             "slippery_dur", "slowjak_dur", "smallhead_dur", "smalljak_dur",
             "smallnet_dur", "spiderman_dur", "statue_dur", "stickycam_dur", "sucksuck_dur",
-            "superboosted_dur", "superjump_dur", "widefish_dur", "widejak_dur"
+            "superboosted_dur", "superjump_dur", "tiktok_dur", "widefish_dur", "widejak_dur"
         ], False)
 
         # Buttons to save and load settings
         tk.Button(self.frame, text="Load Settings", command=self.load_settings).pack(pady=10)
         tk.Button(self.frame, text="Save Settings", command=self.save_settings).pack(pady=10)
+        
+                # Add Save and Quit button
+        save_quit_button = tk.Button(self.frame, text="Save and Exit", command=self.save_and_quit, bg="#2C9774", fg="white")
+        save_quit_button.pack(pady=10)
+        
 
     def format_key(self, key, format):
         if format:
@@ -262,11 +271,14 @@ class SettingsApp:
             for key, var in self.check_vars.items():
                 value = "t" if var.get() else "f"
                 f.write(f"{key}={value}\n")
+        #messagebox.showinfo("Save Successful", f"Settings saved to {self.settings_file}")
+    
+    def save_and_quit(self):
+        self.save_settings()
+        self.master.quit()
         
         # Append non-editable settings
         self.append_fixed_settings()
-
-        messagebox.showinfo("Save Successful", f"Settings saved to {self.settings_file}")
 
     def append_fixed_settings(self):
         fixed_settings = """
@@ -353,4 +365,3 @@ if __name__ == "__main__":
     root.configure(bg="#E9E9E9")  # Change background color of the main window
     app = SettingsApp(root)
     root.mainloop()
-

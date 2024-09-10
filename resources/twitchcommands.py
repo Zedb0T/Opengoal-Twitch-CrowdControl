@@ -50,7 +50,7 @@ THIRD_CAMERA_V_INVERTED = os.getenv("third-camera-vertical-inverted")
 THIRD_CAMERA_H_INVERTED = os.getenv("third-camera-horizontal-inverted")
 
 TOPOINT_PAST_CRATER = os.getenv("TOPOINT_PAST_CRATER") != "f"
-COST_MODE = os.getenv("COST_MODE") != "f"
+cost_mode = os.getenv("COST_MODE") != "f"
 
 SHIFTX_MIN = os.getenv("SHIFTX_MIN")
 SHIFTX_MAX = os.getenv("SHIFTX_MAX")
@@ -78,7 +78,7 @@ MAXFISH_MAX = os.getenv("MAXFISH_MAX")
 game = os.getenv("LOAD_STARTED") != "f"
 FINALBOSS_MUL = 2
 finalboss_mode = False
-TARGET_ID_MODE = os.getenv("TARGET_ID_MODE") != "f"
+target_mode = os.getenv("TARGET_MODE") != "f"
 INIT_BALANCE = 1000
 
 
@@ -235,7 +235,7 @@ display_thread.start()
 main_thread.join()
 
 def target_check(line):
-    if TARGET_ID_MODE:
+    if target_mode:
         if line[len(line) - 1].lower() == TARGET_ID.lower() or line[len(line) - 1].lower() == "all":
             return True
         else:
@@ -253,21 +253,25 @@ def cd_check(cmd):
         remaining_time = int(cooldowns[idx] - (time.time() - last_used[idx]))
         minutes = remaining_time // 60
         seconds = remaining_time % 60
-        sendMessage(irc, f"/me @{user} Command '{command_names[idx]}' is on cooldown ({TARGET_ID}: {minutes}m{seconds}s left).")
+        sendMessage(irc, f"/me @{user} {TARGET_ID} -> Command '{command_names[idx]}' is on cooldown ({minutes}m{seconds}s left).")
         return False
     else:
         return False
 
 def enabled_check(cmd):
     global message
-    if enabled[command_names.index(cmd)] and not active[command_names.index("protect")]:
-        return cost_check(cmd, user) 
-    elif DISABLED_MSG:
-        sendMessage(irc, f"/me @{user} Command '{command_names[command_names.index(cmd)]}' is disabled ({TARGET_ID}).")
-        #message = ""
-        return False
-    else:
-        #message = ""
+    try:
+        if enabled[command_names.index(cmd)] and not active[command_names.index("protect")]:
+            return cost_check(cmd, user) 
+        elif DISABLED_MSG:
+            sendMessage(irc, f"/me @{user} {TARGET_ID} -> Command '{command_names[command_names.index(cmd)]}' is disabled.")
+            #message = ""
+            return False
+        else:
+            #message = ""
+            return False
+    except (ValueError, TypeError):
+        sendMessage(irc, f"/me @{user} {TARGET_ID} -> Error processing command.")
         return False
 
 def active_check(cmd, line1):
@@ -302,9 +306,9 @@ command_deactivation = {
     "invertcam": f"(set! (-> *pc-settings* third-camera-h-inverted?) #{THIRD_CAMERA_H_INVERTED})(set! (-> *pc-settings* third-camera-v-inverted?) #{THIRD_CAMERA_V_INVERTED})(set! (-> *pc-settings* first-camera-v-inverted?) #{FIRST_CAMERA_V_INVERTED})(set! (-> *pc-settings* first-camera-h-inverted?) #{FIRST_CAMERA_H_INVERTED})",
     "stickycam": "(send-event *target* 'no-look-around (seconds 0))(send-event *camera* 'change-state cam-string 0)",
     "cam": "(send-event *camera* 'change-state cam-string 0)",
-    #"tiktok": "(let ((win-aspect (/ (the float (-> *pc-settings* framebuffer-width)) (the float (-> *pc-settings* framebuffer-height))))) (set-aspect-ratio! *pc-settings* win-aspect) (set! (-> *pc-settings* framebuffer-scissor-width) (-> *pc-settings* framebuffer-width)) (set! (-> *pc-settings* framebuffer-scissor-height) (-> *pc-settings* framebuffer-height)))",
-    "askew": "(set! (-> *standard-dynamics* gravity y) GRAVITY_AMOUNT)(set! (-> *standard-dynamics* gravity x) 0.0)",
-    "gravity": "(set! (-> *standard-dynamics* gravity-length) GRAVITY_AMOUNT)",
+    "tiktok": "(set! (-> *pc-settings* aspect-ratio) *chosen-ratio*)",
+    "askew": "(set! (-> *standard-dynamics* gravity x) 0.0)",
+    "gravity": "(set! (-> *standard-dynamics* gravity-length) GRAVITY_AMOUNT)(set! (-> *standard-dynamics* gravity y) GRAVITY_AMOUNT)",
     "dark": "(set! (-> *dark-level* mood-func)update-mood-darkcave)",
     "nodax": "(send-event *target* 'sidekick #t)",
     "smallnet": "(when (process-by-ename \"fisher-1\")(set! (-> *FISHER-bank* net-radius)(meters 0.7)))",
@@ -342,7 +346,7 @@ def active_sweep():
         try:
             if (time.time() - activated[command_names.index(cmd)]) >= durations[command_names.index(cmd)]:
                 deactivate(cmd)
-        except ValueError or TypeError:
+        except (ValueError, TypeError):
             None
 
 def activate(cmd):
@@ -379,7 +383,7 @@ def range_check(val, min, max):
         return False
     
 def cost_check(cmd, user):
-    if COST_MODE:
+    if cost_mode:
         user_credit = credit_list[user_list.index(user)]
         cost = costs[command_names.index(cmd)]
         if user_credit >= cost:
@@ -440,6 +444,7 @@ sendForm("(dotimes (i 1) (sound-play-by-name (static-sound-name \"cell-prize\") 
 sendForm("(set! *cheat-mode* #f)")
 sendForm("(set! *debug-segment* #f)")  #COMMENT OUT FOR TEAMRUNS
 sendForm("(define *dark-level* (level-get-target-inside *level*))")
+sendForm("(define *chosen-ratio* (-> *pc-settings* aspect-ratio))")
 sendForm("(define *target-dialog-volume* (-> *setting-control* default dialog-volume))(define *target-sfx-volume* (-> *setting-control* default sfx-volume))(define *target-music-volume* (-> *setting-control* default music-volume))(define *target-ambient-volume* (-> *setting-control* default ambient-volume))")
 #End Int block
 
@@ -452,7 +457,7 @@ command_names = ["protect","rjto","superjump","leapfrog","superboosted","noboost
                  "basincell","resetactors","noactors","repl","debug","save","actors-on","actors-off","askew",
                  "widejak","flatjak","smalljak","bigjak","color","scale","slippery","gravity","pinball","playhint","rocketman","sfx",
                  "unzoom","bighead","smallhead","bigfist","bigheadnpc","hugehead","mirror","notex","spiderman","press",
-                 "lang","timeofday","statue","turn-left","turn-right","turn-180","cam-left","cam-right","cam-in","cam-out"]
+                 "lang","timeofday","statue","turn-left","turn-right","turn-180","cam-left","cam-right","cam-in","cam-out","tiktok"]
 
 #array of valid checkpoints so user cant send garbage data
 point_list = ["training-start","game-start","village1-hut","village1-warp","beach-start",
@@ -570,6 +575,18 @@ active = [False] * len(command_names)
 user_list = []
 credit_list = []
 
+def increase_credits():
+    while True:
+        if cost_mode:
+            for i in range(len(user_list)):
+                credit_list[i] += 5
+                #print(f"{user_list[i]} now has {credit_list[i]} credits.")
+        time.sleep(30)
+
+thread = threading.Thread(target=increase_credits)
+thread.daemon = True
+thread.start()
+
 #pull cooldowns and costs set in env file and add to array
 for x in range(len(command_names)):
     try:
@@ -631,6 +648,8 @@ def gamecontrol():
     
     global message
     global game
+    global cost_mode
+    global target_mode
     #global user_list
 
     while True:
@@ -656,12 +675,26 @@ def gamecontrol():
                 
             if game:
 
-                if COST_MODE and user not in user_list:
+                if cost_mode and user not in user_list:
                     user_list.append(user)
                     credit_list.append(INIT_BALANCE)
 
-                if COST_MODE and command in ["balance"]:
-                    sendMessage(irc, f"/me @{user} Balance: {credit_list[user_list.index(user)]}") 
+                if cost_mode and command in ["balance", "credit"]:
+                    sendMessage(irc, f"/me {TARGET_ID} -> @{user} Balance: {credit_list[user_list.index(user)]}") 
+
+                elif command in ["costmode"] and (user in COMMAND_ADMINS or user in COMMAND_MODS):           
+                    cost_mode = not cost_mode
+                    if cost_mode:
+                        sendMessage(irc, f"/me {TARGET_ID} -> Cost Mode enabled!")
+                    else:
+                        sendMessage(irc, f"/me {TARGET_ID} -> Cost Mode disabled.")
+
+                elif command in ["targetmode"] and (user in COMMAND_ADMINS or user in COMMAND_MODS):           
+                    target_mode = not target_mode
+                    if target_mode:
+                        sendMessage(irc, f"/me {TARGET_ID} -> Target Mode enabled!")
+                    else:
+                        sendMessage(irc, f"/me {TARGET_ID} -> Target Mode disabled.")
 
                 elif command in ["protect"] and enabled_check("protect") and cd_check("protect"):
                     deactivate("protect")
@@ -815,7 +848,7 @@ def gamecontrol():
                     active_check("noeco", 
                     "(send-event *target* 'reset-pickup 'eco)(set! (-> *FACT-bank* eco-full-timeout) (seconds 0.0))")
 
-                elif command in ["die"] and enabled_check("die") and cd_check("die"):
+                elif command in ["die", "kill"] and enabled_check("die") and cd_check("die"):
                     sendForm("(when (not (movie?))(initialize! *game-info* 'die (the-as game-save #f) (the-as string #f)))")
 
                 elif command in ["topoint", "tolevel"] and len(args) >= 2 and (point_list.count(str(args[1]).lower()) >= 1 or str(args[1]).lower() in point_nicknames) and enabled_check("topoint") and cd_check("topoint"):
@@ -897,12 +930,13 @@ def gamecontrol():
 
                 elif command in ["cam"] and len(args) >= 2 and str(args[1]).lower() in cam_list and enabled_check("cam") and cd_check("cam"):
                     deactivate("stickycam")
+                    deactivate("cam")
                     activate("cam")
                     sendForm(f"(send-event *camera* 'change-state cam-{args[1]} 0)(send-event *target* 'no-look-around (seconds {durations[command_names.index("cam")]}))")
 
-                #elif command in ["tiktok"] and enabled_check("tiktok") and cd_check("tiktok"):
-                #    active_check("tiktok",
-                #    f"(set-aspect! *pc-settings* 9 16)")
+                elif command in ["tiktok"] and enabled_check("tiktok") and cd_check("tiktok"):
+                    active_check("tiktok",
+                    f"(set! (-> *pc-settings* aspect-ratio) 0.5625)")
 
                 elif command in ["stickycam"] and enabled_check("stickycam") and cd_check("stickycam"):
                     deactivate("cam")
@@ -911,7 +945,7 @@ def gamecontrol():
 
                 elif command in ["askew", "tilt"] and enabled_check("askew") and cd_check("askew"):
                     active_check("askew", 
-                    "(set! (-> *standard-dynamics* gravity y) 7.0)(set! (-> *standard-dynamics* gravity x) 0.5)")
+                    "(set! (-> *standard-dynamics* gravity x) 25000.0)")
                     
                 elif command in ["deload"] and enabled_check("deload") and cd_check("deload"):
                     sendForm("(when (not (movie?))(set! (-> *load-state* want 0 display?) #f))")
@@ -961,7 +995,7 @@ def gamecontrol():
                     "(set! (-> *pc-settings* lod-force-tfrag) 2)(set! (-> *pc-settings* lod-force-tie) 3)(set! (-> *pc-settings* lod-force-ocean) 2)(set! (-> *pc-settings* lod-force-actor) 3)")
 
                 elif command in ["moveplantboss"] and enabled_check("moveplantboss") and cd_check("moveplantboss"):
-                    sendForm("(set! (-> *pc-settings* force-actors?) #t)")
+                    sendForm("(set! (-> *pc-settings* ps2-actor-vis?) #f)")
                     time.sleep(0.050)
                     sendForm("(when (process-by-ename \"plant-boss-3\")(set-vector!  (-> (-> (the process-drawable (process-by-ename \"plant-boss-3\"))root)trans) (meters 436.97) (meters -43.99) (meters -347.09) 1.0))")
                     sendForm("(set! (-> (the-as fact-info-target (-> *target* fact))health) 1.0)")
@@ -969,11 +1003,11 @@ def gamecontrol():
                     sendForm("(set! (-> (target-pos 0) x) (meters 431.47))  (set! (-> (target-pos 0) y) (meters -44.00)) (set! (-> (target-pos 0) z) (meters -334.09))")
 
                 elif command in ["moveplantboss2"] and enabled_check("moveplantboss2") and cd_check("moveplantboss2"):
-                    sendForm("(set! (-> *pc-settings* force-actors?) #t)")
+                    sendForm("(set! (-> *pc-settings* ps2-actor-vis?) #f)")
                     time.sleep(0.050)
                     sendForm("(when (process-by-ename \"plant-boss-3\")(set-vector!  (-> (-> (the process-drawable (process-by-ename \"plant-boss-3\"))root)trans) (meters 436.97) (meters -43.99) (meters -347.09) 1.0))")
                     time.sleep(0.050)
-                    #sendForm("(set! (-> *pc-settings* force-actors?) #f)")
+                    #sendForm("(set! (-> *pc-settings* ps2-actor-vis?) #t)")
 
                 elif command in ["basincell"] and enabled_check("basincell") and cd_check("basincell"):
                     sendForm("(if (when (process-by-ename \"fuel-cell-45\") (= (-> (->(the process-drawable (process-by-ename \"fuel-cell-45\"))root)trans x)  (meters -266.54)))(when (process-by-ename \"fuel-cell-45\")(set-vector!  (-> (-> (the process-drawable (process-by-ename \"fuel-cell-45\"))root)trans) (meters -248.92) (meters 52.11) (meters -1515.66) 1.0))(when (process-by-ename \"fuel-cell-45\")(set-vector!  (-> (-> (the process-drawable (process-by-ename \"fuel-cell-45\"))root)trans) (meters -266.54) (meters 52.11) (meters -1508.48) 1.0)))")
@@ -986,10 +1020,10 @@ def gamecontrol():
                     "(set! *spawn-actors* #f) (reset-actors 'debug)")
 
                 elif command in ["actors-on", "actorson"] and enabled_check("actors-on") and (user in COMMAND_ADMINS or user in COMMAND_MODS):
-                    sendForm("(set! (-> *pc-settings* force-actors?) #t)")
+                    sendForm("(set! (-> *pc-settings* ps2-actor-vis?) #f)")
 
                 elif command in ["actors-off", "actorsoff"] and enabled_check("actors-off") and (user in COMMAND_ADMINS or user in COMMAND_MODS):
-                    sendForm("(set! (-> *pc-settings* force-actors?) #f)")
+                    sendForm("(set! (-> *pc-settings* ps2-actor-vis?) #t)")
 
                 elif command in ["debug"] and enabled_check("debug") and (user in COMMAND_ADMINS or user in COMMAND_MODS):
                     sendForm("(set! *debug-segment* (not *debug-segment*))(set! *cheat-mode* (not *cheat-mode*))")
@@ -1024,7 +1058,7 @@ def gamecontrol():
                     enabled[command_names.index(str(args[1]))] = False
                     sendMessage(irc, f"/me {TARGET_ID} -> '{args[1]}' disabled.")
 
-                elif command in ["wide", "wide"] and enabled_check("widejak") and cd_check("scale"):
+                elif command in ["widejak", "wide"] and enabled_check("widejak") and cd_check("scale"):
                     deactivate("bigjak")
                     deactivate("smalljak")
                     deactivate("scale")
@@ -1071,19 +1105,21 @@ def gamecontrol():
                     sendForm(f"(set! (-> (-> (the-as target *target* )root)scale x) (+ 0.0 {args[1]}))(set! (-> (-> (the-as target *target* )root)scale y) (+ 0.0 {args[2]}))(set! (-> (-> (the-as target *target* )root)scale z) (+ 0.0 {args[3]}))")
 
                 elif command in ["slippery"] and enabled_check("slippery") and cd_check("slippery"):
+                    deactivate("pinball")
                     active_check("slippery", 
                     "(set! (-> *stone-surface* slope-slip-angle) 16384.0)(set! (-> *stone-surface* slip-factor) 0.7)(set! (-> *stone-surface* transv-max) 1.5)(set! (-> *stone-surface* turnv) 0.5)(set! (-> *stone-surface* nonlin-fric-dist) 4091904.0)(set! (-> *stone-surface* fric) 23756.8)(set! (-> *grass-surface* slope-slip-angle) 16384.0)(set! (-> *grass-surface* slip-factor) 0.7)(set! (-> *grass-surface* transv-max) 1.5)(set! (-> *grass-surface* turnv) 0.5)(set! (-> *grass-surface* nonlin-fric-dist) 4091904.0)(set! (-> *grass-surface* fric) 23756.8)(set! (-> *ice-surface* slip-factor) 0.3)(set! (-> *ice-surface* nonlin-fric-dist) 8183808.0)(set! (-> *ice-surface* fric) 11878.4)")
 
                 elif command in ["gravity", "grav"] and len(args) >= 2 and enabled_check("gravity") and args[1] in ["high", "low"] and cd_check("gravity"):
                     match args[1]:
                         case "high":
-                            line = "(set! (-> *standard-dynamics* gravity-length) (* GRAVITY_AMOUNT 5))"
+                            line = "(set! (-> *standard-dynamics* gravity-length) (* GRAVITY_AMOUNT 4.5))(set! (-> *standard-dynamics* gravity y) (* GRAVITY_AMOUNT 2.5))"
                         case "low":
-                            line = "(set! (-> *standard-dynamics* gravity-length) (/ GRAVITY_AMOUNT 5))"    
+                            line = "(set! (-> *standard-dynamics* gravity-length) (/ GRAVITY_AMOUNT 4.5))(set! (-> *standard-dynamics* gravity y) (/ GRAVITY_AMOUNT 2.5))"    
                     active_check("gravity", 
                     line)
                 
                 elif command in ["pinball"] and enabled_check("pinball") and cd_check("pinball"):
+                    deactivate("slippery")
                     active_check("pinball", 
                     "(set! (-> *stone-surface* fric) -153600.0)")
     
@@ -1181,15 +1217,14 @@ def gamecontrol():
                     "scale", "hp", "iframes", "ouch", "movetojak", "rocketman",
                     "noeco", "eco", "shortfall", "nuka", "pinball", "slippery", "nojumps",
                     "gravity"]
+                    finalboss_mode = not finalboss_mode
                     if not finalboss_mode:
                         toggle_finalboss_commands(finalboss_toggle_commands, False)
                         adjust_finalboss_cooldowns(finalboss_cooldown_commands, FINALBOSS_MUL)
-                        finalboss_mode = True
                         sendMessage(irc, f"/me {TARGET_ID} -> Final Boss Mode activated! Cooldowns are longer and some commands are disabled.")
                     else:
                         toggle_finalboss_commands(finalboss_toggle_commands, lambda cmd: os.getenv(cmd) != "f")
                         adjust_finalboss_cooldowns(finalboss_cooldown_commands, FINALBOSS_MUL, divide=True)
-                        finalboss_mode = False
                         sendMessage(irc, f"/me {TARGET_ID} -> Final Boss Mode deactivated.")
                     
                 elif command in ["repl"] and len(args) >= 2 and enabled_check("repl") and cd_check("repl"):
