@@ -50,7 +50,7 @@ THIRD_CAMERA_V_INVERTED = os.getenv("third-camera-vertical-inverted")
 THIRD_CAMERA_H_INVERTED = os.getenv("third-camera-horizontal-inverted")
 
 TOPOINT_PAST_CRATER = os.getenv("TOPOINT_PAST_CRATER") != "f"
-COST_MODE = os.getenv("COST_MODE") != "f"
+cost_mode = os.getenv("COST_MODE") != "f"
 
 SHIFTX_MIN = os.getenv("SHIFTX_MIN")
 SHIFTX_MAX = os.getenv("SHIFTX_MAX")
@@ -78,7 +78,7 @@ MAXFISH_MAX = os.getenv("MAXFISH_MAX")
 game = os.getenv("LOAD_STARTED") != "f"
 FINALBOSS_MUL = 2
 finalboss_mode = False
-TARGET_ID_MODE = os.getenv("TARGET_ID_MODE") != "f"
+target_mode = os.getenv("TARGET_MODE") != "f"
 INIT_BALANCE = 1000
 
 
@@ -235,7 +235,7 @@ display_thread.start()
 main_thread.join()
 
 def target_check(line):
-    if TARGET_ID_MODE:
+    if target_mode:
         if line[len(line) - 1].lower() == TARGET_ID.lower() or line[len(line) - 1].lower() == "all":
             return True
         else:
@@ -383,7 +383,7 @@ def range_check(val, min, max):
         return False
     
 def cost_check(cmd, user):
-    if COST_MODE:
+    if cost_mode:
         user_credit = credit_list[user_list.index(user)]
         cost = costs[command_names.index(cmd)]
         if user_credit >= cost:
@@ -575,6 +575,18 @@ active = [False] * len(command_names)
 user_list = []
 credit_list = []
 
+def increase_credits():
+    while True:
+        if cost_mode:
+            for i in range(len(user_list)):
+                credit_list[i] += 5
+                #print(f"{user_list[i]} now has {credit_list[i]} credits.")
+        time.sleep(30)
+
+thread = threading.Thread(target=increase_credits)
+thread.daemon = True
+thread.start()
+
 #pull cooldowns and costs set in env file and add to array
 for x in range(len(command_names)):
     try:
@@ -636,6 +648,8 @@ def gamecontrol():
     
     global message
     global game
+    global cost_mode
+    global target_mode
     #global user_list
 
     while True:
@@ -661,12 +675,26 @@ def gamecontrol():
                 
             if game:
 
-                if COST_MODE and user not in user_list:
+                if cost_mode and user not in user_list:
                     user_list.append(user)
                     credit_list.append(INIT_BALANCE)
 
-                if COST_MODE and command in ["balance"]:
-                    sendMessage(irc, f"/me @{user} Balance: {credit_list[user_list.index(user)]}") 
+                if cost_mode and command in ["balance", "credit"]:
+                    sendMessage(irc, f"/me {TARGET_ID} -> @{user} Balance: {credit_list[user_list.index(user)]}") 
+
+                elif command in ["costmode"] and (user in COMMAND_ADMINS or user in COMMAND_MODS):           
+                    cost_mode = not cost_mode
+                    if cost_mode:
+                        sendMessage(irc, f"/me {TARGET_ID} -> Cost Mode enabled!")
+                    else:
+                        sendMessage(irc, f"/me {TARGET_ID} -> Cost Mode disabled.")
+
+                elif command in ["targetmode"] and (user in COMMAND_ADMINS or user in COMMAND_MODS):           
+                    target_mode = not target_mode
+                    if target_mode:
+                        sendMessage(irc, f"/me {TARGET_ID} -> Target Mode enabled!")
+                    else:
+                        sendMessage(irc, f"/me {TARGET_ID} -> Target Mode disabled.")
 
                 elif command in ["protect"] and enabled_check("protect") and cd_check("protect"):
                     deactivate("protect")
@@ -966,7 +994,7 @@ def gamecontrol():
                     "(set! (-> *pc-settings* lod-force-tfrag) 2)(set! (-> *pc-settings* lod-force-tie) 3)(set! (-> *pc-settings* lod-force-ocean) 2)(set! (-> *pc-settings* lod-force-actor) 3)")
 
                 elif command in ["moveplantboss"] and enabled_check("moveplantboss") and cd_check("moveplantboss"):
-                    sendForm("(set! (-> *pc-settings* force-actors?) #t)")
+                    sendForm("(set! (-> *pc-settings* ps2-actor-vis?) #f)")
                     time.sleep(0.050)
                     sendForm("(when (process-by-ename \"plant-boss-3\")(set-vector!  (-> (-> (the process-drawable (process-by-ename \"plant-boss-3\"))root)trans) (meters 436.97) (meters -43.99) (meters -347.09) 1.0))")
                     sendForm("(set! (-> (the-as fact-info-target (-> *target* fact))health) 1.0)")
@@ -974,11 +1002,11 @@ def gamecontrol():
                     sendForm("(set! (-> (target-pos 0) x) (meters 431.47))  (set! (-> (target-pos 0) y) (meters -44.00)) (set! (-> (target-pos 0) z) (meters -334.09))")
 
                 elif command in ["moveplantboss2"] and enabled_check("moveplantboss2") and cd_check("moveplantboss2"):
-                    sendForm("(set! (-> *pc-settings* force-actors?) #t)")
+                    sendForm("(set! (-> *pc-settings* ps2-actor-vis?) #f)")
                     time.sleep(0.050)
                     sendForm("(when (process-by-ename \"plant-boss-3\")(set-vector!  (-> (-> (the process-drawable (process-by-ename \"plant-boss-3\"))root)trans) (meters 436.97) (meters -43.99) (meters -347.09) 1.0))")
                     time.sleep(0.050)
-                    #sendForm("(set! (-> *pc-settings* force-actors?) #f)")
+                    #sendForm("(set! (-> *pc-settings* ps2-actor-vis?) #t)")
 
                 elif command in ["basincell"] and enabled_check("basincell") and cd_check("basincell"):
                     sendForm("(if (when (process-by-ename \"fuel-cell-45\") (= (-> (->(the process-drawable (process-by-ename \"fuel-cell-45\"))root)trans x)  (meters -266.54)))(when (process-by-ename \"fuel-cell-45\")(set-vector!  (-> (-> (the process-drawable (process-by-ename \"fuel-cell-45\"))root)trans) (meters -248.92) (meters 52.11) (meters -1515.66) 1.0))(when (process-by-ename \"fuel-cell-45\")(set-vector!  (-> (-> (the process-drawable (process-by-ename \"fuel-cell-45\"))root)trans) (meters -266.54) (meters 52.11) (meters -1508.48) 1.0)))")
@@ -991,10 +1019,10 @@ def gamecontrol():
                     "(set! *spawn-actors* #f) (reset-actors 'debug)")
 
                 elif command in ["actors-on", "actorson"] and enabled_check("actors-on") and (user in COMMAND_ADMINS or user in COMMAND_MODS):
-                    sendForm("(set! (-> *pc-settings* force-actors?) #t)")
+                    sendForm("(set! (-> *pc-settings* ps2-actor-vis?) #f)")
 
                 elif command in ["actors-off", "actorsoff"] and enabled_check("actors-off") and (user in COMMAND_ADMINS or user in COMMAND_MODS):
-                    sendForm("(set! (-> *pc-settings* force-actors?) #f)")
+                    sendForm("(set! (-> *pc-settings* ps2-actor-vis?) #t)")
 
                 elif command in ["debug"] and enabled_check("debug") and (user in COMMAND_ADMINS or user in COMMAND_MODS):
                     sendForm("(set! *debug-segment* (not *debug-segment*))(set! *cheat-mode* (not *cheat-mode*))")
@@ -1186,15 +1214,14 @@ def gamecontrol():
                     "scale", "hp", "iframes", "ouch", "movetojak", "rocketman",
                     "noeco", "eco", "shortfall", "nuka", "pinball", "slippery", "nojumps",
                     "gravity"]
+                    finalboss_mode = not finalboss_mode
                     if not finalboss_mode:
                         toggle_finalboss_commands(finalboss_toggle_commands, False)
                         adjust_finalboss_cooldowns(finalboss_cooldown_commands, FINALBOSS_MUL)
-                        finalboss_mode = True
                         sendMessage(irc, f"/me {TARGET_ID} -> Final Boss Mode activated! Cooldowns are longer and some commands are disabled.")
                     else:
                         toggle_finalboss_commands(finalboss_toggle_commands, lambda cmd: os.getenv(cmd) != "f")
                         adjust_finalboss_cooldowns(finalboss_cooldown_commands, FINALBOSS_MUL, divide=True)
-                        finalboss_mode = False
                         sendMessage(irc, f"/me {TARGET_ID} -> Final Boss Mode deactivated.")
                     
                 elif command in ["repl"] and len(args) >= 2 and enabled_check("repl") and cd_check("repl"):
