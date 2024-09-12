@@ -883,7 +883,7 @@ def gamecontrol():
                 
                 elif command in ["playhint", "hint"] and len(args) >= 2 and enabled_check("playhint") and cd_check("playhint"):
                     hint = args[1].replace("\"","")
-                    sendForm(f"(kill-current-level-hint '() '() 'exit)")
+                    sendForm("(kill-current-level-hint '() '() 'exit)")
                     time.sleep(0.05)
                     sendForm(f"(ambient-hint-spawn \"{hint}\" (-> *target* root trans) *entity-pool* 'ambient)")
 
@@ -1004,21 +1004,21 @@ def gamecontrol():
 
                 elif command in ["moveplantboss"] and enabled_check("moveplantboss") and cd_check("moveplantboss"):
                     sendForm("(set! (-> *pc-settings* ps2-actor-vis?) #f)")
-                    time.sleep(0.050)
+                    time.sleep(0.05)
                     sendForm("(when (process-by-ename \"plant-boss-3\")(set-vector!  (-> (-> (the process-drawable (process-by-ename \"plant-boss-3\"))root)trans) (meters 436.97) (meters -43.99) (meters -347.09) 1.0))")
                     sendForm("(set! (-> (the-as fact-info-target (-> *target* fact))health) 1.0)")
                     time.sleep(2)
                     sendForm("(set! (-> (target-pos 0) x) (meters 431.47))  (set! (-> (target-pos 0) y) (meters -44.00)) (set! (-> (target-pos 0) z) (meters -334.09))")
-                    time.sleep(0.050)
                     if not ALL_ACTORS:
+                        time.sleep(0.05)
                         sendForm("(set! (-> *pc-settings* ps2-actor-vis?) #t)")
 
                 elif command in ["moveplantboss2"] and enabled_check("moveplantboss2") and cd_check("moveplantboss2"):
                     sendForm("(set! (-> *pc-settings* ps2-actor-vis?) #f)")
                     time.sleep(0.050)
                     sendForm("(when (process-by-ename \"plant-boss-3\")(set-vector!  (-> (-> (the process-drawable (process-by-ename \"plant-boss-3\"))root)trans) (meters 436.97) (meters -43.99) (meters -347.09) 1.0))")
-                    time.sleep(0.050)
                     if not ALL_ACTORS:
+                        time.sleep(0.05)
                         sendForm("(set! (-> *pc-settings* ps2-actor-vis?) #t)")
 
                 elif command in ["basincell"] and enabled_check("basincell") and cd_check("basincell"):
