@@ -137,7 +137,7 @@ Right now there is NO way to directly move Jak (e.g. as if using the left stick)
 - `#moveplantboss2`	Moves the plant boss to a corner in the temple without eating Jak. Doesn't work outside of the temple.
 - `#basincell`	Swaps the spot of the jump cell in Precursor Basin.
 
-### Streamer
+### Admin / Mod
 - `#enable command`	Enables a command for use.
   - Example `#enable give`
 - `#disable command`	Disables a command for use.
@@ -152,3 +152,5 @@ Right now there is NO way to directly move Jak (e.g. as if using the left stick)
 - `#stop`	Stop allowing commands to come through.
 - `#active`	See all active commands in chat.
 - `#finalboss`	A special mode to make final boss easier. Doubles the cooldowns of harmful commands and disables some others.
+- `#targetmode` Switches the game to Target Mode. Users will need to put the name of the player (or `all`) at the end of a command to target them. Useful for when there's multiple players.
+- `#costmode` Switches the game to Cost Mode. Commands cost credits, and users start with 1000 and gain 5 every 30 seconds.
