@@ -64,7 +64,7 @@ class SettingsApp:
             "actors-off", "actors-on", "askew", "basincell", "bigfist", "bighead", 
             "bigheadnpc", "bigjak", "blind", "burn", "cam", 
             "cam-in", "cam-left", "cam-out", "cam-right", "collected", 
-            "color", "customfish", "dark", "debug", "deload", 
+            "color", "crazyplats", "customfish", "dark", "debug", "deload", 
             "die", "drown", "eco", "earthquake", "endlessfall", 
             "fakewarp", "fastjak", "freecam", 
             "getoff", "ghostjak", "give", "gravity", "hardfish", 
@@ -86,7 +86,7 @@ class SettingsApp:
         self.add_section("Command Cooldowns", [
             "askew_cd", "basincell_cd", "bigfist_cd", "bighead_cd", "bigheadnpc_cd", "cam_cd", 
             "cam-in_cd", "cam-left_cd", "cam-out_cd", "cam-right_cd", "color_cd", 
-            "customfish_cd", "dark_cd", "deload_cd", "die_cd", "eco_cd", 
+            "customfish_cd", "crazyplats_cd", "dark_cd", "deload_cd", "die_cd", "eco_cd", 
             "earthquake_cd", "fakewarp_cd", "fastjak_cd",
             "freecam_cd", "getoff_cd", "give_cd", "gravity_cd", "hardfish_cd", 
             "hp_cd", "hugehead_cd", "iframes_cd", "invertcam_cd", "invuln_cd", 
@@ -107,7 +107,7 @@ class SettingsApp:
             "askew_cost", "basincell_cost", "bigfist_cost", "bighead_cost", "bigheadnpc_cost", 
             "bigjak_cost", "blind_cost", "burn_cost", "cam_cost", "cam-in_cost", 
             "cam-left_cost", "cam-out_cost", "cam-right_cost", "collected_cost", 
-            "color_cost", "customfish_cost", "dark_cost", "deload_cost", "die_cost", 
+            "color_cost", "crazyplats_cost", "customfish_cost", "dark_cost", "deload_cost", "die_cost", 
             "drown_cost", "earthquake_cost", "eco_cost", "endlessfall_cost", 
             "fakewarp_cost", "fastjak_cost", "flatjak_cost", 
             "freecam_cost", "getoff_cost", "ghostjak_cost", "give_cost", "gravity_cost", 
@@ -130,7 +130,7 @@ class SettingsApp:
 
         self.add_section("Command Durations", [
             "askew_dur", "bigfist_dur", "bighead_dur", "bigheadnpc_dur", "bigjak_dur",
-            "color_dur", "cam_dur", "dark_dur", "fakewarp_dur", "fastjak_dur", "flatjak_dur",
+            "cam_dur", "color_dur", "crazyplats_dur", "dark_dur", "fakewarp_dur", "fastjak_dur", "flatjak_dur",
             "freecam_dur", "ghostjak_dur", "gravity_dur", "hardfish_dur",
             "hugehead_dur", "iframes_dur", "invertcam_dur", "invuln_dur", "leapfrog_dur", "lowpoly_dur",
             "mirror_dur", "noactors_dur", "noeco_dur", "nodax_dur", "nodive_dur", "noduck_dur",
@@ -365,3 +365,4 @@ if __name__ == "__main__":
     root.configure(bg="#E9E9E9")  # Change background color of the main window
     app = SettingsApp(root)
     root.mainloop()
+

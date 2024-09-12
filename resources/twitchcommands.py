@@ -338,7 +338,7 @@ command_deactivation = {
     "spiderman": "(set! (-> *pat-mode-info* 1 wall-angle) 2.0) (set! (-> *pat-mode-info* 2 wall-angle) 0.82)",
     "statue": "(logclear! (-> *target* mask) (process-mask sleep))",
     "fakewarp": "(set! (-> *setting-control* default music-volume) *target-music-volume*)(set! (-> *setting-control* default sfx-volume) *target-sfx-volume*)(set! (-> *setting-control* default ambient-volume) *target-ambient-volume*)(set! (-> *setting-control* default dialog-volume) *target-dialog-volume*)"
-    #"crazyplats": "(set! (-> *pontoonten-constants* player-weight) (meters 35))(set! (-> *pontoonfive-constants* player-weight) (meters 35))(set! (-> *tra-pontoon-constants* player-weight) (meters 35))(set! (-> *citb-chain-plat-constants* player-weight) (meters 35))(set! (-> *bone-platform-constants* player-weight) (meters 35))(set! (-> *ogre-step-constants* player-weight) (meters 35))(set! (-> *ogre-isle-constants* player-weight) (meters 35))(set! (-> *qbert-plat-constants* player-weight) (meters 35))(set! (-> *tar-plat-constants* player-weight) (meters 60))"
+    "crazyplats": "(when (process-by-ename \"pontoonten-10\")(set! (-> *pontoonten-constants* player-weight) (meters 35)))(when (process-by-ename \"pontoonfive-6\")(set! (-> *pontoonfive-constants* player-weight) (meters 35)))(when (process-by-ename \"tra-pontoon-3\")(set! (-> *tra-pontoon-constants* player-weight) (meters 35)))(when (process-by-ename \"citb-chain-plat-14\")(set! (-> *citb-chain-plat-constants* player-weight) (meters 35)))(when (process-by-ename \"qbert-plat-7\")(set! (-> *qbert-plat-constants* player-weight) (meters 35)))(when (process-by-ename \"tar-plat-21\")(set! (-> *tar-plat-constants* player-weight) (meters 60)))(when (process-by-ename \"ogre-step-a-2\")(set! (-> *ogre-step-constants* player-weight) (meters 35)))(when (process-by-ename \"ogre-isle-c-1\")(set! (-> *ogre-isle-constants* player-weight) (meters 35)))(when (process-by-ename \"bone-platform-4\")(set! (-> *boneplatform-constants* player-weight) (meters 35)))"
 }
         
 def active_sweep():
@@ -457,7 +457,7 @@ command_names = ["protect","rjto","superjump","leapfrog","superboosted","noboost
                  "basincell","resetactors","noactors","repl","debug","save","actors-on","actors-off","askew",
                  "widejak","flatjak","smalljak","bigjak","color","scale","slippery","gravity","pinball","playhint","rocketman","sfx",
                  "unzoom","bighead","smallhead","bigfist","bigheadnpc","hugehead","mirror","notex","spiderman","press",
-                 "lang","timeofday","statue","turn-left","turn-right","turn-180","cam-left","cam-right","cam-in","cam-out","tiktok"]
+                 "lang","timeofday","statue","turn-left","turn-right","turn-180","cam-left","cam-right","cam-in","cam-out","tiktok","crazyplats"]
 
 #array of valid checkpoints so user cant send garbage data
 point_list = ["training-start","game-start","village1-hut","village1-warp","beach-start",
@@ -877,12 +877,14 @@ def gamecontrol():
                 
                 elif command in ["playhint", "hint"] and len(args) >= 2 and enabled_check("playhint") and cd_check("playhint"):
                     hint = args[1].replace("\"","")
+                    sendForm(f"(kill-current-level-hint '() '() 'exit)")
+                    time.sleep(0.05)
                     sendForm(f"(ambient-hint-spawn \"{hint}\" (-> *target* root trans) *entity-pool* 'ambient)")
 
-                #elif command in ["crazyplats"] and enabled_check("crazyplats") and cd_check("crazyplats"):
-                #    active_check("crazyplats", 
-                #    "(set! (-> *pontoonten-constants* player-weight) (meters -150))(set! (-> *pontoonfive-constants* player-weight) (meters -150))(set! (-> *tra-pontoon-constants* player-weight) (meters -150))(set! (-> *citb-chain-plat-constants* player-weight) (meters -150))(set! (-> *bone-platform-constants* player-weight) (meters -150))(set! (-> *ogre-step-constants* player-weight) (meters -150))(set! (-> *ogre-isle-constants* player-weight) (meters -150))(set! (-> *qbert-plat-constants* player-weight) (meters -150))(set! (-> *tar-plat-constants* player-weight) (meters -150))")
-                #    
+                elif command in ["crazyplats"] and enabled_check("crazyplats") and cd_check("crazyplats"):
+                    active_check("crazyplats", 
+                    "(when (process-by-ename \"bone-platform-4\")(set! (-> *boneplatform-constants* player-weight) (meters -350)))(when (process-by-ename \"pontoonten-10\")(set! (-> *pontoonten-constants* player-weight) (meters -350)))(when (process-by-ename \"pontoonfive-6\")(set! (-> *pontoonfive-constants* player-weight) (meters -350)))(when (process-by-ename \"tra-pontoon-3\")(set! (-> *tra-pontoon-constants* player-weight) (meters -350)))(when (process-by-ename \"citb-chain-plat-14\")(set! (-> *citb-chain-plat-constants* player-weight) (meters -350)))(when (process-by-ename \"qbert-plat-7\")(set! (-> *qbert-plat-constants* player-weight) (meters -350)))(when (process-by-ename \"tar-plat-21\")(set! (-> *tar-plat-constants* player-weight) (meters -350)))(when (process-by-ename \"ogre-step-a-2\")(set! (-> *ogre-step-constants* player-weight) (meters -350)))(when (process-by-ename \"ogre-isle-c-1\")(set! (-> *ogre-isle-constants* player-weight) (meters -200)))")
+                    
                 #elif command in ["setpoint", "setcheckpoint"] and enabled_check("setpoint") and cd_check("setpoint"):
                 #    sendForm("(vector-copy! (-> (-> *game-info* current-continue) trans) (new 'static 'vector :x (-> (target-pos 0) x) :y (-> (target-pos 0) y) :z (-> (target-pos 0) z) :w 1.0))")
                 #    
@@ -1144,7 +1146,7 @@ def gamecontrol():
                     active_check("smallhead",
                     "(set! (-> *pc-settings* speedrunner-mode?) #f)(begin (logior! (-> *pc-settings* cheats) (pc-cheats small-head)) (logclear! (-> *pc-settings* cheats-known) (pc-cheats small-head)))")
 
-                elif command in ["bigfist"] and enabled_check("bigfist") and cd_check("bigfist"):
+                elif command in ["bigfist","bigfists"] and enabled_check("bigfist") and cd_check("bigfist"):
                     active_check("bigfist",
                     "(set! (-> *pc-settings* speedrunner-mode?) #f)(begin (logior! (-> *pc-settings* cheats) (pc-cheats big-fist)) (logclear! (-> *pc-settings* cheats-known) (pc-cheats big-fist)))")
 
