@@ -95,6 +95,7 @@ Right now there is NO way to directly move Jak (e.g. as if using the left stick)
 - `#hp amount` Sets Jak’s health to a specified amount. If set to 0, he won’t die until he gets hit or bonks.
   - Examples `#hp 1` `#hp 4` `#hp 500`
 - `#melt` Melts Jak, as if he fell into lava.
+- `#drown` Drowns Jak.
 - `#endlessfall` Kills Jak, as if he fell into an abyss.
 - `#iframes amount` Sets the duration, in seconds, of the invulnerability state after Jak takes damage. Default is 3.
   - Examples `#iframes 0` `#iframes 30` `#iframes 3`
