@@ -130,7 +130,7 @@ Right now there is NO way to directly move Jak (e.g. as if using the left stick)
   Examples `#maxfish 50` `#maxfish 150` `#maxfish 1`
 - `#hardfish`	Sets the fish difficulty to the hidden hard mode.
 - `#customfish difficulty phase field value`	Allows for a custom change to the fish minigame.
-  - The minigame has 6 difficulties: 0-4 are the handicap tiers, and 5 is hard fish. The minigame starts on 0 and increases by one each time a handicap is applied. Each difficulty has 7 phases (eels are 6). Available fields are: timeout, vel, swing-min, swing-max, 
+  - The minigame has 6 difficulties: 0-4 are the handicap tiers, and 5 is hard fish. The minigame starts on 0 and increases by one each time a handicap is applied. Each difficulty has 7 phases (eels are 6). Available fields are: `timeout`, `vel`, `swing-min`, `swing-max`, 
     `period`, `fish-vel`, `bad-percent`, and `powerup-percent`. Use `0.0`-`1.0` for percent fields.
   - Examples `#customfish 0 2 fish-vel 5` `#customfish 0 6 fish-vel 10` `#customfish 0 4 swing-min 7` `#customfish 5 6 bad-percent 0.85` `#customfish 0 3 period 0.1` `#customfish 5 7 powerup-percent 1.0`
 - `#moveplantboss`	Moves the plant boss to a corner in the temple and eats Jak. Doesn't work outside of the temple.
