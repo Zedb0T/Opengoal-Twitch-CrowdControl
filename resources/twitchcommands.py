@@ -50,6 +50,7 @@ THIRD_CAMERA_V_INVERTED = os.getenv("third-camera-vertical-inverted")
 THIRD_CAMERA_H_INVERTED = os.getenv("third-camera-horizontal-inverted")
 
 TOPOINT_PAST_CRATER = os.getenv("TOPOINT_PAST_CRATER") != "f"
+ALL_ACTORS = os.getenv("ALL_ACTORS") != "f"
 cost_mode = os.getenv("COST_MODE") != "f"
 
 SHIFTX_MIN = os.getenv("SHIFTX_MIN")
@@ -337,8 +338,8 @@ command_deactivation = {
     "noactors": "(set! *spawn-actors* #t) (reset-actors 'debug)",
     "spiderman": "(set! (-> *pat-mode-info* 1 wall-angle) 2.0) (set! (-> *pat-mode-info* 2 wall-angle) 0.82)",
     "statue": "(logclear! (-> *target* mask) (process-mask sleep))",
-    "fakewarp": "(set! (-> *setting-control* default music-volume) *target-music-volume*)(set! (-> *setting-control* default sfx-volume) *target-sfx-volume*)(set! (-> *setting-control* default ambient-volume) *target-ambient-volume*)(set! (-> *setting-control* default dialog-volume) *target-dialog-volume*)"
-    "crazyplats": "(when (process-by-ename \"pontoonten-10\")(set! (-> *pontoonten-constants* player-weight) (meters 35)))(when (process-by-ename \"pontoonfive-6\")(set! (-> *pontoonfive-constants* player-weight) (meters 35)))(when (process-by-ename \"tra-pontoon-3\")(set! (-> *tra-pontoon-constants* player-weight) (meters 35)))(when (process-by-ename \"citb-chain-plat-14\")(set! (-> *citb-chain-plat-constants* player-weight) (meters 35)))(when (process-by-ename \"qbert-plat-7\")(set! (-> *qbert-plat-constants* player-weight) (meters 35)))(when (process-by-ename \"tar-plat-21\")(set! (-> *tar-plat-constants* player-weight) (meters 60)))(when (process-by-ename \"ogre-step-a-2\")(set! (-> *ogre-step-constants* player-weight) (meters 35)))(when (process-by-ename \"ogre-isle-c-1\")(set! (-> *ogre-isle-constants* player-weight) (meters 35)))(when (process-by-ename \"bone-platform-4\")(set! (-> *boneplatform-constants* player-weight) (meters 35)))"
+    "fakewarp": "(set! (-> *setting-control* default music-volume) *target-music-volume*)(set! (-> *setting-control* default sfx-volume) *target-sfx-volume*)(set! (-> *setting-control* default ambient-volume) *target-ambient-volume*)(set! (-> *setting-control* default dialog-volume) *target-dialog-volume*)",
+    "crazyplats": "(when (process-by-ename \"pontoonten-10\")(set! (-> *pontoonten-constants* player-weight) (meters 35)))(when (process-by-ename \"pontoonfive-6\")(set! (-> *pontoonfive-constants* player-weight) (meters 35)))(when (process-by-ename \"tra-pontoon-3\")(set! (-> *tra-pontoon-constants* player-weight) (meters 35)))(when (process-by-ename \"citb-chain-plat-14\")(set! (-> *citb-chain-plat-constants* player-weight) (meters 35)))(when (process-by-ename \"qbert-plat-7\")(set! (-> *qbert-plat-constants* player-weight) (meters 35)))(when (process-by-ename \"tar-plat-21\")(set! (-> *tar-plat-constants* player-weight) (meters 60)))(when (process-by-ename \"ogre-step-a-2\")(set! (-> *ogre-step-constants* player-weight) (meters 35)))(when (process-by-ename \"ogre-isle-c-1\")(set! (-> *ogre-isle-constants* player-weight) (meters 35)))(when (process-by-ename \"bone-platform-4\")(set! (-> *bone-platform-constants* player-weight) (meters 35)))"
 }
         
 def active_sweep():
@@ -446,6 +447,11 @@ sendForm("(set! *debug-segment* #f)")  #COMMENT OUT FOR TEAMRUNS
 sendForm("(define *dark-level* (level-get-target-inside *level*))")
 sendForm("(define *chosen-ratio* (-> *pc-settings* aspect-ratio))")
 sendForm("(define *target-dialog-volume* (-> *setting-control* default dialog-volume))(define *target-sfx-volume* (-> *setting-control* default sfx-volume))(define *target-music-volume* (-> *setting-control* default music-volume))(define *target-ambient-volume* (-> *setting-control* default ambient-volume))")
+if ALL_ACTORS:
+    sendForm("(set! (-> *pc-settings* ps2-actor-vis?) #f)")
+else:
+    sendForm("(set! (-> *pc-settings* ps2-actor-vis?) #t)")
+sendForm("(set! (-> *pc-settings* speedrunner-mode?) #f)")
 #End Int block
 
 #add all commands into an array so we can reference via index
@@ -883,7 +889,7 @@ def gamecontrol():
 
                 elif command in ["crazyplats"] and enabled_check("crazyplats") and cd_check("crazyplats"):
                     active_check("crazyplats", 
-                    "(when (process-by-ename \"bone-platform-4\")(set! (-> *boneplatform-constants* player-weight) (meters -350)))(when (process-by-ename \"pontoonten-10\")(set! (-> *pontoonten-constants* player-weight) (meters -350)))(when (process-by-ename \"pontoonfive-6\")(set! (-> *pontoonfive-constants* player-weight) (meters -350)))(when (process-by-ename \"tra-pontoon-3\")(set! (-> *tra-pontoon-constants* player-weight) (meters -350)))(when (process-by-ename \"citb-chain-plat-14\")(set! (-> *citb-chain-plat-constants* player-weight) (meters -350)))(when (process-by-ename \"qbert-plat-7\")(set! (-> *qbert-plat-constants* player-weight) (meters -350)))(when (process-by-ename \"tar-plat-21\")(set! (-> *tar-plat-constants* player-weight) (meters -350)))(when (process-by-ename \"ogre-step-a-2\")(set! (-> *ogre-step-constants* player-weight) (meters -350)))(when (process-by-ename \"ogre-isle-c-1\")(set! (-> *ogre-isle-constants* player-weight) (meters -200)))")
+                    "(when (process-by-ename \"bone-platform-4\")(set! (-> *bone-platform-constants* player-weight) (meters -350)))(when (process-by-ename \"pontoonten-10\")(set! (-> *pontoonten-constants* player-weight) (meters -350)))(when (process-by-ename \"pontoonfive-6\")(set! (-> *pontoonfive-constants* player-weight) (meters -350)))(when (process-by-ename \"tra-pontoon-3\")(set! (-> *tra-pontoon-constants* player-weight) (meters -350)))(when (process-by-ename \"citb-chain-plat-14\")(set! (-> *citb-chain-plat-constants* player-weight) (meters -350)))(when (process-by-ename \"qbert-plat-7\")(set! (-> *qbert-plat-constants* player-weight) (meters -350)))(when (process-by-ename \"tar-plat-21\")(set! (-> *tar-plat-constants* player-weight) (meters -350)))(when (process-by-ename \"ogre-step-a-2\")(set! (-> *ogre-step-constants* player-weight) (meters -350)))(when (process-by-ename \"ogre-isle-c-1\")(set! (-> *ogre-isle-constants* player-weight) (meters -200)))")
                     
                 #elif command in ["setpoint", "setcheckpoint"] and enabled_check("setpoint") and cd_check("setpoint"):
                 #    sendForm("(vector-copy! (-> (-> *game-info* current-continue) trans) (new 'static 'vector :x (-> (target-pos 0) x) :y (-> (target-pos 0) y) :z (-> (target-pos 0) z) :w 1.0))")
@@ -1003,13 +1009,17 @@ def gamecontrol():
                     sendForm("(set! (-> (the-as fact-info-target (-> *target* fact))health) 1.0)")
                     time.sleep(2)
                     sendForm("(set! (-> (target-pos 0) x) (meters 431.47))  (set! (-> (target-pos 0) y) (meters -44.00)) (set! (-> (target-pos 0) z) (meters -334.09))")
+                    time.sleep(0.050)
+                    if not ALL_ACTORS:
+                        sendForm("(set! (-> *pc-settings* ps2-actor-vis?) #t)")
 
                 elif command in ["moveplantboss2"] and enabled_check("moveplantboss2") and cd_check("moveplantboss2"):
                     sendForm("(set! (-> *pc-settings* ps2-actor-vis?) #f)")
                     time.sleep(0.050)
                     sendForm("(when (process-by-ename \"plant-boss-3\")(set-vector!  (-> (-> (the process-drawable (process-by-ename \"plant-boss-3\"))root)trans) (meters 436.97) (meters -43.99) (meters -347.09) 1.0))")
                     time.sleep(0.050)
-                    #sendForm("(set! (-> *pc-settings* ps2-actor-vis?) #t)")
+                    if not ALL_ACTORS:
+                        sendForm("(set! (-> *pc-settings* ps2-actor-vis?) #t)")
 
                 elif command in ["basincell"] and enabled_check("basincell") and cd_check("basincell"):
                     sendForm("(if (when (process-by-ename \"fuel-cell-45\") (= (-> (->(the process-drawable (process-by-ename \"fuel-cell-45\"))root)trans x)  (meters -266.54)))(when (process-by-ename \"fuel-cell-45\")(set-vector!  (-> (-> (the process-drawable (process-by-ename \"fuel-cell-45\"))root)trans) (meters -248.92) (meters 52.11) (meters -1515.66) 1.0))(when (process-by-ename \"fuel-cell-45\")(set-vector!  (-> (-> (the process-drawable (process-by-ename \"fuel-cell-45\"))root)trans) (meters -266.54) (meters 52.11) (meters -1508.48) 1.0)))")
