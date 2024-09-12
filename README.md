@@ -6,7 +6,7 @@
 alternatively, read [installation here](https://docs.google.com/document/d/14O7a4fCDzkJnegX_u_cZmCaUm_UlTUOPt5Gnu3kZ65o/edit) or [command list here](https://docs.google.com/spreadsheets/d/1Dbt7bFN86zBA32e3zciOZCRqSIW0XR0Np7HfdypAOPE/edit?usp=sharing)
 
 You need the following in this order:  
-Place `Jak1Twitch.exe` and the `EXAMPLE.env` file you downloaded inside of the `versions` folder: `open launcher > Settings > Versions > folder icon > [version])` with `gk.exe` and `goalc.exe`, then rename `EXAMPLE.env` to `.env` (make sure to save as ALL FILE TYPES -- If you do not change this it will save it as `.env.txt` and not work).
+Place `Jak1Twitch.exe` and the `EXAMPLE.env` file you downloaded inside of the `versions` folder: `open launcher > Settings > Versions > folder icon > [version])` with `gk.exe` and `goalc.exe`. Then rename `EXAMPLE.env` to `.env` (make sure to save as ALL FILE TYPES -- If you do not change this it will save it as `.env.txt` and not work).
 Modify the contents of `.env` by opening `J1T_GUI` ([generate ouath token here](https://twitchapps.com/tmi/)) and click Save Settings. 
 Open `Jak1Twitch.exe` and it should automatically open `gk` and `goalc` and connect to Twitch. Now you are good to go!  
 
