@@ -82,7 +82,6 @@ finalboss_mode = False
 target_mode = os.getenv("TARGET_MODE") != "f"
 INIT_BALANCE = 1000
 
-
 #bool that checks if its the launcher version
 launcher_version = exists(application_path+"\OpenGOAL-Launcher.exe")
 
@@ -108,9 +107,7 @@ if launcher_version:
     extraGKCommand = "-proj-path "+os.getenv('APPDATA') +"\OpenGOAL-Launcher\\data "
     PATHTOGK = application_path +"\gk.exe "+extraGKCommand+" -v -- -boot -fakeiso -debug"
 
-#
 #Function definitions
-#
 def sendForm(form):
     header = struct.pack('<II', len(form), 10)
     clientSocket.sendall(header + form.encode())
@@ -179,9 +176,13 @@ def display_text_in_window():
     def update_text():
         text_content = ''
         for effect, time_remaining in zip(active_list, active_list_times):
-            minutes = int(time_remaining) // 60
+            hours = int(time_remaining) // 3600
+            minutes = (int(time_remaining) % 3600) // 60
             seconds = int(time_remaining) % 60
-            formatted_time = f"{minutes}:{seconds:02d}"
+            if hours > 0:
+                formatted_time = f"{hours}:{minutes:02d}:{seconds:02d}"
+            else:
+                formatted_time = f"{minutes}:{seconds:02d}"
             if effect != "fakewarp":
                 text_content += f"{effect} ~ {formatted_time}\n"
         
@@ -222,8 +223,7 @@ def display_text_in_window():
 
 # Main program logic
 def main_program_logic():
-    for i in range(5):
-        print(f"Main Program: {i}")
+    print(f"Main Program:")
 
 main_thread = threading.Thread(target=main_program_logic)
 main_thread.start()
@@ -252,9 +252,17 @@ def cd_check(cmd):
         return True
     elif COOLDOWN_MSG:
         remaining_time = int(cooldowns[idx] - (time.time() - last_used[idx]))
-        minutes = remaining_time // 60
+        
+        hours = remaining_time // 3600
+        minutes = (remaining_time % 3600) // 60
         seconds = remaining_time % 60
-        sendMessage(irc, f"/me @{user} {TARGET_ID} -> Command '{command_names[idx]}' is on cooldown ({minutes}m{seconds}s left).")
+        
+        if hours > 0:
+            time_string = f"{hours}:{minutes:02}:{seconds:02}s"
+        else:
+            time_string = f"{minutes}:{seconds:02}s"
+        
+        sendMessage(irc, f"/me @{user} {TARGET_ID} -> Command '{command_names[idx]}' is on cooldown ({time_string} left).")
         return False
     else:
         return False
@@ -294,7 +302,6 @@ command_deactivation = {
     "noduck": "(logclear! (-> *target* state-flags) (state-flags prevent-duck))",
     "noledge": "(set! (-> *collide-edge-work* max-dir-cosa-delta) 0.6)",
     "fastjak": "(set! (-> *walk-mods* target-speed) 40960.0)(set! (-> *double-jump-mods* target-speed) 32768.0)(set! (-> *jump-mods* target-speed) 40960.0)(set! (-> *jump-attack-mods* target-speed) 24576.0)(set! (-> *attack-mods* target-speed) 40960.0)(set! (-> *forward-high-jump-mods* target-speed) 45056.0)(set! (-> *jump-attack-mods* target-speed) 24576.0)(set! (-> *flip-jump-mods* target-speed) 51200.0)(set! (-> *high-jump-mods* target-speed) 26624.0)(set! (-> *smack-jump-mods* target-speed) 40960.0)(set! (-> *duck-attack-mods* target-speed) 16384.0)(set! (-> *flop-mods* target-speed) 40960.0)(set! (-> *stone-surface* target-speed) 1.25)",
-    #"flutspeed": "(set! (-> *flut-walk-mods* target-speed)81920.0)",
     "slowjak": "(set! (-> *walk-mods* target-speed) 40960.0)(set! (-> *double-jump-mods* target-speed) 32768.0)(set! (-> *jump-mods* target-speed) 40960.0)(set! (-> *jump-attack-mods* target-speed) 24576.0)(set! (-> *attack-mods* target-speed) 40960.0)(set! (-> *forward-high-jump-mods* target-speed) 45056.0)(set! (-> *jump-attack-mods* target-speed) 24576.0)(set! (-> *TARGET-bank* wheel-flip-dist) (meters 17.3))(set! (-> *TARGET-bank* wheel-flip-height) (meters 3.52))",
     "pacifist": "(set! (-> *TARGET-bank* punch-radius) (meters 1.3))(set! (-> *TARGET-bank* spin-radius) (meters 2.2))(set! (-> *TARGET-bank* flop-radius) (meters 1.4))(set! (-> *TARGET-bank* uppercut-radius) (meters 1))",
     #"bigspin": "(set! (-> *TARGET-bank* punch-radius) (meters 1.3))(set! (-> *TARGET-bank* spin-radius) (meters 2.2))(set! (-> *TARGET-bank* flop-radius) (meters 1.4))(set! (-> *TARGET-bank* uppercut-radius) (meters 1))(set! (-> *TARGET-bank* spin-offset y) 6553.6)",
@@ -441,7 +448,7 @@ print(data.decode())
 sendForm("(lt)")
 sendForm("(mi)")
 sendForm("(send-event *target* 'get-pickup (pickup-type eco-red) 5.0)")
-sendForm("(dotimes (i 1) (sound-play-by-name (static-sound-name \"cell-prize\") (new-sound-id) 1024 0 0 (sound-group sfx) #t))")
+#sendForm("(dotimes (i 1) (sound-play-by-name (static-sound-name \"cell-prize\") (new-sound-id) 1024 0 0 (sound-group sfx) #t))")
 sendForm("(set! *cheat-mode* #f)")
 sendForm("(set! *debug-segment* #f)")  #COMMENT OUT FOR TEAMRUNS
 sendForm("(define *dark-level* (level-get-target-inside *level*))")
@@ -483,43 +490,43 @@ point_list = ["training-start","game-start","village1-hut","village1-warp","beac
               "citadel-plat-end","citadel-elevator","finalboss-start","finalboss-fight"]
 
 point_nicknames = {
-    "geyser": ["training-start"],
-    "training": ["training-start"],
-    "sandover": ["village1-hut", "village1-warp"],
-    "village1": ["village1-hut", "village1-warp"],
-    "misty": ["misty-start", "misty-silo", "misty-bike", "misty-backside", "misty-silo2"],
-    "sentinel": ["beach-start"],
-    "beach": ["beach-start"],
-    "fj": ["jungle-start", "jungle-tower"],
-    "jungle": ["jungle-start", "jungle-tower"],
-    "fc": ["firecanyon-start", "firecanyon-end"],
-    "firecanyon": ["firecanyon-start", "firecanyon-end"],
-    "rv": ["village2-start", "village2-warp", "village2-dock"],
-    "rockvillage": ["village2-start", "village2-warp", "village2-dock"],
-    "village2": ["village2-start", "village2-warp", "village2-dock"],
-    "lpc": ["sunken-start", "sunken1", "sunken2", "sunken-tube1", "sunkenb-start", "sunkenb-helix"],
-    "sunken": ["sunken-start", "sunken1", "sunken2", "sunken-tube1", "sunkenb-start", "sunkenb-helix"],
-    "basin": ["rolling-start"],
-    "rolling": ["rolling-start"],
-    "boggy": ["swamp-start", "swamp-dock1", "swamp-cave1", "swamp-dock2", "swamp-cave2", "swamp-game", "swamp-cave3"],
-    "boggyswamp": ["swamp-start", "swamp-dock1", "swamp-cave1", "swamp-dock2", "swamp-cave2", "swamp-game", "swamp-cave3"],
-    "swamp": ["swamp-start", "swamp-dock1", "swamp-cave1", "swamp-dock2", "swamp-cave2", "swamp-game", "swamp-cave3"],
-    "mp": ["ogre-start", "ogre-race", "ogre-end"],
-    "mountainpass": ["ogre-start", "ogre-race", "ogre-end"],
-    "ogre": ["ogre-start", "ogre-race", "ogre-end"],
-    "vc": ["village3-start", "village3-warp", "village3-farside"],
-    "crater": ["village3-start", "village3-warp", "village3-farside"],
-    "village3": ["village3-start", "village3-warp", "village3-farside"],
-    "sc": ["maincave-start", "maincave-to-darkcave", "maincave-to-robocave", "darkcave-start", "robocave-start", "robocave-bottom"],
-    "cave": ["maincave-start", "maincave-to-darkcave", "maincave-to-robocave", "darkcave-start", "robocave-start", "robocave-bottom"],
-    "spidercave": ["maincave-start", "maincave-to-darkcave", "maincave-to-robocave", "darkcave-start", "robocave-start", "robocave-bottom"],
-    "snowy": ["snow-start", "snow-fort", "snow-flut-flut", "snow-pass-to-fort", "snow-by-ice-lake", "snow-by-ice-lake-alt", "snow-outside-fort", "snow-outside-cave", "snow-across-from-flut"],
-    "snow": ["snow-start", "snow-fort", "snow-flut-flut", "snow-pass-to-fort", "snow-by-ice-lake", "snow-by-ice-lake-alt", "snow-outside-fort", "snow-outside-cave", "snow-across-from-flut"],
-    "lt": ["lavatube-start", "lavatube-middle", "lavatube-after-ribbon", "lavatube-end"],
-    "lavatube": ["lavatube-start", "lavatube-middle", "lavatube-after-ribbon", "lavatube-end"],
-    "citadel": ["citadel-start", "citadel-entrance", "citadel-warp", "citadel-launch-start", "citadel-launch-end", "citadel-generator-start", "citadel-generator-end", "citadel-plat-start", "citadel-plat-end", "citadel-elevator", "finalboss-start", "finalboss-fight"],
-    "gmc": ["citadel-start", "citadel-entrance", "citadel-warp", "citadel-launch-start", "citadel-launch-end", "citadel-generator-start", "citadel-generator-end", "citadel-plat-start", "citadel-plat-end", "citadel-elevator", "finalboss-start", "finalboss-fight"],
-    "gamc": ["citadel-start", "citadel-entrance", "citadel-warp", "citadel-launch-start", "citadel-launch-end", "citadel-generator-start", "citadel-generator-end", "citadel-plat-start", "citadel-plat-end", "citadel-elevator", "finalboss-start", "finalboss-fight"]
+    "geyser": ("training-start"),
+    "training": ("training-start"),
+    "sandover": ("village1-hut", "village1-warp"),
+    "village1": ("village1-hut", "village1-warp"),
+    "misty": ("misty-start", "misty-silo", "misty-bike", "misty-backside", "misty-silo2"),
+    "sentinel": ("beach-start"),
+    "beach": ("beach-start"),
+    "fj": ("jungle-start", "jungle-tower"),
+    "jungle": ("jungle-start", "jungle-tower"),
+    "fc": ("firecanyon-start", "firecanyon-end"),
+    "firecanyon": ("firecanyon-start", "firecanyon-end"),
+    "rv": ("village2-start", "village2-warp", "village2-dock"),
+    "rockvillage": ("village2-start", "village2-warp", "village2-dock"),
+    "village2": ("village2-start", "village2-warp", "village2-dock"),
+    "lpc": ("sunken-start", "sunken1", "sunken2", "sunken-tube1", "sunkenb-start", "sunkenb-helix"),
+    "sunken": ("sunken-start", "sunken1", "sunken2", "sunken-tube1", "sunkenb-start", "sunkenb-helix"),
+    "basin": ("rolling-start"),
+    "rolling": ("rolling-start"),
+    "boggy": ("swamp-start", "swamp-dock1", "swamp-cave1", "swamp-dock2", "swamp-cave2", "swamp-game", "swamp-cave3"),
+    "boggyswamp": ("swamp-start", "swamp-dock1", "swamp-cave1", "swamp-dock2", "swamp-cave2", "swamp-game", "swamp-cave3"),
+    "swamp": ("swamp-start", "swamp-dock1", "swamp-cave1", "swamp-dock2", "swamp-cave2", "swamp-game", "swamp-cave3"),
+    "mp": ("ogre-start", "ogre-race", "ogre-end"),
+    "mountainpass": ("ogre-start", "ogre-race", "ogre-end"),
+    "ogre": ("ogre-start", "ogre-race", "ogre-end"),
+    "vc": ("village3-start", "village3-warp", "village3-farside"),
+    "crater": ("village3-start", "village3-warp", "village3-farside"),
+    "village3": ("village3-start", "village3-warp", "village3-farside"),
+    "sc": ("maincave-start", "maincave-to-darkcave", "maincave-to-robocave", "darkcave-start", "robocave-start", "robocave-bottom"),
+    "cave": ("maincave-start", "maincave-to-darkcave", "maincave-to-robocave", "darkcave-start", "robocave-start", "robocave-bottom"),
+    "spidercave": ("maincave-start", "maincave-to-darkcave", "maincave-to-robocave", "darkcave-start", "robocave-start", "robocave-bottom"),
+    "snowy": ("snow-start", "snow-fort", "snow-flut-flut", "snow-pass-to-fort", "snow-by-ice-lake", "snow-by-ice-lake-alt", "snow-outside-fort", "snow-outside-cave", "snow-across-from-flut"),
+    "snow": ("snow-start", "snow-fort", "snow-flut-flut", "snow-pass-to-fort", "snow-by-ice-lake", "snow-by-ice-lake-alt", "snow-outside-fort", "snow-outside-cave", "snow-across-from-flut"),
+    "lt": ("lavatube-start", "lavatube-middle", "lavatube-after-ribbon", "lavatube-end"),
+    "lavatube": ("lavatube-start", "lavatube-middle", "lavatube-after-ribbon", "lavatube-end"),
+    "citadel": ("citadel-start", "citadel-entrance", "citadel-warp", "citadel-launch-start", "citadel-launch-end", "citadel-generator-start", "citadel-generator-end", "citadel-plat-start", "citadel-plat-end", "citadel-elevator", "finalboss-start", "finalboss-fight"),
+    "gmc": ("citadel-start", "citadel-entrance", "citadel-warp", "citadel-launch-start", "citadel-launch-end", "citadel-generator-start", "citadel-generator-end", "citadel-plat-start", "citadel-plat-end", "citadel-elevator", "finalboss-start", "finalboss-fight"),
+    "gamc": ("citadel-start", "citadel-entrance", "citadel-warp", "citadel-launch-start", "citadel-launch-end", "citadel-generator-start", "citadel-generator-end", "citadel-plat-start", "citadel-plat-end", "citadel-elevator", "finalboss-start", "finalboss-fight")
 }
 
 sfx_names = {
@@ -656,7 +663,6 @@ def gamecontrol():
     global game
     global cost_mode
     global target_mode
-    #global user_list
 
     while True:
         #split a whole message into args so we can evaluate it one by one
@@ -736,7 +742,7 @@ def gamecontrol():
                     active_check("nojumps", 
                     "(logior! (-> *target* state-flags) (state-flags prevent-jump))")
 
-                elif command in ["noduck", "norj"] and enabled_check("noduck") and cd_check("noduck"):
+                elif command in ["noduck", "nocrouch"] and enabled_check("noduck") and cd_check("noduck"):
                     active_check("noduck",
                     "(logior! (-> *target* state-flags) (state-flags prevent-duck))")
 
@@ -769,7 +775,7 @@ def gamecontrol():
                 #    deactivate("pacifist")
                 #    active_check("bigspin", 
                 #    "(set! (-> *TARGET-bank* punch-radius) (meters 1.3))(set! (-> *TARGET-bank* spin-radius) (meters 25))(set! (-> *TARGET-bank* flop-radius) (meters 1.4))(set! (-> *TARGET-bank* uppercut-radius) (meters 1))(set! (-> *TARGET-bank* spin-offset y) 655.6)")
-                    
+                
                 elif command in ["nuka"] and enabled_check("nuka") and cd_check("nuka"):
                     sendForm("(logior! (-> *target* state-flags) (state-flags dying))")
 
@@ -785,7 +791,7 @@ def gamecontrol():
 
                 #elif command in ["bonk"] and enabled_check("bonk") and cd_check("bonk"):
                 #    sendForm("(dummy-10 (-> *target* skel effect) 'group-smack-surface (the-as float 0.0) 5)(send-event *target* 'shove)(sound-play \"smack-surface\")")
-                #    
+    
                 elif command in ["shortfall"] and enabled_check("shortfall") and cd_check("shortfall"):
                     active_check("shortfall", 
                     "(set! (-> *TARGET-bank* fall-far) (meters 2.5))(set! (-> *TARGET-bank* fall-far-inc) (meters 3.5))")
@@ -803,7 +809,7 @@ def gamecontrol():
                 #elif command in ["flutspeed", "setflutflut"] and len(args) >= 2 and enabled_check("flutspeed") and range_check(args[1], -200, 200) and cd_check("flutspeed"):
                 #    active_check("flutspeed",
                 #                  f"(set! (-> *flut-walk-mods* target-speed)(meters {args[1]}))")
-
+                
                 elif command in ["freecam"] and enabled_check("freecam") and cd_check("freecam"):
                     active_check("freecam", 
                     "(stop 'debug)")
@@ -893,7 +899,7 @@ def gamecontrol():
                     
                 #elif command in ["setpoint", "setcheckpoint"] and enabled_check("setpoint") and cd_check("setpoint"):
                 #    sendForm("(vector-copy! (-> (-> *game-info* current-continue) trans) (new 'static 'vector :x (-> (target-pos 0) x) :y (-> (target-pos 0) y) :z (-> (target-pos 0) z) :w 1.0))")
-                #    
+    
                 elif command in ["tp"] and len(args) >= 4 and enabled_check("tp") and cd_check("tp"):
                     sendForm(f"(when (not (movie?))(set! (-> (target-pos 0) x) (meters {args[1]}))  (set! (-> (target-pos 0) y) (meters {args[2]})) (set! (-> (target-pos 0) z) (meters {args[3]})))")
 
@@ -1137,13 +1143,13 @@ def gamecontrol():
     
                 #elif command in ["heatmax"] and len(args) >= 2:
                 #    sendForm("(set! (-> *RACER-bank* heat-max) " + str(args[1]) + ")")
-                #                   
+                   
                 #elif command in ["loadlevel"] and len(args) >= 2:
                 #    sendForm("(set! (-> *load-state* want 1 name) '" + str(args[1]) + ")(set! (-> *load-state* want 1 display?) 'display)")
-                #                   
+                   
                 #elif command in ["setecotime", "ecotime"] and len(args) >= 2:
                 #    sendForm("(set! (-> *FACT-bank* eco-full-timeout) (seconds " + str(args[1]) + "))")
-                #    
+    
                 elif command in ["bighead"] and enabled_check("bighead") and cd_check("bighead"):
                     deactivate("smallhead")
                     deactivate("hugehead")
