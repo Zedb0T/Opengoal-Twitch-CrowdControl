@@ -72,10 +72,10 @@ class SettingsApp:
             "lang", "leapfrog", "lowpoly", "maxfish", "melt", "mirror", 
             "minuscell", "minusorbs", "moveplantboss", "moveplantboss2", "movetojak", 
             "noboosteds", "nodax", "nodive", "noduck", "noeco", "noactors", 
-            "nojumps", "noledge", "notex", "nuka", "ouch", 
+            "nojumps", "noledge", "notex", "nuka", "ouch", "pause", 
             "pacifist", "pinball", "playhint", "pluscell", "plusorbs", "press", 
             "protect", "quickcam", "randompoint", "rapidfire", "repl", 
-            "resetactors", "rjto", "rocketman", "save", "scale", 
+            "resetactors", "rjto", "rocketman", "save", "scale", "setpoint", 
              "sfx", "shift", "shortfall", "slippery", "slowjak", "smallhead", "smalljak", 
             "smallnet", "spiderman", "statue", "stickycam", "superboosted", "superjump", 
             "sucksuck", "tiktok", "timeofday", "topoint", "tp", 
@@ -94,9 +94,9 @@ class SettingsApp:
             "minusorbs_cd", "moveplantboss_cd", "moveplantboss2_cd", "movetojak_cd", 
             "noboosteds_cd", "nodax_cd", "nodive_cd", "noduck_cd", "noeco_cd", "noactors_cd", 
             "nojumps_cd", "noledge_cd", "notex_cd", "nuka_cd", "ouch_cd", 
-            "pacifist_cd", "pinball_cd", "playhint_cd", "pluscell_cd", "plusorbs_cd", "press_cd", 
+            "pacifist_cd", "pause_cd", "pinball_cd", "playhint_cd", "pluscell_cd", "plusorbs_cd", "press_cd", 
             "protect_cd", "quickcam_cd", "rapidfire_cd", "repl_cd", "resetactors_cd", 
-            "rjto_cd", "rocketman_cd", "scale_cd", "sfx_cd", "shortfall_cd", 
+            "rjto_cd", "rocketman_cd", "scale_cd", "sfx_cd", "setpoint_cd", "shortfall_cd", 
             "slippery_cd", "slowjak_cd", "smallhead_cd", "smallnet_cd", "spiderman_cd", "statue_cd",
             "stickycam_cd", "superboosted_cd", "superjump_cd", "sucksuck_cd", "tiktok_cd", 
             "timeofday_cd", "topoint_cd", "tp_cd", "trip_cd", "turn-180_cd", 
@@ -116,10 +116,10 @@ class SettingsApp:
             "mirror_cost", "minuscell_cost", "minusorbs_cost", "moveplantboss_cost", 
             "moveplantboss2_cost", "movetojak_cost", "noboosteds_cost", "nodax_cost", "nodive_cost", 
             "noduck_cost", "noeco_cost", "noactors_cost", "nojumps_cost", "noledge_cost", 
-            "notex_cost", "nuka_cost", "ouch_cost", "pacifist_cost", "pinball_cost", "playhint_cost", 
+            "notex_cost", "nuka_cost", "ouch_cost", "pacifist_cost", "pause_cost", "pinball_cost", "playhint_cost", 
             "pluscell_cost", "plusorbs_cost", "press_cost", "protect_cost", 
             "quickcam_cost", "randompoint_cost", "rapidfire_cost", "repl_cost", 
-            "resetactors_cost", "rjto_cost", "rocketman_cost", "scale_cost", 
+            "resetactors_cost", "rjto_cost", "rocketman_cost", "scale_cost", "setpoint_cost",
             "shift_cost", "shortfall_cost", "slippery_cost", "slowjak_cost", "smallhead_cost", 
             "smalljak_cost", "smallnet_cost", "spiderman_cost", "statue_cost", "stickycam_cost", 
             "superboosted_cost", "superjump_cost", "sucksuck_cost", "sfx_cost", 
@@ -293,6 +293,7 @@ topoint_dur=0
 randompoint_dur=0
 tp_dur=0
 shift_dur=0
+pause_dur=0
 movetojak_dur=0
 ouch_dur=0
 burn_dur=0

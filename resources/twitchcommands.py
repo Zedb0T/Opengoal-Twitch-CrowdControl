@@ -17,7 +17,7 @@ import math
 Created on Fri Apr 29 16:20:54 2022
 @author: Yop Mike Zed
 """
-#Set the working directory
+# Set the working directory
 if getattr(sys, 'frozen', False):
     application_path = os.path.dirname(os.path.realpath(sys.executable))
 elif __file__:
@@ -31,7 +31,7 @@ if (exists(".env.txt")):
 if(exists("env")):
     os.replace("env",".env")
 
-#env values
+# env values
 load_dotenv()
 OAUTH = os.getenv("OAUTH")
 CONNECT_MSG = os.getenv("CONNECT_MSG")
@@ -82,10 +82,10 @@ finalboss_mode = False
 target_mode = os.getenv("TARGET_MODE") != "f"
 INIT_BALANCE = 1000
 
-#bool that checks if its the launcher version
+# bool that checks if its the launcher version
 launcher_version = exists(application_path+"\OpenGOAL-Launcher.exe")
 
-#checks
+# checks
 if not exists(".env"):
     print("ERROR: .env file not found -- please check if it is in the same folder as gk.exe and Jak1Twitch.exe")
     time.sleep(936814)
@@ -94,11 +94,11 @@ if (len(OAUTH) != 36) or (OAUTH[0:6] != "oauth:"):
     print("ERROR: Invalid ouath -- please get new oauth from: https://twitchapps.com/tmi/")
     time.sleep(936814)
     
-#paths
+# paths
 PATHTOGOALC = application_path + "\goalc.exe"
 PATHTOGK = application_path +"\gk.exe -v -- -boot -fakeiso -debug"
 
-#If its the launcher version update the paths!
+# If its the launcher version update the paths!
 if launcher_version:
     print("launcher version detected")
     shutil.copyfile(application_path+"/goalc.exe", os.getenv('APPDATA') +"\OpenGOAL-Launcher\\goalc.exe")
@@ -107,7 +107,7 @@ if launcher_version:
     extraGKCommand = "-proj-path "+os.getenv('APPDATA') +"\OpenGOAL-Launcher\\data "
     PATHTOGK = application_path +"\gk.exe "+extraGKCommand+" -v -- -boot -fakeiso -debug"
 
-#Function definitions
+# Function definitions
 def sendForm(form):
     header = struct.pack('<II', len(form), 10)
     clientSocket.sendall(header + form.encode())
@@ -149,7 +149,6 @@ def display_text_in_window():
         "highlightbackground": "#4d4d4d",
     }
 
-    # Initial mode is dark mode
     current_mode = dark_mode
 
     # Create a text widget with a scrollbar
@@ -399,7 +398,7 @@ def cost_check(cmd, user):
             return True
         else:
             sendMessage(irc, f"/me @{user} Not enough credit! Have: {user_credit} Need: {cost}.")
-        # message = ""
+        #message = ""
     else:
         return True
     
@@ -420,22 +419,21 @@ def adjust_finalboss_cooldowns(commands, multiplier, divide=False):
         else:
             cooldowns[command_names.index(command)] *= multiplier
 
-#
-#Launch REPL, connect bot, and mi
+# Launch REPL, connect bot, and mi
 
-#This splits the Gk commands into args for gk.exe
+# This splits the Gk commands into args for gk.exe
 GKCOMMANDLINElist = PATHTOGK.split()
 
-#Close Gk and goalc if they were open.
+# Close Gk and goalc if they were open.
 print("If it errors below that is O.K.")
-subprocess.Popen("""taskkill /F /IM gk.exe""",shell=True)  #COMMENT OUT FOR TEAMRUNS
+subprocess.Popen("""taskkill /F /IM gk.exe""",shell=True)  # COMMENT OUT FOR TEAMRUNS
 subprocess.Popen("""taskkill /F /IM goalc.exe""",shell=True)
 time.sleep(2)
 
-#Open a fresh GK and goalc then wait a bit before trying to connect via socket
-print("opening " + PATHTOGK)  #COMMENT OUT FOR TEAMRUNS
+# Open a fresh GK and goalc then wait a bit before trying to connect via socket
+print("opening " + PATHTOGK)  # COMMENT OUT FOR TEAMRUNS
 print("opening " + PATHTOGOALC)
-GK_WIN = subprocess.Popen(GKCOMMANDLINElist)  #COMMENT OUT FOR TEAMRUNS
+GK_WIN = subprocess.Popen(GKCOMMANDLINElist)  # COMMENT OUT FOR TEAMRUNS
 GOALC_WIN = subprocess.Popen([PATHTOGOALC])
 time.sleep(3)
 clientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -444,13 +442,13 @@ time.sleep(1)
 data = clientSocket.recv(1024)
 print(data.decode())
 
-#Int block these comamnds are sent on startup
+# Int block these comamnds are sent on startup
 sendForm("(lt)")
 sendForm("(mi)")
 sendForm("(send-event *target* 'get-pickup (pickup-type eco-red) 5.0)")
 #sendForm("(dotimes (i 1) (sound-play-by-name (static-sound-name \"cell-prize\") (new-sound-id) 1024 0 0 (sound-group sfx) #t))")
 sendForm("(set! *cheat-mode* #f)")
-sendForm("(set! *debug-segment* #f)")  #COMMENT OUT FOR TEAMRUNS
+sendForm("(set! *debug-segment* #f)")  # COMMENT OUT FOR TEAMRUNS
 sendForm("(define *dark-level* (level-get-target-inside *level*))")
 sendForm("(define *chosen-ratio* (-> *pc-settings* aspect-ratio))")
 sendForm("(define *target-dialog-volume* (-> *setting-control* default dialog-volume))(define *target-sfx-volume* (-> *setting-control* default sfx-volume))(define *target-music-volume* (-> *setting-control* default music-volume))(define *target-ambient-volume* (-> *setting-control* default ambient-volume))")
@@ -459,9 +457,9 @@ if ALL_ACTORS:
 else:
     sendForm("(set! (-> *pc-settings* ps2-actor-vis?) #t)")
 sendForm("(set! (-> *pc-settings* speedrunner-mode?) #f)")
-#End Int block
+# End Int block
 
-#add all commands into an array so we can reference via index
+# add all commands into an array so we can reference via index
 command_names = ["protect","rjto","superjump","leapfrog","superboosted","noboosteds","nojumps","nodive","noduck","noledge","fastjak","slowjak","pacifist","nuka","invuln","trip",
                  "shortfall","ghostjak","getoff","freecam","give","minuscell","pluscell","minusorbs","plusorbs","collected",
                  "eco","rapidfire","sucksuck","noeco","die","topoint","randompoint","tp","shift","movetojak","ouch",
@@ -469,10 +467,10 @@ command_names = ["protect","rjto","superjump","leapfrog","superboosted","noboost
                  "quickcam","dark","blind","nodax","smallnet","widefish","maxfish","hardfish","customfish","lowpoly","moveplantboss","moveplantboss2",
                  "basincell","resetactors","noactors","repl","debug","save","actors-on","actors-off","askew",
                  "widejak","flatjak","smalljak","bigjak","color","scale","slippery","gravity","pinball","playhint","rocketman","sfx",
-                 "unzoom","bighead","smallhead","bigfist","bigheadnpc","hugehead","mirror","notex","spiderman","press",
-                 "lang","timeofday","statue","turn-left","turn-right","turn-180","cam-left","cam-right","cam-in","cam-out","tiktok","crazyplats"]
+                 "unzoom","bighead","smallhead","bigfist","bigheadnpc","hugehead","mirror","notex","spiderman","press","pause",
+                 "lang","timeofday","statue","turn-left","turn-right","turn-180","cam-left","cam-right","cam-in","cam-out","tiktok","crazyplats","setpoint"]
 
-#array of valid checkpoints so user cant send garbage data
+# array of valid checkpoints so user cant send garbage data
 point_list = ["training-start","game-start","village1-hut","village1-warp","beach-start",
               "jungle-start","jungle-tower","misty-start","misty-silo","misty-bike",
               "misty-backside","misty-silo2","firecanyon-start","firecanyon-end",
@@ -567,9 +565,7 @@ sfx_names = {
     "allorbs": "get-all-orbs",
     "dizzy": "hit-dizzy",
     "miss": "fish-miss",
-    "ring": "close-racering",
-    "miss": "fish-miss"
-
+    "ring": "close-racering"
 }
 
 lang_list = ["english","french","german","spanish","italian","japanese","uk-english"]
@@ -577,7 +573,7 @@ pad_list = ["square","circle","x","triangle","up","down","left","right","l1","r1
 cam_list = ["endlessfall","eye","standoff","bike","stick"]
 fish_list = ["timeout","vel","swing-min","swing-max","period","fish-vel","bad-percent","powerup-percent"]
 
-#intialize arrays same length as command_names
+# intialize arrays same length as command_names
 enabled = [True] * len(command_names)
 cooldowns = [0.0] * len(command_names)
 costs = [0.0] * len(command_names)
@@ -600,7 +596,7 @@ thread = threading.Thread(target=increase_credits)
 thread.daemon = True
 thread.start()
 
-#pull cooldowns and costs set in env file and add to array
+# pull cooldowns and costs set in env file and add to array
 for x in range(len(command_names)):
     try:
         cooldowns[x] = float(os.getenv(command_names[x]+"_cd"))
@@ -618,7 +614,7 @@ for x in range(len(command_names)):
     except (TypeError, ValueError):
         print(f"Could not find cost for {command_names[x]}")
 
-#pull durations set in env file and add to array
+# pull durations set in env file and add to array
 for x in range(len(command_names)):
     try:
         durations[x] = float(os.getenv(command_names[x]+"_dur"))
@@ -626,22 +622,22 @@ for x in range(len(command_names)):
     except (TypeError, ValueError):
         print(f"Could not find duration for {command_names[x]}")
     
-#twitch irc stuff
+# twitch irc stuff
 SERVER = "irc.twitch.tv"
 PORT = 6667
 
-#Get Your OAUTH Code Here! https://twitchapps.com/tmi/
+# Get Your OAUTH Code Here! https://twitchapps.com/tmi/
 
-#What you'd like to name your bot
+# What you'd like to name your bot
 BOT = "jakopengoalbot"
-#The channel you want to monitor
+# The channel you want to monitor
 CHANNEL = os.getenv("TARGET_CHANNEL").lower()
 
-#these users can use the REPL command to create custom commands!
+# these users can use the REPL command to create custom commands!
 COMMAND_ADMINS = ["zed_b0t", "mikegamepro", "water112", "barg034", CHANNEL]
 COMMAND_MODS = os.getenv("COMMAND_MODS").lower().split(",")
 
-#initialize empty strings to store user and message
+# initialize empty strings to store user and message
 message = ""
 user = ""
 
@@ -651,7 +647,7 @@ irc.send((    "PASS " + OAUTH + "\n" +
             "NICK " + BOT + "\n" +
             "JOIN #" + CHANNEL + "\n").encode())
 
-#sends a message to the irc channel.
+# sends a message to the irc channel.
 def sendMessage(irc, message):
     messageTemp = f"PRIVMSG #{CHANNEL} :{message}"
     irc.send((messageTemp + "\n").encode())
@@ -665,7 +661,7 @@ def gamecontrol():
     global target_mode
 
     while True:
-        #split a whole message into args so we can evaluate it one by one
+        # split a whole message into args so we can evaluate it one by one
         args = message.split(" ")
         command = str(args[0])[1:].lower()
 
@@ -897,8 +893,8 @@ def gamecontrol():
                     active_check("crazyplats", 
                     "(when (process-by-ename \"bone-platform-4\")(set! (-> *bone-platform-constants* player-weight) (meters -350)))(when (process-by-ename \"pontoonten-10\")(set! (-> *pontoonten-constants* player-weight) (meters -350)))(when (process-by-ename \"pontoonfive-6\")(set! (-> *pontoonfive-constants* player-weight) (meters -350)))(when (process-by-ename \"tra-pontoon-3\")(set! (-> *tra-pontoon-constants* player-weight) (meters -350)))(when (process-by-ename \"citb-chain-plat-14\")(set! (-> *citb-chain-plat-constants* player-weight) (meters -350)))(when (process-by-ename \"qbert-plat-7\")(set! (-> *qbert-plat-constants* player-weight) (meters -350)))(when (process-by-ename \"tar-plat-21\")(set! (-> *tar-plat-constants* player-weight) (meters -350)))(when (process-by-ename \"ogre-step-a-2\")(set! (-> *ogre-step-constants* player-weight) (meters -350)))(when (process-by-ename \"ogre-isle-c-1\")(set! (-> *ogre-isle-constants* player-weight) (meters -200)))")
                     
-                #elif command in ["setpoint", "setcheckpoint"] and enabled_check("setpoint") and cd_check("setpoint"):
-                #    sendForm("(vector-copy! (-> (-> *game-info* current-continue) trans) (new 'static 'vector :x (-> (target-pos 0) x) :y (-> (target-pos 0) y) :z (-> (target-pos 0) z) :w 1.0))")
+                elif command in ["setpoint", "setcheckpoint"] and enabled_check("setpoint") and cd_check("setpoint"):
+                    sendForm("(vector-copy! (-> (-> *game-info* current-continue) trans) (target-pos 0))")
     
                 elif command in ["tp"] and len(args) >= 4 and enabled_check("tp") and cd_check("tp"):
                     sendForm(f"(when (not (movie?))(set! (-> (target-pos 0) x) (meters {args[1]}))  (set! (-> (target-pos 0) y) (meters {args[2]})) (set! (-> (target-pos 0) z) (meters {args[3]})))")
@@ -1199,6 +1195,9 @@ def gamecontrol():
                 elif command in ["press"] and len(args) >= 2 and str(args[1]).lower() in pad_list and enabled_check("press") and cd_check("press"):
                     sendForm(f"(logior! (cpad-pressed 0) (pad-buttons {args[1]}))")
 
+                elif command in ["pause"] and enabled_check("pause") and cd_check("pause"):
+                    sendForm(f"(activate-progress *dproc* (progress-screen fuel-cell))")
+
                 elif command in ["lang", "language"] and len(args) >= 2 and str(args[1]).lower() in lang_list and enabled_check("lang") and cd_check("lang"):
                     sendForm(f"(set! (-> *setting-control* default language) (language-enum {str(args[1]).lower()}))")
 
@@ -1254,7 +1253,7 @@ def gamecontrol():
 
         message = ""
 
-        #check which commands have reached their duration, then deactivate
+        # check which commands have reached their duration, then deactivate
         active_sweep()
         
         #if GK_WIN.poll() is not None:
@@ -1262,7 +1261,7 @@ def gamecontrol():
         time.sleep(0.08)
             
             
-#Dont touch
+# Dont touch
 def twitch():
 
     global user
