@@ -366,4 +366,3 @@ if __name__ == "__main__":
     root.configure(bg="#E9E9E9")  # Change background color of the main window
     app = SettingsApp(root)
     root.mainloop()
-

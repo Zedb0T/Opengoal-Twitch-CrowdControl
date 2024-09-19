@@ -572,6 +572,7 @@ lang_list = ["english","french","german","spanish","italian","japanese","uk-engl
 pad_list = ["square","circle","x","triangle","up","down","left","right","l1","r1"]
 cam_list = ["endlessfall","eye","standoff","bike","stick"]
 fish_list = ["timeout","vel","swing-min","swing-max","period","fish-vel","bad-percent","powerup-percent"]
+eco_list = ["blue","yellow","red","green"]
 
 # intialize arrays same length as command_names
 enabled = [True] * len(command_names)
@@ -841,7 +842,7 @@ def gamecontrol():
                         item = "money"
                     sendForm(f"(set! (-> *game-info* {args[1]}) (+ 0.0 {args[2]}))")
 
-                elif command in ["eco"] and len(args) >= 2 and enabled_check("eco") and cd_check("eco"):
+                elif command in ["eco"] and len(args) >= 2 and str(args[1]).lower() in eco_list and enabled_check("eco") and cd_check("eco"):
                     sendForm(f"(send-event *target* 'get-pickup (pickup-type eco-{args[1]}) 5.0)")
 
                 elif command in ["rapidfire"] and enabled_check("rapidfire") and cd_check("rapidfire"):
@@ -1004,7 +1005,7 @@ def gamecontrol():
                     active_check("lowpoly", 
                     "(set! (-> *pc-settings* lod-force-tfrag) 2)(set! (-> *pc-settings* lod-force-tie) 3)(set! (-> *pc-settings* lod-force-ocean) 2)(set! (-> *pc-settings* lod-force-actor) 3)")
 
-                elif command in ["moveplantboss"] and enabled_check("moveplantboss") and cd_check("moveplantboss"):
+                elif command in ["moveplantboss", "plantboss"] and enabled_check("moveplantboss") and cd_check("moveplantboss"):
                     sendForm("(set! (-> *pc-settings* ps2-actor-vis?) #f)")
                     time.sleep(0.05)
                     sendForm("(when (process-by-ename \"plant-boss-3\")(set-vector!  (-> (-> (the process-drawable (process-by-ename \"plant-boss-3\"))root)trans) (meters 436.97) (meters -43.99) (meters -347.09) 1.0))")
@@ -1015,7 +1016,7 @@ def gamecontrol():
                         time.sleep(0.05)
                         sendForm("(set! (-> *pc-settings* ps2-actor-vis?) #t)")
 
-                elif command in ["moveplantboss2"] and enabled_check("moveplantboss2") and cd_check("moveplantboss2"):
+                elif command in ["moveplantboss2", "plantboss2"] and enabled_check("moveplantboss2") and cd_check("moveplantboss2"):
                     sendForm("(set! (-> *pc-settings* ps2-actor-vis?) #f)")
                     time.sleep(0.050)
                     sendForm("(when (process-by-ename \"plant-boss-3\")(set-vector!  (-> (-> (the process-drawable (process-by-ename \"plant-boss-3\"))root)trans) (meters 436.97) (meters -43.99) (meters -347.09) 1.0))")
@@ -1135,7 +1136,7 @@ def gamecontrol():
                 elif command in ["pinball"] and enabled_check("pinball") and cd_check("pinball"):
                     deactivate("slippery")
                     active_check("pinball", 
-                    "(set! (-> *stone-surface* fric) -153600.0)")
+                    "(set! (-> *stone-surface* fric) -25000.0)")
     
                 #elif command in ["heatmax"] and len(args) >= 2:
                 #    sendForm("(set! (-> *RACER-bank* heat-max) " + str(args[1]) + ")")
@@ -1228,12 +1229,12 @@ def gamecontrol():
                 elif command in ["finalboss"] and (user in COMMAND_ADMINS or user in COMMAND_MODS):
                     global finalboss_mode
                     finalboss_toggle_commands = [
-                    "die", "drown", "melt", "endlessfall", "resetactors", "deload", 
-                    "ghostjak", "shift", "tp", "topoint", "randompoint", "noactors"]
+                    "die", "drown", "melt", "endlessfall", "resetactors", "deload", "noledge",
+                    "ghostjak", "shift", "tp", "topoint", "randompoint", "movetojak", "noactors", "pinball"]
                     finalboss_cooldown_commands = [
-                    "scale", "hp", "iframes", "ouch", "movetojak", "rocketman",
-                    "noeco", "eco", "shortfall", "nuka", "pinball", "slippery", "nojumps",
-                    "gravity"]
+                    "scale", "hp", "iframes", "ouch", "rocketman",
+                    "noeco", "eco", "shortfall", "nuka", "slippery", "nojumps",
+                    "gravity", "quickcam"]
                     finalboss_mode = not finalboss_mode
                     if not finalboss_mode:
                         toggle_finalboss_commands(finalboss_toggle_commands, False)
