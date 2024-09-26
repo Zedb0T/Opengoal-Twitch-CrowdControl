@@ -57,7 +57,7 @@ class SettingsApp:
         ], True)
 
         self.add_checkboxes_section("Misc Settings", [
-            "DISABLED_MSG", "TARGET_MODE", "TOPOINT_PAST_CRATER", "COOLDOWN_MSG", "ACTIVATION_MSG", "DEACTIVATION_MSG", "COST_MODE", "LOAD_STARTED", "ALL_ACTORS"
+            "DISABLED_MSG", "TARGET_MODE", "TOPOINT_PAST_CRATER", "COOLDOWN_MSG", "ACTIVATION_MSG", "DEACTIVATION_MSG", "VALUE_MSG", "COST_MODE", "LOAD_STARTED", "ALL_ACTORS"
         ], True)
 
         self.add_checkboxes_section("Command Enable/Disable", [
@@ -288,6 +288,7 @@ getoff_dur=0
 give_dur=0
 collected_dur=0
 eco_dur=0
+setpoint_dur=0
 die_dur=0
 topoint_dur=0
 randompoint_dur=0
@@ -366,3 +367,4 @@ if __name__ == "__main__":
     root.configure(bg="#E9E9E9")  # Change background color of the main window
     app = SettingsApp(root)
     root.mainloop()
+

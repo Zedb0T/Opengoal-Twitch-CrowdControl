@@ -5,6 +5,7 @@ import struct
 import subprocess
 import time
 import sys
+import psutil
 import random
 from dotenv import load_dotenv
 from os.path import exists
@@ -39,6 +40,7 @@ COOLDOWN_MSG = os.getenv("COOLDOWN_MSG") != "f"
 DISABLED_MSG = os.getenv("DISABLED_MSG") != "f"
 ACTIVATION_MSG = os.getenv("ACTIVATION_MSG") != "f"
 DEACTIVATION_MSG = os.getenv("DEACTIVATION_MSG") != "f"
+VALUE_MSG = os.getenv("VALUE_MSG") != "f"
 PROTECT_SACRIFICE = "f"
 SACRIFICE_DURATION = os.getenv("SACRIFICE_DURATION")
 PREFIX = os.getenv("PREFIX")
@@ -269,7 +271,7 @@ def cd_check(cmd):
 def enabled_check(cmd):
     global message
     try:
-        if enabled[command_names.index(cmd)] and not active[command_names.index("protect")]:
+        if enabled[command_names.index(cmd)] and not active[command_names.index("protect")] and not (finalboss_mode and cmd in finalboss_toggle_commands):
             return cost_check(cmd, user) 
         elif DISABLED_MSG:
             sendMessage(irc, f"/me @{user} {TARGET_ID} -> Command '{command_names[command_names.index(cmd)]}' is disabled.")
@@ -331,7 +333,7 @@ command_deactivation = {
     "slippery": "(set! (-> *stone-surface* slope-slip-angle) 8192.0)(set! (-> *stone-surface* slip-factor) 1.0)(set! (-> *stone-surface* transv-max) 1.0)(set! (-> *stone-surface* turnv) 1.0)(set! (-> *stone-surface* nonlin-fric-dist) 5120.0)(set! (-> *stone-surface* fric) 153600.0)(set! (-> *grass-surface* slope-slip-angle) 16384.0)(set! (-> *grass-surface* slip-factor) 1.0)(set! (-> *grass-surface* transv-max) 1.0)(set! (-> *grass-surface* turnv) 1.0)(set! (-> *grass-surface* nonlin-fric-dist) 4096.0)(set! (-> *grass-surface* fric) 122880.0)(set! (-> *ice-surface* slip-factor) 0.7)(set! (-> *ice-surface* nonlin-fric-dist) 4091904.0)(set! (-> *ice-surface* fric) 23756.8)",
     "pinball": "(set! (-> *stone-surface* fric) 153600.0)",
     "protect": "",
-    "iframes": "(set! (-> *TARGET-bank* invincibility-time) (seconds 0.0))",
+    "iframes": "(set! (-> *TARGET-bank* invincibility-time) (seconds 3.0))",
     "rocketman": "(set! (-> *standard-dynamics* gravity-normal y) 1.0)",
     "bighead": "(logclear! (-> *pc-settings* cheats) (pc-cheats big-head))",
     "smallhead": "(logclear! (-> *pc-settings* cheats) (pc-cheats small-head))",
@@ -383,7 +385,8 @@ def range_check(val, min, max):
         if float(val) <= float(max) and float(val) >= float(min):
            return True
         else:
-            sendMessage(irc, f"/me @{user} Use values between {min} and {max}. (val {val})")
+            if VALUE_MSG:
+            	sendMessage(irc, f"/me @{user} Use values between {min} and {max}. (val {val})")
             #message = ""
             return False
     except ValueError:
@@ -408,10 +411,6 @@ def get_random_point(nickname):
         return random.choice(points)
     return None
 
-def toggle_finalboss_commands(commands, state):
-    for command in commands:
-        enabled[command_names.index(command)] = state
-
 def adjust_finalboss_cooldowns(commands, multiplier, divide=False):
     for command in commands:
         if divide:
@@ -429,6 +428,24 @@ print("If it errors below that is O.K.")
 subprocess.Popen("""taskkill /F /IM gk.exe""",shell=True)  # COMMENT OUT FOR TEAMRUNS
 subprocess.Popen("""taskkill /F /IM goalc.exe""",shell=True)
 time.sleep(2)
+
+def terminate_other_instances(process_name):
+    """
+    Terminates all processes with the given name, except the current process.
+    :param process_name: The name of the process to kill (e.g., 'example.exe').
+    """
+    current_pid = os.getpid()
+    
+    for proc in psutil.process_iter(['pid', 'name', 'cmdline']):
+        try:
+            if proc.info['name'] == process_name and proc.info['pid'] != current_pid:
+                print(f"Terminating process {proc.info['name']} with PID {proc.info['pid']}")
+                # Use taskkill via subprocess to terminate the process by its PID
+                subprocess.Popen(f'taskkill /F /PID {proc.info["pid"]}', shell=True)
+        except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+            continue
+
+terminate_other_instances('Jak1Twitch.exe') # Jak1TwitchTR.exe FOR TEAMRUNS
 
 # Open a fresh GK and goalc then wait a bit before trying to connect via socket
 print("opening " + PATHTOGK)  # COMMENT OUT FOR TEAMRUNS
@@ -585,6 +602,10 @@ active = [False] * len(command_names)
 user_list = []
 credit_list = []
 
+finalboss_toggle_commands = [
+    "die", "drown", "melt", "endlessfall", "resetactors", "deload", "noledge",
+    "ghostjak", "shift", "tp", "topoint", "randompoint", "movetojak", "noactors", "pinball"]
+
 def increase_credits():
     while True:
         if cost_mode:
@@ -656,10 +677,7 @@ def sendMessage(irc, message):
 
 def gamecontrol():
     
-    global message
-    global game
-    global cost_mode
-    global target_mode
+    global message, game, cost_mode, target_mode
 
     while True:
         # split a whole message into args so we can evaluate it one by one
@@ -797,7 +815,7 @@ def gamecontrol():
                     active_check("ghostjak", 
                     "(set! (-> *TARGET-bank* body-radius) (meters -1.0))")              
 
-                elif command in ["getoff"] and enabled_check("getoff") and cd_check("getoff"):
+                elif command in ["getoff", "dismount"] and enabled_check("getoff") and cd_check("getoff"):
                     sendForm("(when (not (movie?))(send-event *target* 'end-mode))")
 
                 elif command in ["unzoom"] and enabled_check("unzoom") and cd_check("unzoom"):
@@ -1072,6 +1090,10 @@ def gamecontrol():
                 elif command in ["disable"] and len(args) >= 2 and str(args[1]) in command_names and (user in COMMAND_ADMINS or user in COMMAND_MODS):          
                     enabled[command_names.index(str(args[1]))] = False
                     sendMessage(irc, f"/me {TARGET_ID} -> '{args[1]}' disabled.")
+                    
+                elif command in ["mod"] and len(args) >= 2 and user in COMMAND_ADMINS:          
+                	COMMAND_MODS.append(str(args[1]))
+                	sendMessage(irc, f"/me {TARGET_ID} -> {args[1]} added to mod list.")
 
                 elif command in ["widejak", "wide"] and enabled_check("widejak") and cd_check("scale"):
                     deactivate("bigjak")
@@ -1228,20 +1250,15 @@ def gamecontrol():
 
                 elif command in ["finalboss"] and (user in COMMAND_ADMINS or user in COMMAND_MODS):
                     global finalboss_mode
-                    finalboss_toggle_commands = [
-                    "die", "drown", "melt", "endlessfall", "resetactors", "deload", "noledge",
-                    "ghostjak", "shift", "tp", "topoint", "randompoint", "movetojak", "noactors", "pinball"]
                     finalboss_cooldown_commands = [
                     "scale", "hp", "iframes", "ouch", "rocketman",
                     "noeco", "eco", "shortfall", "nuka", "slippery", "nojumps",
                     "gravity", "quickcam"]
                     finalboss_mode = not finalboss_mode
-                    if not finalboss_mode:
-                        toggle_finalboss_commands(finalboss_toggle_commands, False)
+                    if finalboss_mode:
                         adjust_finalboss_cooldowns(finalboss_cooldown_commands, FINALBOSS_MUL)
                         sendMessage(irc, f"/me {TARGET_ID} -> Final Boss Mode activated! Cooldowns are longer and some commands are disabled.")
                     else:
-                        toggle_finalboss_commands(finalboss_toggle_commands, lambda cmd: os.getenv(cmd) != "f")
                         adjust_finalboss_cooldowns(finalboss_cooldown_commands, FINALBOSS_MUL, divide=True)
                         sendMessage(irc, f"/me {TARGET_ID} -> Final Boss Mode deactivated.")
                     
@@ -1265,8 +1282,7 @@ def gamecontrol():
 # Dont touch
 def twitch():
 
-    global user
-    global message
+    global user, message
 
     def joinchat():
         Loading = True
