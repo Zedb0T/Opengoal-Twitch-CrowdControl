@@ -92,7 +92,7 @@ class SettingsApp:
             "hp_cd", "hugehead_cd", "iframes_cd", "invertcam_cd", "invuln_cd", 
             "lang_cd", "leapfrog_cd", "lowpoly_cd", "maxfish_cd", "mirror_cd", "minuscell_cd", 
             "minusorbs_cd", "moveplantboss_cd", "moveplantboss2_cd", "movetojak_cd", 
-            "noboosteds_cd", "nodax_cd", "nodive_cd", "noduck_cd", "noeco_cd", "noactors_cd", 
+            "noboosteds_cd", "nodax_cd", "nodive_cd", "noduck_cd", "noeco_cd", 
             "nojumps_cd", "noledge_cd", "notex_cd", "nuka_cd", "ouch_cd", 
             "pacifist_cd", "pause_cd", "pinball_cd", "playhint_cd", "pluscell_cd", "plusorbs_cd", "press_cd", 
             "protect_cd", "quickcam_cd", "rapidfire_cd", "repl_cd", "resetactors_cd", 
@@ -336,6 +336,7 @@ flatjak_cd=0
 smalljak_cd=0
 bigjak_cd=0
 widejak_cd=0
+noactors_cd=0
 nuka_dur=0
 unzoom_dur=0
 drown_cd=0
