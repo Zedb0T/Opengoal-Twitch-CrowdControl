@@ -7,6 +7,7 @@ Alternate guides: [installation here](https://docs.google.com/document/d/14O7a4f
 
 You need the following in this order:  
 Place `Jak1Twitch.exe` and the `EXAMPLE.env` file you downloaded inside of the `versions` folder: `open launcher > Settings > Versions > folder icon > [version])` with `gk.exe` and `goalc.exe`. Then rename `EXAMPLE.env` to `.env` (make sure to save as ALL FILE TYPES -- If you do not change this it will save it as `.env.txt` and not work).
+Extract your Jak TPL iso by dragging it into `extractor.exe`, then close the game if it opens automatically.
 Modify the contents of `.env` by opening `J1T_GUI` ([generate ouath token here](https://twitchapps.com/tmi/)) and save. 
 Open `Jak1Twitch.exe` and it should automatically open `gk` and `goalc` and connect to Twitch. Now you are good to go!  
 
