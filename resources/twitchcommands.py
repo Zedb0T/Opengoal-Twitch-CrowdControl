@@ -333,7 +333,7 @@ command_deactivation = {
     "slippery": "(set! (-> *stone-surface* slope-slip-angle) 8192.0)(set! (-> *stone-surface* slip-factor) 1.0)(set! (-> *stone-surface* transv-max) 1.0)(set! (-> *stone-surface* turnv) 1.0)(set! (-> *stone-surface* nonlin-fric-dist) 5120.0)(set! (-> *stone-surface* fric) 153600.0)(set! (-> *grass-surface* slope-slip-angle) 16384.0)(set! (-> *grass-surface* slip-factor) 1.0)(set! (-> *grass-surface* transv-max) 1.0)(set! (-> *grass-surface* turnv) 1.0)(set! (-> *grass-surface* nonlin-fric-dist) 4096.0)(set! (-> *grass-surface* fric) 122880.0)(set! (-> *ice-surface* slip-factor) 0.7)(set! (-> *ice-surface* nonlin-fric-dist) 4091904.0)(set! (-> *ice-surface* fric) 23756.8)",
     "pinball": "(set! (-> *stone-surface* fric) 153600.0)",
     "protect": "",
-    "iframes": "(set! (-> *TARGET-bank* invincibility-time) (seconds 3.0))",
+    "iframes": "(set! (-> *TARGET-bank* hit-invulnerable-timeout) (seconds 3.0))",
     "rocketman": "(set! (-> *standard-dynamics* gravity-normal y) 1.0)",
     "bighead": "(logclear! (-> *pc-settings* cheats) (pc-cheats big-head))",
     "smallhead": "(logclear! (-> *pc-settings* cheats) (pc-cheats small-head))",
