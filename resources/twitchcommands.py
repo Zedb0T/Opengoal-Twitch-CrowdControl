@@ -85,7 +85,7 @@ target_mode = os.getenv("TARGET_MODE") != "f"
 INIT_BALANCE = 1000
 
 # bool that checks if its the launcher version
-launcher_version = exists(application_path+"\OpenGOAL-Launcher.exe")
+launcher_version = exists(application_path+"\\OpenGOAL-Launcher.exe")
 
 # checks
 if not exists(".env"):
@@ -97,17 +97,17 @@ if (len(OAUTH) != 36) or (OAUTH[0:6] != "oauth:"):
     time.sleep(936814)
     
 # paths
-PATHTOGOALC = application_path + "\goalc.exe"
-PATHTOGK = application_path +"\gk.exe -v -- -boot -fakeiso -debug"
+PATHTOGOALC = application_path + "\\goalc.exe"
+PATHTOGK = application_path +"\\gk.exe -v -- -boot -fakeiso -debug"
 
 # If its the launcher version update the paths!
 if launcher_version:
     print("launcher version detected")
-    shutil.copyfile(application_path+"/goalc.exe", os.getenv('APPDATA') +"\OpenGOAL-Launcher\\goalc.exe")
+    shutil.copyfile(application_path+"/goalc.exe", os.getenv('APPDATA') +"\\OpenGOAL-Launcher\\goalc.exe")
     time.sleep(1)
-    PATHTOGOALC=os.getenv('APPDATA') +"\OpenGOAL-Launcher\\goalc.exe"
-    extraGKCommand = "-proj-path "+os.getenv('APPDATA') +"\OpenGOAL-Launcher\\data "
-    PATHTOGK = application_path +"\gk.exe "+extraGKCommand+" -v -- -boot -fakeiso -debug"
+    PATHTOGOALC=os.getenv('APPDATA') +"\\OpenGOAL-Launcher\\goalc.exe"
+    extraGKCommand = "-proj-path "+os.getenv('APPDATA') +"\\OpenGOAL-Launcher\\data "
+    PATHTOGK = application_path +"\\gk.exe "+extraGKCommand+" -v -- -boot -fakeiso -debug"
 
 # Function definitions
 def sendForm(form):
@@ -383,10 +383,10 @@ def range_check(val, min, max):
     try:
         float(val)
         if float(val) <= float(max) and float(val) >= float(min):
-           return True
+            return True
         else:
             if VALUE_MSG:
-            	sendMessage(irc, f"/me @{user} Use values between {min} and {max}. (val {val})")
+                sendMessage(irc, f"/me @{user} Use values between {min} and {max}. (val {val})")
             #message = ""
             return False
     except ValueError:
@@ -977,7 +977,7 @@ def gamecontrol():
                     "(set! (-> *standard-dynamics* gravity x) 25000.0)")
                     
                 elif command in ["deload"] and enabled_check("deload") and cd_check("deload"):
-                    sendForm("(when (not (movie?))(set! (-> *load-state* want 0 display?) #f))")
+                    sendForm("(when (not (movie?))(set! (-> *load-state* want 0 display?) #f)(set! (-> *load-state* want 1 display?) #f))")
 
                 elif command in ["quickcam", "frickstorage"] and enabled_check("quickcam") and cd_check("quickcam"):
                     sendForm("(stop 'debug)(start 'play (get-or-create-continue! *game-info*))")
@@ -1092,8 +1092,8 @@ def gamecontrol():
                     sendMessage(irc, f"/me {TARGET_ID} -> '{args[1]}' disabled.")
                     
                 elif command in ["mod"] and len(args) >= 2 and user in COMMAND_ADMINS:          
-                	COMMAND_MODS.append(str(args[1]))
-                	sendMessage(irc, f"/me {TARGET_ID} -> {args[1]} added to mod list.")
+                    COMMAND_MODS.append(str(args[1]))
+                    sendMessage(irc, f"/me {TARGET_ID} -> {args[1]} added to mod list.")
 
                 elif command in ["widejak", "wide"] and enabled_check("widejak") and cd_check("scale"):
                     deactivate("bigjak")
@@ -1149,7 +1149,7 @@ def gamecontrol():
                 elif command in ["gravity", "grav"] and len(args) >= 2 and enabled_check("gravity") and args[1] in ["high", "low"] and cd_check("gravity"):
                     match args[1]:
                         case "high":
-                            line = "(set! (-> *standard-dynamics* gravity-length) (* GRAVITY_AMOUNT 4.5))(set! (-> *standard-dynamics* gravity y) (* GRAVITY_AMOUNT 2.5))"
+                            line = "(set! (-> *standard-dynamics* gravity-length) (* GRAVITY_AMOUNT 3.5))(set! (-> *standard-dynamics* gravity y) (* GRAVITY_AMOUNT 2.5))"
                         case "low":
                             line = "(set! (-> *standard-dynamics* gravity-length) (/ GRAVITY_AMOUNT 4.5))(set! (-> *standard-dynamics* gravity y) (/ GRAVITY_AMOUNT 2.5))"    
                     active_check("gravity", 
