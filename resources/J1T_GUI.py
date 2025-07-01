@@ -60,6 +60,10 @@ class SettingsApp:
             "DISABLED_MSG", "TARGET_MODE", "TOPOINT_PAST_CRATER", "COOLDOWN_MSG", "ACTIVATION_MSG", "DEACTIVATION_MSG", "VALUE_MSG", "COST_MODE", "LOAD_STARTED", "ALL_ACTORS"
         ], True)
 
+        self.add_section("Cost Mode", [
+            "INITIAL_BALANCE", "CREDIT_INC_AMT", "CREDIT_INC_RATE" 
+        ], True)
+
         self.add_checkboxes_section("Command Enable/Disable", [
             "actors-off", "actors-on", "askew", "basincell", "bigfist", "bighead", 
             "bigheadnpc", "bigjak", "blind", "burn", "cam", 

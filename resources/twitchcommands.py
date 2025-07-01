@@ -82,7 +82,9 @@ game = os.getenv("LOAD_STARTED") != "f"
 FINALBOSS_MUL = 2
 finalboss_mode = False
 target_mode = os.getenv("TARGET_MODE") != "f"
-INIT_BALANCE = 1000
+INITIAL_BALANCE = int(os.getenv("INITIAL_BALANCE"))
+CREDIT_INC_AMT = int(os.getenv("CREDIT_INC_AMT"))
+CREDIT_INC_RATE = float(os.getenv("CREDIT_INC_RATE"))
 
 # bool that checks if its the launcher version
 launcher_version = exists(application_path+"\\OpenGOAL-Launcher.exe")
@@ -250,7 +252,7 @@ def cd_check(cmd):
     idx = command_names.index(cmd)
     if (time.time() - last_used[idx]) > cooldowns[idx]:
         last_used[idx] = time.time()
-        return True
+        return cost_check(cmd, user)
     elif COOLDOWN_MSG:
         remaining_time = int(cooldowns[idx] - (time.time() - last_used[idx]))
         
@@ -272,7 +274,7 @@ def enabled_check(cmd):
     global message
     try:
         if enabled[command_names.index(cmd)] and not active[command_names.index("protect")] and not (finalboss_mode and cmd in finalboss_toggle_commands):
-            return cost_check(cmd, user) 
+            return True 
         elif DISABLED_MSG:
             sendMessage(irc, f"/me @{user} {TARGET_ID} -> Command '{command_names[command_names.index(cmd)]}' is disabled.")
             #message = ""
@@ -594,7 +596,7 @@ eco_list = ["blue","yellow","red","green"]
 # intialize arrays same length as command_names
 enabled = [True] * len(command_names)
 cooldowns = [0.0] * len(command_names)
-costs = [0.0] * len(command_names)
+costs = [0] * len(command_names)
 last_used = [0.0] * len(command_names)
 activated = [0.0] * len(command_names)
 durations = [0.0] * len(command_names)
@@ -610,9 +612,9 @@ def increase_credits():
     while True:
         if cost_mode:
             for i in range(len(user_list)):
-                credit_list[i] += 5
+                credit_list[i] += CREDIT_INC_AMT
                 #print(f"{user_list[i]} now has {credit_list[i]} credits.")
-        time.sleep(30)
+        time.sleep(CREDIT_INC_RATE)
 
 thread = threading.Thread(target=increase_credits)
 thread.daemon = True
@@ -631,7 +633,7 @@ for x in range(len(command_names)):
     except (TypeError, ValueError):
         print(f"Could not find {command_names[x]}")
     try:
-        costs[x] = float(os.getenv(command_names[x]+"_cost"))
+        costs[x] = int(os.getenv(command_names[x]+"_cost"))
         #print(f"{command_names[x]}_cost = {costs[x]}")
     except (TypeError, ValueError):
         print(f"Could not find cost for {command_names[x]}")
@@ -704,7 +706,7 @@ def gamecontrol():
 
                 if cost_mode and user not in user_list:
                     user_list.append(user)
-                    credit_list.append(INIT_BALANCE)
+                    credit_list.append(INITIAL_BALANCE)
 
                 if cost_mode and command in ["balance", "credit"]:
                     sendMessage(irc, f"/me {TARGET_ID} -> @{user} Balance: {credit_list[user_list.index(user)]}") 
